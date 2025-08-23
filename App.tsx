@@ -364,7 +364,7 @@ export default function App() {
 const createStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1, 
-    backgroundColor: '#f5fbfa', // Much lighter green background
+    backgroundColor: '#f8fcfb', // Even lighter, more elegant background
   },
   content: {
     padding: 20,
@@ -398,44 +398,62 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   petCard: { 
     flexDirection: 'row', 
-    backgroundColor: '#c8e0d8', // Darker green background
-    borderRadius: 16, 
-    padding: 20, 
+    backgroundColor: '#d4e6e0', // Slightly lighter, more elegant green
+    borderRadius: 20, 
+    padding: 24, 
     alignItems: 'center', 
-    marginBottom: 20,
+    marginBottom: 24,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    // Gradient effect with overlay
+    position: 'relative',
   },
   avatarContainer: {
     position: 'relative',
     marginRight: 16,
   },
   petImage: { 
-    width: 90, 
-    height: 90, 
-    borderRadius: 20, 
-    borderWidth: 3,
+    width: 100, 
+    height: 100, 
+    borderRadius: 24, 
+    borderWidth: 4,
     borderColor: theme.colors.background,
-    transform: [{ rotate: '5deg' }],
+    transform: [{ rotate: '3deg' }],
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   editButton: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: theme.colors.primary,
-    borderRadius: 15,
-    width: 30,
-    height: 30,
+    bottom: -2,
+    right: -2,
+    backgroundColor: '#4a9b8f', // Darker, more elegant green
+    borderRadius: 18,
+    width: 36,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: theme.colors.background,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   petInfo: {
     flex: 1,
@@ -466,18 +484,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff', // Pure white background
-    borderRadius: 16,
-    padding: 16,
-    gap: 12,
+    borderRadius: 20,
+    padding: 20,
+    gap: 16,
     flex: 1,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 6,
   },
   stepsTextContainer: {
     flex: 1,
@@ -495,18 +513,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff', // Pure white background
-    borderRadius: 16,
-    padding: 16,
-    gap: 12,
+    borderRadius: 20,
+    padding: 20,
+    gap: 16,
     flex: 1,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 6,
   },
   vaccineTextContainer: {
     flex: 1,
@@ -522,32 +540,32 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   tipOuterContainer: {
     backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 24,
+    padding: 24,
     marginBottom: 32, // Increased spacing
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   eventsSection: {
     backgroundColor: '#ffffff',
-    borderRadius: 16,
-    paddingTop: 20,
-    paddingHorizontal: 20,
+    borderRadius: 24,
+    paddingTop: 24,
+    paddingHorizontal: 24,
     marginBottom: 32,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   eventsList: {
     marginTop: 16,
@@ -621,18 +639,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   clinicalHistorySection: {
     backgroundColor: '#ffffff', // Single white background
-    borderRadius: 16,
-    paddingTop: 20,
-    paddingHorizontal: 20, // Add side padding for title
+    borderRadius: 24,
+    paddingTop: 24,
+    paddingHorizontal: 24, // Add side padding for title
     marginBottom: 32, // Increased spacing
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -891,25 +909,41 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     padding: 8,
   },
   iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#d0e8e4', // More visible circle background
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#e8f4f0', // Lighter, more elegant background
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   summaryIcon: {
     marginRight: 12,
   },
   historyIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#d0e8e4', // More visible circle background
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f0f8f6', // Even lighter, more elegant background
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
   },
   lastHistoryItem: {
     borderBottomWidth: 0, // Remove bottom border

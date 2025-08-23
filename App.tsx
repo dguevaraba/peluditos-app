@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, ShoppingCart, User, Footprints, Heart, Circle, PawPrint } from 'lucide-react-native';
 import { Theme, themes, defaultTheme } from './theme';
+import ProfileScreen from './ProfileScreen';
 
 const petAlbums = [
   {
@@ -402,7 +403,7 @@ export default function App() {
         />
         <Tab.Screen 
           name="Profile" 
-          component={HomeScreen} 
+          component={ProfileScreen} 
           options={{ 
             tabBarIcon: ({ color }) => <User size={20} color={color} /> 
           }} 

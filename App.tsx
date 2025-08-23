@@ -64,18 +64,22 @@ function HomeScreen() {
   const styles = createStyles(currentTheme);
 
   return (
-    <LinearGradient
-      colors={['#f0f8f6', '#e6f0ec']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.content}>
+    <SafeAreaView style={styles.safeArea}>
+      <LinearGradient
+        colors={['#f0f8f6', '#e6f0ec']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.appName}>PetCare+</Text>
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.notificationButton}>
-              <Bell size={24} color={currentTheme.colors.text} />
+              <Bell size={24} color="#65b6ad" />
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationCount}>3</Text>
+              </View>
             </TouchableOpacity>
             <Image 
               source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' }} 
@@ -267,17 +271,24 @@ function HomeScreen() {
                {/* Pet Photos */}
                <View style={styles.gallerySection}>
                  <View style={styles.galleryHeader}>
-                   <View style={styles.iconCircle}>
-                     <FontAwesome5 name="images" size={20} color="#ffffff" />
+                   <View style={styles.titleContainer}>
+                     <View style={styles.iconCircle}>
+                       <FontAwesome5 name="images" size={20} color="#ffffff" />
+                     </View>
+                     <Text style={styles.galleryTitle}>Pet Photos</Text>
                    </View>
-                   <Text style={styles.galleryTitle}>Pet Photos</Text>
                    <TouchableOpacity>
                      <Text style={styles.seeAllText}>See all</Text>
                    </TouchableOpacity>
                  </View>
                  <View style={styles.albumContainer}>
-                   <Text style={styles.albumTitle}>{petAlbums[selectedAlbum].title}</Text>
-                   <Text style={styles.albumSubtitle}>{petAlbums[selectedAlbum].photoCount} photos</Text>
+                   <View style={styles.albumInfo}>
+                     <Text style={styles.albumTitle}>{petAlbums[selectedAlbum].title}</Text>
+                     <View style={styles.photoCountBadge}>
+                       <FontAwesome5 name="images" size={12} color="#ffffff" />
+                       <Text style={styles.photoCountText}>{petAlbums[selectedAlbum].photoCount} photos</Text>
+                     </View>
+                   </View>
                    <FlatList
                      horizontal
                      data={petAlbums}
@@ -288,8 +299,8 @@ function HomeScreen() {
                          onPress={() => setSelectedAlbum(index)}
                        >
                          <Image source={{ uri: item.image }} style={styles.albumImage} />
-                         <View style={styles.albumPageNumber}>
-                           <Text style={styles.pageNumberText}>{item.photoCount}</Text>
+                         <View style={styles.albumBadge}>
+                           <Text style={styles.albumBadgeText}>{item.photoCount}</Text>
                          </View>
                          <View style={styles.albumTitleOverlay}>
                            <Text style={styles.albumTitleText}>{item.title}</Text>
@@ -303,8 +314,9 @@ function HomeScreen() {
                    />
                  </View>
                </View>
-      </ScrollView>
-    </LinearGradient>
+              </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
@@ -413,14 +425,13 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     gap: 8,
   },
   notificationButton: {
-    padding: 8,
+    position: 'relative',
+    marginRight: 8,
   },
   profilePic: { 
-    width: 45, 
-    height: 45, 
-    borderRadius: 22.5,
-    borderWidth: 2,
-    borderColor: theme.colors.border,
+    width: 40, 
+    height: 40, 
+    borderRadius: 20,
   },
   petCard: { 
     flexDirection: 'row', 
@@ -719,7 +730,22 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     marginTop: 4,
   },
   gallerySection: {
-    marginBottom: 32, // Increased spacing
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    paddingTop: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#e8f4f0',
   },
   galleryHeader: {
     flexDirection: 'row',
@@ -730,7 +756,8 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   galleryTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: theme.colors.text
+    color: theme.colors.text,
+    textAlign: 'left',
   },
   seeAllText: {
     fontSize: 16,
@@ -748,7 +775,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     fontWeight: 'bold',
     color: '#3a4c4c',
     marginBottom: 4,
-    textAlign: 'center',
+    textAlign: 'left',
   },
   albumSubtitle: {
     fontSize: 14,
@@ -1003,5 +1030,145 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#3a4c4c',
+  },
+  albumInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  photoCountBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#65b6ad',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    gap: 6,
+  },
+  photoCountText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  albumBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    minWidth: 24,
+    alignItems: 'center',
+  },
+  albumBadgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  glowIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    shadowColor: '#00ff88',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  seeAllButton: {
+    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 136, 0.3)',
+  },
+  glowPhotoCountBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#00ff88',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+    shadowColor: '#00ff88',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  glowPhotoCountText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  glowAlbumBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#00ff88',
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    minWidth: 28,
+    alignItems: 'center',
+    shadowColor: '#00ff88',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  glowAlbumBadgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#ff4757',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  notificationCount: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  profilePicContainer: {
+    borderWidth: 3,
+    borderColor: '#65b6ad',
+    borderRadius: 23,
+    padding: 2,
   },
 });

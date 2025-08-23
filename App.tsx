@@ -1,82 +1,283 @@
-import React from 'react';
-import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, ShoppingCart, User, Footprints, Heart, Circle, PawPrint } from 'lucide-react-native';
+import { Theme, themes, defaultTheme } from './theme';
 
-const petPhotos = [
-  'https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&h=200&fit=crop',
-  'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop',
+const petAlbums = [
+  {
+    title: 'London Walk',
+    image: 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop',
+    photoCount: 10,
+  },
+  {
+    title: 'Vet Visit',
+    image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=200&fit=crop',
+    photoCount: 3,
+  },
+  {
+    title: 'Park Day',
+    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&h=200&fit=crop',
+    photoCount: 7,
+  },
+  {
+    title: 'Rocky\'s Birthday',
+    image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=200&h=200&fit=crop',
+    photoCount: 15,
+  },
+];
+
+const nearbyVets = [
+  {
+    id: 1,
+    name: "PetCare Veterinary Clinic",
+    distance: "0.8 km",
+    rating: 4.8,
+    coordinate: { latitude: 34.0522, longitude: -118.2437 },
+    phone: "+1 (555) 123-4567"
+  },
+  {
+    id: 2,
+    name: "Animal Hospital Center",
+    distance: "1.2 km",
+    rating: 4.6,
+    coordinate: { latitude: 34.0582, longitude: -118.2487 },
+    phone: "+1 (555) 234-5678"
+  },
+  {
+    id: 3,
+    name: "VetCare Express",
+    distance: "1.5 km",
+    rating: 4.9,
+    coordinate: { latitude: 34.0462, longitude: -118.2387 },
+    phone: "+1 (555) 345-6789"
+  }
 ];
 
 function HomeScreen() {
+  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
+  const [selectedAlbum, setSelectedAlbum] = useState(0);
+
+  const styles = createStyles(currentTheme);
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ddeee6" />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.appName}>PetCare+</Text>
-        <TouchableOpacity style={styles.notificationButton}>
-          <MaterialIcons name="notifications" size={24} color="#2c5530" />
-        </TouchableOpacity>
-        <Image 
-          source={{ uri: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop' }} 
-          style={styles.profilePic} 
-        />
-      </View>
-
-      {/* Pet Card */}
-      <View style={styles.petCard}>
-        <Image 
-          source={{ uri: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=200&fit=crop' }} 
-          style={styles.petImage} 
-        />
-        <View style={styles.petInfo}>
-          <Text style={styles.petName}>Rocky</Text>
-          <Text style={styles.petStatus}>Happy today</Text>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.appName}>PetCare+</Text>
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.notificationButton}>
+              <Bell size={24} color={currentTheme.colors.text} />
+            </TouchableOpacity>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' }} 
+              style={styles.profilePic} 
+            />
+          </View>
         </View>
-      </View>
 
-      {/* Today's Summary */}
-      <View style={styles.summary}>
-        <View style={styles.summaryBox}>
-          <FontAwesome5 name="walking" size={24} color="#2c5530" />
-          <Text style={styles.summaryText}>4,567 steps</Text>
-          <Text style={styles.summarySubtext}>latest walk</Text>
+        {/* Pet Card */}
+        <View style={styles.petCard}>
+          <View style={styles.avatarContainer}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop' }} 
+              style={styles.petImage} 
+            />
+            <TouchableOpacity style={styles.editButton}>
+              <Edit size={16} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.petInfo}>
+            <Text style={styles.petName}>Rocky</Text>
+            <Text style={styles.petStatus}>Happy today</Text>
+            <Text style={styles.petDetails}>6 years - Canino</Text>
+          </View>
         </View>
-        <View style={styles.summaryBox}>
-          <MaterialIcons name="vaccines" size={24} color="#2c5530" />
-          <Text style={styles.summaryText}>Next vaccine</Text>
-          <Text style={styles.summarySubtext}>3 days</Text>
-        </View>
-      </View>
 
-      {/* Tips */}
-      <View style={styles.tip}>
-        <Text style={styles.tipText}>🐾 How to calm a nervous dog</Text>
-      </View>
-
-      {/* Pet Photos */}
-      <View style={styles.gallerySection}>
-        <View style={styles.galleryHeader}>
-          <Text style={styles.galleryTitle}>Pet Photos</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAllText}>See all</Text>
-          </TouchableOpacity>
+        {/* Clinical History */}
+        <View style={styles.clinicalHistorySection}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.iconCircle}>
+              <FontAwesome5 name="notes-medical" size={24} color="#2c5530" />
+            </View>
+            <Text style={styles.sectionTitle}>Clinical History</Text>
+          </View>
+          <View style={styles.historyList}>
+            <TouchableOpacity style={styles.historyItem}>
+              <View style={styles.historyIconCircle}>
+                <FontAwesome5 name="syringe" size={16} color="#4CAF50" />
+              </View>
+              <View style={styles.historyContent}>
+                <Text style={styles.historyTitle}>Vaccination</Text>
+                <Text style={styles.historyDate}>March 15, 2024</Text>
+              </View>
+              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.historyItem}>
+              <View style={styles.historyIconCircle}>
+                <FontAwesome5 name="stethoscope" size={16} color="#FF9800" />
+              </View>
+              <View style={styles.historyContent}>
+                <Text style={styles.historyTitle}>Check-up</Text>
+                <Text style={styles.historyDate}>February 28, 2024</Text>
+              </View>
+              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.historyItem, styles.lastHistoryItem]}>
+              <View style={styles.historyIconCircle}>
+                <FontAwesome5 name="pills" size={16} color="#E91E63" />
+              </View>
+              <View style={styles.historyContent}>
+                <Text style={styles.historyTitle}>Deworming</Text>
+                <Text style={styles.historyDate}>January 10, 2024</Text>
+              </View>
+              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+            </TouchableOpacity>
+          </View>
         </View>
-        <FlatList
-          horizontal
-          data={petPhotos}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <Image source={{ uri: item }} style={styles.galleryImage} />
-          )}
-          style={styles.gallery}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
+
+        {/* Today's Summary */}
+        <View style={styles.sectionHeader}>
+          <View style={styles.summaryIcon}>
+            <FontAwesome5 name="chart-line" size={20} color="#65b6ad" />
+          </View>
+          <Text style={styles.sectionTitle}>Today's Summary</Text>
+        </View>
+        <View style={styles.summary}>
+          <View style={styles.stepsCard}>
+            <Activity size={24} color="#65b6ad" />
+            <View style={styles.stepsTextContainer}>
+              <Text style={styles.stepsValue}>4,567 steps</Text>
+              <Text style={styles.stepsLabel}>latest walk</Text>
+            </View>
+          </View>
+          <View style={styles.vaccineCard}>
+            <Syringe size={24} color="#65b6ad" />
+            <View style={styles.vaccineTextContainer}>
+              <Text style={styles.vaccineValue}>Next vaccine</Text>
+              <Text style={styles.vaccineLabel}>3 days</Text>
+            </View>
+          </View>
+        </View>
+
+                       {/* Tips */}
+               <View style={styles.tipOuterContainer}>
+                 <View style={styles.tipHeader}>
+                   <FontAwesome5 name="lightbulb" size={20} color="#65b6ad" />
+                   <Text style={styles.tipTitle}>Daily Tip</Text>
+                 </View>
+                 <View style={styles.tipInnerCard}>
+                   <Text style={styles.tipText}>🐾 How to calm a nervous dog</Text>
+                 </View>
+               </View>
+
+               {/* Events */}
+               <View style={styles.eventsSection}>
+                 <View style={styles.sectionHeader}>
+                   <View style={styles.iconCircle}>
+                     <FontAwesome5 name="calendar-alt" size={20} color="#2c5530" />
+                   </View>
+                   <Text style={styles.sectionTitle}>Upcoming Events</Text>
+                 </View>
+                 <View style={styles.eventsList}>
+                   <TouchableOpacity style={styles.eventItem}>
+                     <View style={styles.eventIconCircle}>
+                       <FontAwesome5 name="dog" size={16} color="#4CAF50" />
+                     </View>
+                     <View style={styles.eventContent}>
+                       <Text style={styles.eventTitle}>Dog Training Class</Text>
+                       <Text style={styles.eventDate}>Tomorrow, 3:00 PM</Text>
+                     </View>
+                     <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+                   </TouchableOpacity>
+                   <TouchableOpacity style={styles.eventItem}>
+                     <View style={styles.eventIconCircle}>
+                       <FontAwesome5 name="heartbeat" size={16} color="#FF9800" />
+                     </View>
+                     <View style={styles.eventContent}>
+                       <Text style={styles.eventTitle}>Vaccination Appointment</Text>
+                       <Text style={styles.eventDate}>Friday, 10:00 AM</Text>
+                     </View>
+                     <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+                   </TouchableOpacity>
+                   <TouchableOpacity style={[styles.eventItem, styles.lastEventItem]}>
+                     <View style={styles.eventIconCircle}>
+                       <FontAwesome5 name="cut" size={16} color="#E91E63" />
+                     </View>
+                     <View style={styles.eventContent}>
+                       <Text style={styles.eventTitle}>Grooming Session</Text>
+                       <Text style={styles.eventDate}>Next Monday, 2:00 PM</Text>
+                     </View>
+                     <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+                   </TouchableOpacity>
+                 </View>
+               </View>
+
+               {/* Nearby Veterinarians */}
+               <View style={styles.nearbyVetsSection}>
+                 <View style={styles.sectionHeader}>
+                   <View style={styles.iconCircle}>
+                     <MapPin size={20} color="#2c5530" />
+                   </View>
+                   <Text style={styles.sectionTitle}>Nearby Veterinarians</Text>
+                 </View>
+                 <View style={styles.mapContainer}>
+                   <View style={styles.mapImageContainer}>
+                     <Image
+                       source={require('./assets/7db8a3f6-428b-4243-af80-7a64b0899528.png')}
+                       style={styles.mapImage}
+                       resizeMode="cover"
+                     />
+
+                     <View style={styles.mapInfo}>
+                       <Text style={styles.mapInfoText}>3 veterinarians nearby</Text>
+                     </View>
+                   </View>
+                 </View>
+               </View>
+
+               {/* Pet Photos */}
+               <View style={styles.gallerySection}>
+                 <View style={styles.galleryHeader}>
+                   <View style={styles.iconCircle}>
+                     <FontAwesome5 name="images" size={20} color="#2c5530" />
+                   </View>
+                   <Text style={styles.galleryTitle}>Pet Photos</Text>
+                   <TouchableOpacity>
+                     <Text style={styles.seeAllText}>See all</Text>
+                   </TouchableOpacity>
+                 </View>
+                 <View style={styles.albumContainer}>
+                   <Text style={styles.albumTitle}>{petAlbums[selectedAlbum].title}</Text>
+                   <Text style={styles.albumSubtitle}>{petAlbums[selectedAlbum].photoCount} photos</Text>
+                   <FlatList
+                     horizontal
+                     data={petAlbums}
+                     keyExtractor={(item, index) => index.toString()}
+                     renderItem={({ item, index }) => (
+                       <TouchableOpacity 
+                         style={[styles.albumPage, selectedAlbum === index && styles.selectedAlbumPage]}
+                         onPress={() => setSelectedAlbum(index)}
+                       >
+                         <Image source={{ uri: item.image }} style={styles.albumImage} />
+                         <View style={styles.albumPageNumber}>
+                           <Text style={styles.pageNumberText}>{item.photoCount}</Text>
+                         </View>
+                         <View style={styles.albumTitleOverlay}>
+                           <Text style={styles.albumTitleText}>{item.title}</Text>
+                         </View>
+                       </TouchableOpacity>
+                     )}
+                     style={styles.gallery}
+                     showsHorizontalScrollIndicator={false}
+                     nestedScrollEnabled={false}
+                     scrollEnabled={true}
+                   />
+                 </View>
+               </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -84,20 +285,38 @@ function HomeScreen() {
 // Tab Navigation
 const Tab = createBottomTabNavigator();
 export default function App() {
+  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
+
   return (
     <NavigationContainer>
       <Tab.Navigator 
         screenOptions={{ 
           headerShown: false,
-          tabBarActiveTintColor: '#2c5530',
-          tabBarInactiveTintColor: '#666',
+          tabBarActiveTintColor: '#65b6ad',
+          tabBarInactiveTintColor: '#999999',
           tabBarStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: currentTheme.colors.background,
             borderTopWidth: 1,
-            borderTopColor: '#ddeee6',
+            borderTopColor: currentTheme.colors.border,
             paddingBottom: 10,
             paddingTop: 10,
             height: 80,
+            elevation: 8,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: -2,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600',
+            marginTop: 4,
+          },
+          tabBarIconStyle: {
+            marginBottom: 2,
           }
         }}
       >
@@ -105,35 +324,35 @@ export default function App() {
           name="Home" 
           component={HomeScreen} 
           options={{ 
-            tabBarIcon: ({ color }) => <FontAwesome5 name="home" size={20} color={color} /> 
+            tabBarIcon: ({ color }) => <Home size={20} color={color} /> 
           }} 
         />
         <Tab.Screen 
           name="Agenda" 
           component={HomeScreen} 
           options={{ 
-            tabBarIcon: ({ color }) => <FontAwesome5 name="calendar" size={20} color={color} /> 
+            tabBarIcon: ({ color }) => <Calendar size={20} color={color} /> 
           }} 
         />
         <Tab.Screen 
           name="Community" 
           component={HomeScreen} 
           options={{ 
-            tabBarIcon: ({ color }) => <FontAwesome5 name="users" size={20} color={color} /> 
+            tabBarIcon: ({ color }) => <Users size={20} color={color} /> 
           }} 
         />
         <Tab.Screen 
           name="Marketplace" 
           component={HomeScreen} 
           options={{ 
-            tabBarIcon: ({ color }) => <FontAwesome5 name="shopping-cart" size={20} color={color} /> 
+            tabBarIcon: ({ color }) => <ShoppingCart size={20} color={color} /> 
           }} 
         />
         <Tab.Screen 
           name="Profile" 
           component={HomeScreen} 
           options={{ 
-            tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={20} color={color} /> 
+            tabBarIcon: ({ color }) => <User size={20} color={color} /> 
           }} 
         />
       </Tab.Navigator>
@@ -141,25 +360,31 @@ export default function App() {
   );
 }
 
-// Styles
-const styles = StyleSheet.create({
-  container: { 
+// Dynamic styles function
+const createStyles = (theme: Theme) => StyleSheet.create({
+  container: {
     flex: 1, 
-    backgroundColor: '#ddeee6',
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    backgroundColor: '#f5fbfa', // Much lighter green background
+  },
+  content: {
+    padding: 20,
+    paddingBottom: 40, // Reduced padding to eliminate excess space
   },
   header: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center', 
     marginBottom: 24,
-    paddingHorizontal: 5,
   },
   appName: { 
     fontSize: 28, 
     fontWeight: 'bold',
-    color: '#2c5530'
+    color: theme.colors.text
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   notificationButton: {
     padding: 8,
@@ -169,11 +394,11 @@ const styles = StyleSheet.create({
     height: 45, 
     borderRadius: 22.5,
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: theme.colors.border,
   },
   petCard: { 
     flexDirection: 'row', 
-    backgroundColor: '#fff', 
+    backgroundColor: '#c8e0d8', // Darker green background
     borderRadius: 16, 
     padding: 20, 
     alignItems: 'center', 
@@ -187,36 +412,63 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
+  avatarContainer: {
+    position: 'relative',
+    marginRight: 16,
+  },
   petImage: { 
-    width: 70, 
-    height: 70, 
-    borderRadius: 35, 
-    marginRight: 16 
+    width: 90, 
+    height: 90, 
+    borderRadius: 20, 
+    borderWidth: 3,
+    borderColor: theme.colors.background,
+    transform: [{ rotate: '5deg' }],
+  },
+  editButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: theme.colors.background,
   },
   petInfo: {
     flex: 1,
+    marginLeft: 16, // Add space between image and text
   },
   petName: { 
-    fontSize: 22, 
+    fontSize: 26, 
     fontWeight: 'bold',
-    color: '#2c5530',
+    color: theme.colors.text,
     marginBottom: 4,
   },
   petStatus: {
     fontSize: 16,
-    color: '#666',
+    color: theme.colors.textSecondary,
+  },
+  petDetails: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    marginTop: 4,
   },
   summary: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     marginBottom: 20,
-    gap: 12,
+    gap: 16,
   },
-  summaryBox: { 
-    backgroundColor: '#fff', 
-    padding: 20, 
-    borderRadius: 16, 
-    alignItems: 'center', 
+  stepsCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff', // Pure white background
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
     flex: 1,
     shadowColor: '#000',
     shadowOffset: {
@@ -227,22 +479,132 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  summaryText: {
+  stepsTextContainer: {
+    flex: 1,
+  },
+  stepsValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  stepsLabel: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+  },
+  vaccineCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff', // Pure white background
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    flex: 1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  vaccineTextContainer: {
+    flex: 1,
+  },
+  vaccineValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  vaccineLabel: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+  },
+  tipOuterContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 32, // Increased spacing
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  eventsSection: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  eventsList: {
+    marginTop: 16,
+  },
+  eventItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    gap: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  lastEventItem: {
+    borderBottomWidth: 0,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  eventIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#d0e8e4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  eventContent: {
+    flex: 1,
+  },
+  eventTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#3a4c4c',
+    marginBottom: 4,
+  },
+  eventDate: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  tipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  tipTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2c5530',
-    marginTop: 8,
+    color: theme.colors.text,
+    marginLeft: 8,
   },
-  summarySubtext: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-  tip: { 
-    backgroundColor: '#fff', 
-    padding: 20, 
-    borderRadius: 16, 
-    marginBottom: 20,
+  tipInnerCard: {
+    backgroundColor: theme.colors.cardBackground,
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -254,38 +616,304 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 16,
-    color: '#2c5530',
+    color: '#3a4c4c',
     fontWeight: '500',
   },
+  clinicalHistorySection: {
+    backgroundColor: '#ffffff', // Single white background
+    borderRadius: 16,
+    paddingTop: 20,
+    paddingHorizontal: 20, // Add side padding for title
+    marginBottom: 32, // Increased spacing
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  historyList: {
+    gap: 0,
+  },
+  historyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff', // Same white background
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    gap: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0', // Light gray border
+  },
+  historyIcon: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  historyContent: {
+    flex: 1,
+  },
+  historyTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  historyDate: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    marginTop: 4,
+  },
   gallerySection: {
-    marginBottom: 20,
+    marginBottom: 32, // Increased spacing
   },
   galleryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
-    paddingHorizontal: 5,
   },
   galleryTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2c5530'
+    color: theme.colors.text
   },
   seeAllText: {
     fontSize: 16,
-    color: '#2c5530',
+    color: theme.colors.text,
     fontWeight: '500',
   },
   gallery: { 
     marginBottom: 20 
   },
+  albumContainer: {
+    marginTop: 16,
+  },
+  albumTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#3a4c4c',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  albumSubtitle: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  albumPage: {
+    position: 'relative',
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  selectedAlbumPage: {
+    borderWidth: 3,
+    borderColor: '#65b6ad',
+    borderRadius: 12,
+  },
+  albumTitleOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 8,
+    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
+  },
+  albumTitleText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  albumImage: {
+    width: 120,
+    height: 140,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  albumPageNumber: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: '#65b6ad',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  pageNumberText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
   galleryImage: { 
     width: 120, 
     height: 120, 
     borderRadius: 16, 
-    marginRight: 12,
+    marginRight: 16,
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: theme.colors.border,
+  },
+  nearbyVetsSection: {
+    marginBottom: 32, // Increased spacing
+  },
+  mapContainer: {
+    width: Dimensions.get('window').width - 40, // Account for padding
+    height: 200,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  mapImageContainer: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  mapImage: {
+    width: '100%',
+    height: '100%',
+  },
+  mapOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  mapMarker: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 12,
+    padding: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  mapInfo: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 12,
+  },
+  mapInfoText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  vetsList: {
+    backgroundColor: theme.colors.cardBackground,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  vetItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  vetInfo: {
+    flex: 1,
+  },
+  vetName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  vetDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  vetDistance: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    marginRight: 10,
+  },
+  vetRating: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+  },
+  callButton: {
+    padding: 8,
+  },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#d0e8e4', // More visible circle background
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  summaryIcon: {
+    marginRight: 12,
+  },
+  historyIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#d0e8e4', // More visible circle background
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  lastHistoryItem: {
+    borderBottomWidth: 0, // Remove bottom border
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
   },
 });

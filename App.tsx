@@ -72,19 +72,33 @@ function HomeScreen() {
         style={styles.container}
       >
         <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.appName}>PetCare+</Text>
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.notificationButton}>
-              <Bell size={24} color="#65b6ad" />
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationCount}>3</Text>
+        <View style={styles.headerContainer}>
+          <View style={styles.headerGlass}>
+            <View style={styles.headerContent}>
+              <View style={styles.logoContainer}>
+                <View style={styles.logoIcon}>
+                  <PawPrint size={28} color="#65b6ad" />
+                </View>
+                <Text style={styles.appName}>PetCare+</Text>
               </View>
-            </TouchableOpacity>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' }} 
-              style={styles.profilePic} 
-            />
+              <View style={styles.headerActions}>
+                <TouchableOpacity style={styles.notificationButton}>
+                  <View style={styles.notificationIconContainer}>
+                    <Bell size={22} color="#65b6ad" />
+                    <View style={styles.notificationBadge}>
+                      <Text style={styles.notificationCount}>3</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.profileButton}>
+                  <Image 
+                    source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' }} 
+                    style={styles.profilePic} 
+                  />
+                  <View style={styles.profileIndicator} />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
 
@@ -408,16 +422,73 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     padding: 20,
     paddingBottom: 40, // Reduced padding to eliminate excess space
   },
-  header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
+  headerContainer: {
     marginBottom: 24,
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  headerGlass: {
+    // Sin card, solo layout
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logoIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(101, 182, 173, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#65b6ad',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  notificationIconContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileButton: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileIndicator: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#4CAF50',
+    borderWidth: 2,
+    borderColor: '#ffffff',
   },
   appName: { 
-    fontSize: 28, 
-    fontWeight: 'bold',
-    color: theme.colors.text
+    fontSize: 24, 
+    fontWeight: '800',
+    color: '#3a4c4c',
+    letterSpacing: 0.5,
   },
   headerRight: {
     flexDirection: 'row',
@@ -429,9 +500,9 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     marginRight: 8,
   },
   profilePic: { 
-    width: 40, 
-    height: 40, 
-    borderRadius: 20,
+    width: 36, 
+    height: 36, 
+    borderRadius: 18,
   },
   petCard: { 
     flexDirection: 'row', 

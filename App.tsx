@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -63,7 +64,12 @@ function HomeScreen() {
   const styles = createStyles(currentTheme);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <LinearGradient
+      colors={['#f0f8f6', '#e6f0ec']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.appName}>PetCare+</Text>
@@ -78,36 +84,41 @@ function HomeScreen() {
           </View>
         </View>
 
-        {/* Pet Card */}
-        <View style={styles.petCard}>
-          <View style={styles.avatarContainer}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop' }} 
-              style={styles.petImage} 
-            />
-            <TouchableOpacity style={styles.editButton}>
-              <Edit size={16} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.petInfo}>
-            <Text style={styles.petName}>Rocky</Text>
-            <Text style={styles.petStatus}>Happy today</Text>
-            <Text style={styles.petDetails}>6 years - Canino</Text>
-          </View>
-        </View>
+                       {/* Pet Card */}
+               <LinearGradient
+                 colors={['#d4e6e0', '#4a9b8f']}
+                 start={{ x: 0, y: 0 }}
+                 end={{ x: 1, y: 1 }}
+                 style={styles.petCard}
+               >
+                 <View style={styles.avatarContainer}>
+                   <Image 
+                     source={{ uri: 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop' }} 
+                     style={styles.petImage} 
+                   />
+                   <TouchableOpacity style={styles.editButton}>
+                     <Edit size={16} color="#ffffff" />
+                   </TouchableOpacity>
+                 </View>
+                 <View style={styles.petInfo}>
+                   <Text style={styles.petName}>Rocky</Text>
+                   <Text style={styles.petStatus}>Happy today</Text>
+                   <Text style={styles.petDetails}>6 years - Canino</Text>
+                 </View>
+               </LinearGradient>
 
         {/* Clinical History */}
         <View style={styles.clinicalHistorySection}>
           <View style={styles.sectionHeader}>
-            <View style={styles.iconCircle}>
-              <FontAwesome5 name="notes-medical" size={24} color="#2c5530" />
-            </View>
+                               <View style={styles.iconCircle}>
+                     <FontAwesome5 name="notes-medical" size={24} color="#ffffff" />
+                   </View>
             <Text style={styles.sectionTitle}>Clinical History</Text>
           </View>
           <View style={styles.historyList}>
             <TouchableOpacity style={styles.historyItem}>
               <View style={styles.historyIconCircle}>
-                <FontAwesome5 name="syringe" size={16} color="#4CAF50" />
+                <FontAwesome5 name="syringe" size={16} color="#ffffff" />
               </View>
               <View style={styles.historyContent}>
                 <Text style={styles.historyTitle}>Vaccination</Text>
@@ -117,7 +128,7 @@ function HomeScreen() {
             </TouchableOpacity>
             <TouchableOpacity style={styles.historyItem}>
               <View style={styles.historyIconCircle}>
-                <FontAwesome5 name="stethoscope" size={16} color="#FF9800" />
+                <FontAwesome5 name="stethoscope" size={16} color="#ffffff" />
               </View>
               <View style={styles.historyContent}>
                 <Text style={styles.historyTitle}>Check-up</Text>
@@ -127,7 +138,7 @@ function HomeScreen() {
             </TouchableOpacity>
             <TouchableOpacity style={[styles.historyItem, styles.lastHistoryItem]}>
               <View style={styles.historyIconCircle}>
-                <FontAwesome5 name="pills" size={16} color="#E91E63" />
+                <FontAwesome5 name="pills" size={16} color="#ffffff" />
               </View>
               <View style={styles.historyContent}>
                 <Text style={styles.historyTitle}>Deworming</Text>
@@ -139,12 +150,12 @@ function HomeScreen() {
         </View>
 
         {/* Today's Summary */}
-        <View style={styles.sectionHeader}>
-          <View style={styles.summaryIcon}>
-            <FontAwesome5 name="chart-line" size={20} color="#65b6ad" />
-          </View>
-          <Text style={styles.sectionTitle}>Today's Summary</Text>
-        </View>
+                         <View style={styles.sectionHeader}>
+                   <View style={styles.iconCircle}>
+                     <FontAwesome5 name="chart-line" size={20} color="#ffffff" />
+                   </View>
+                   <Text style={styles.sectionTitle}>Today's Summary</Text>
+                 </View>
         <View style={styles.summary}>
           <View style={styles.stepsCard}>
             <Activity size={24} color="#65b6ad" />
@@ -162,29 +173,18 @@ function HomeScreen() {
           </View>
         </View>
 
-                       {/* Tips */}
-               <View style={styles.tipOuterContainer}>
-                 <View style={styles.tipHeader}>
-                   <FontAwesome5 name="lightbulb" size={20} color="#65b6ad" />
-                   <Text style={styles.tipTitle}>Daily Tip</Text>
-                 </View>
-                 <View style={styles.tipInnerCard}>
-                   <Text style={styles.tipText}>🐾 How to calm a nervous dog</Text>
-                 </View>
-               </View>
-
-               {/* Events */}
+                       {/* Events */}
                <View style={styles.eventsSection}>
                  <View style={styles.sectionHeader}>
                    <View style={styles.iconCircle}>
-                     <FontAwesome5 name="calendar-alt" size={20} color="#2c5530" />
+                     <FontAwesome5 name="calendar-alt" size={20} color="#ffffff" />
                    </View>
                    <Text style={styles.sectionTitle}>Upcoming Events</Text>
                  </View>
                  <View style={styles.eventsList}>
                    <TouchableOpacity style={styles.eventItem}>
-                     <View style={styles.eventIconCircle}>
-                       <FontAwesome5 name="dog" size={16} color="#4CAF50" />
+                     <View style={styles.historyIconCircle}>
+                       <FontAwesome5 name="dog" size={16} color="#ffffff" />
                      </View>
                      <View style={styles.eventContent}>
                        <Text style={styles.eventTitle}>Dog Training Class</Text>
@@ -193,8 +193,8 @@ function HomeScreen() {
                      <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
                    </TouchableOpacity>
                    <TouchableOpacity style={styles.eventItem}>
-                     <View style={styles.eventIconCircle}>
-                       <FontAwesome5 name="heartbeat" size={16} color="#FF9800" />
+                     <View style={styles.historyIconCircle}>
+                       <FontAwesome5 name="heartbeat" size={16} color="#ffffff" />
                      </View>
                      <View style={styles.eventContent}>
                        <Text style={styles.eventTitle}>Vaccination Appointment</Text>
@@ -203,8 +203,8 @@ function HomeScreen() {
                      <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
                    </TouchableOpacity>
                    <TouchableOpacity style={[styles.eventItem, styles.lastEventItem]}>
-                     <View style={styles.eventIconCircle}>
-                       <FontAwesome5 name="cut" size={16} color="#E91E63" />
+                     <View style={styles.historyIconCircle}>
+                       <FontAwesome5 name="cut" size={16} color="#ffffff" />
                      </View>
                      <View style={styles.eventContent}>
                        <Text style={styles.eventTitle}>Grooming Session</Text>
@@ -219,7 +219,7 @@ function HomeScreen() {
                <View style={styles.nearbyVetsSection}>
                  <View style={styles.sectionHeader}>
                    <View style={styles.iconCircle}>
-                     <MapPin size={20} color="#2c5530" />
+                     <MapPin size={20} color="#ffffff" />
                    </View>
                    <Text style={styles.sectionTitle}>Nearby Veterinarians</Text>
                  </View>
@@ -238,11 +238,37 @@ function HomeScreen() {
                  </View>
                </View>
 
+               {/* Tips */}
+               <LinearGradient
+                 colors={['#d4e6e0', '#4a9b8f']}
+                 start={{ x: 0, y: 0 }}
+                 end={{ x: 1, y: 1 }}
+                 style={styles.tipOuterContainer}
+               >
+                 <View style={styles.tipHeader}>
+                   <View style={styles.iconCircle}>
+                     <FontAwesome5 name="lightbulb" size={20} color="#ffffff" />
+                   </View>
+                   <Text style={styles.tipTitle}>Daily Tip</Text>
+                 </View>
+                 <View style={styles.tipInnerCard}>
+                   <Text style={styles.tipText}>🐾 How to calm a nervous dog</Text>
+                   <View style={styles.tipsList}>
+                     <Text style={styles.tipItem}>• Create a safe space with familiar toys</Text>
+                     <Text style={styles.tipItem}>• Use gentle petting and soft voice</Text>
+                     <Text style={styles.tipItem}>• Try calming music or white noise</Text>
+                   </View>
+                   <TouchableOpacity style={styles.askMoreButton}>
+                     <Text style={styles.askMoreText}>Ask for more tips</Text>
+                   </TouchableOpacity>
+                 </View>
+               </LinearGradient>
+
                {/* Pet Photos */}
                <View style={styles.gallerySection}>
                  <View style={styles.galleryHeader}>
                    <View style={styles.iconCircle}>
-                     <FontAwesome5 name="images" size={20} color="#2c5530" />
+                     <FontAwesome5 name="images" size={20} color="#ffffff" />
                    </View>
                    <Text style={styles.galleryTitle}>Pet Photos</Text>
                    <TouchableOpacity>
@@ -278,7 +304,7 @@ function HomeScreen() {
                  </View>
                </View>
       </ScrollView>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -364,7 +390,7 @@ export default function App() {
 const createStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1, 
-    backgroundColor: '#f8fcfb', // Even lighter, more elegant background
+    backgroundColor: '#e6f0ec', // 10% darker than #f0f8f6
   },
   content: {
     padding: 20,
@@ -398,7 +424,6 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   petCard: { 
     flexDirection: 'row', 
-    backgroundColor: '#d4e6e0', // Slightly lighter, more elegant green
     borderRadius: 20, 
     padding: 24, 
     alignItems: 'center', 
@@ -438,22 +463,22 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     position: 'absolute',
     bottom: -2,
     right: -2,
-    backgroundColor: '#4a9b8f', // Darker, more elegant green
+    backgroundColor: '#65b6ad', // More vibrant green
     borderRadius: 18,
     width: 36,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: theme.colors.background,
+    borderColor: '#ffffff',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
   },
   petInfo: {
     flex: 1,
@@ -462,16 +487,16 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   petName: { 
     fontSize: 26, 
     fontWeight: 'bold',
-    color: theme.colors.text,
+    color: '#142725',
     marginBottom: 4,
   },
   petStatus: {
     fontSize: 16,
-    color: theme.colors.textSecondary,
+    color: '#142725',
   },
   petDetails: {
     fontSize: 14,
-    color: theme.colors.textSecondary,
+    color: '#142725',
     marginTop: 4,
   },
   summary: { 
@@ -539,7 +564,6 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     color: theme.colors.textSecondary,
   },
   tipOuterContainer: {
-    backgroundColor: '#ffffff',
     borderRadius: 24,
     padding: 24,
     marginBottom: 32, // Increased spacing
@@ -616,7 +640,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   tipTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: theme.colors.text,
+    color: '#ffffff',
     marginLeft: 8,
   },
   tipInnerCard: {
@@ -912,18 +936,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#e8f4f0', // Lighter, more elegant background
+    backgroundColor: '#65b6ad', // More vibrant green background
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   summaryIcon: {
     marginRight: 12,
@@ -932,22 +956,52 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#f0f8f6', // Even lighter, more elegant background
+    backgroundColor: '#4a9b8f', // More vibrant green background
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 2,
     },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   lastHistoryItem: {
     borderBottomWidth: 0, // Remove bottom border
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
+  },
+  tipsList: {
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  tipItem: {
+    fontSize: 14,
+    color: '#142725',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  askMoreButton: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  askMoreText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3a4c4c',
   },
 });

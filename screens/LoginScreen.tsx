@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -91,7 +92,11 @@ export default function LoginScreen({ navigation }: any) {
             {/* Logo and Title */}
             <View style={styles.header}>
               <View style={[styles.logoContainer, { backgroundColor: `${selectedColor}20` }]}>
-                <FontAwesome5 name="paw" size={48} color={selectedColor} />
+                <Image 
+                  source={require('../assets/icon.png')} 
+                  style={styles.logoImage} 
+                  resizeMode="contain"
+                />
               </View>
               <Text style={styles.title}>Peluditos</Text>
               <Text style={styles.subtitle}>Welcome to your pet's health companion</Text>
@@ -281,6 +286,11 @@ const createStyles = (theme: any, selectedColor: string) => StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 8,
+  },
+  logoImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   title: {
     fontSize: 32,

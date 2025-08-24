@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -103,7 +104,11 @@ export default function SignUpScreen({ navigation }: any) {
                 <FontAwesome5 name="arrow-left" size={20} color={currentTheme.colors.text} />
               </TouchableOpacity>
               <View style={[styles.logoContainer, { backgroundColor: `${selectedColor}20` }]}>
-                <FontAwesome5 name="paw" size={40} color={selectedColor} />
+                <Image 
+                  source={require('../assets/icon.png')} 
+                  style={styles.logoImage} 
+                  resizeMode="contain"
+                />
               </View>
               <Text style={styles.title}>Create Account</Text>
               <Text style={styles.subtitle}>Join Peluditos and start caring for your pets</Text>
@@ -262,6 +267,11 @@ const createStyles = (theme: any, selectedColor: string) => StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 8,
+  },
+  logoImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
   title: {
     fontSize: 28,

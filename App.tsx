@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Dimensions, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,6 +13,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { defaultColor } from './colorConfig';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
 
 const petAlbums = [
   {
@@ -67,6 +68,7 @@ const nearbyVets = [
 function HomeScreen() {
   const { currentTheme, selectedColor } = useTheme();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
+  const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
 
   const styles = createStyles(currentTheme);
 
@@ -123,7 +125,7 @@ function HomeScreen() {
                  colors={[`${getDynamicColor()}20`, getDynamicColor()]}
                  start={{ x: 0, y: 0 }}
                  end={{ x: 1, y: 1 }}
-                 style={styles.petCard}
+                 style={styles.petCardGradient}
                >
                  <View style={styles.avatarContainer}>
                    <Image 
@@ -352,6 +354,56 @@ function HomeScreen() {
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+// Hook para detectar la barra de navegación del sistema en Android
+function useNavigationBarDetection() {
+  const [hasNavigationBar, setHasNavigationBar] = useState(false);
+  const [navigationBarHeight, setNavigationBarHeight] = useState(0);
+
+  useEffect(() => {
+    const checkNavigationBar = () => {
+      if (Platform.OS === 'android') {
+        try {
+          // Obtener información del dispositivo usando solo APIs nativas
+          const screenHeight = Dimensions.get('window').height;
+          const screenWidth = Dimensions.get('window').width;
+          const pixelRatio = Dimensions.get('window').scale;
+          
+          // Calcular relación de aspecto
+          const aspectRatio = screenHeight / screenWidth;
+          
+          // En Android, dispositivos con relación de aspecto menor a 2.0 
+          // típicamente tienen barra de navegación
+          const likelyHasNavBar = aspectRatio < 2.0;
+          
+          // Altura aproximada de la barra de navegación (48dp = ~24px en densidad media)
+          const estimatedNavBarHeight = likelyHasNavBar ? 24 : 0;
+          
+          setHasNavigationBar(likelyHasNavBar);
+          setNavigationBarHeight(estimatedNavBarHeight);
+          
+          console.log('Navigation bar detection (Expo Go compatible):', {
+            screenHeight,
+            screenWidth,
+            pixelRatio,
+            aspectRatio,
+            likelyHasNavBar,
+            estimatedNavBarHeight
+          });
+        } catch (error) {
+          console.log('Error detecting navigation bar:', error);
+          // Por defecto, asumir que tiene barra de navegación en Android
+          setHasNavigationBar(true);
+          setNavigationBarHeight(24);
+        }
+      }
+    };
+
+    checkNavigationBar();
+  }, []);
+
+  return { hasNavigationBar, navigationBarHeight };
+}
+
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -363,6 +415,11 @@ function AuthStack() {
 
 function TabNavigator() {
   const { currentTheme, selectedColor } = useTheme();
+  const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
+  const insets = useSafeAreaInsets();
+  
+  // Opción para ajuste manual - puedes cambiar esto si la detección automática no funciona
+  const manualNavigationBarAdjustment = 20; // Ajustado a 20 para subirlo un poco más
   
   return (
     <Tab.Navigator 
@@ -374,9 +431,9 @@ function TabNavigator() {
           backgroundColor: currentTheme.colors.background,
           borderTopWidth: 1,
           borderTopColor: currentTheme.colors.border,
-          paddingBottom: 10,
+          paddingBottom: Platform.OS === 'android' && hasNavigationBar ? 10 + navigationBarHeight + manualNavigationBarAdjustment : 10,
           paddingTop: 10,
-          height: 80,
+          height: Platform.OS === 'android' && hasNavigationBar ? 80 + navigationBarHeight + manualNavigationBarAdjustment : 80,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: {
@@ -463,11 +520,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -478,13 +537,13 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     backgroundColor: theme.colors.appBackground,
   },
   content: {
-    padding: 20,
+    padding: Platform.OS === 'android' ? 16 : 20,
     paddingBottom: 40, // Reduced padding to eliminate excess space
   },
   headerContainer: {
     marginBottom: 24,
-    marginHorizontal: -20,
-    paddingHorizontal: 20,
+    marginHorizontal: Platform.OS === 'android' ? -16 : -20,
+    paddingHorizontal: Platform.OS === 'android' ? 16 : 20,
   },
   headerGlass: {
     // Sin card, solo layout
@@ -502,9 +561,9 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     gap: 12,
   },
   logoIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: 'rgba(101, 182, 173, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -518,9 +577,9 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     elevation: 4,
   },
   logoImage: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   headerActions: {
     flexDirection: 'row',
@@ -571,17 +630,32 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   petCard: { 
     flexDirection: 'row', 
     borderRadius: 20, 
-    padding: 24, 
+    padding: Platform.OS === 'android' ? 28 : 24, // Más padding en Android para las sombras
     alignItems: 'center', 
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    marginHorizontal: Platform.OS === 'android' ? 4 : 0, // Margen horizontal en Android
+    ...(Platform.OS === 'android' ? {
+      elevation: 8,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+    }),
+    // Gradient effect with overlay
+    position: 'relative',
+  },
+  petCardGradient: { 
+    flexDirection: 'row', 
+    borderRadius: 20, 
+    padding: Platform.OS === 'android' ? 28 : 24, // Más padding en Android para las sombras
+    alignItems: 'center', 
+    marginBottom: 24,
+    marginHorizontal: Platform.OS === 'android' ? 4 : 0, // Margen horizontal en Android
     // Gradient effect with overlay
     position: 'relative',
   },
@@ -593,38 +667,46 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     width: 120, 
     height: 120, 
     borderRadius: 28, 
-    borderWidth: 4,
-    borderColor: theme.colors.background,
-    transform: [{ rotate: '3deg' }],
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
+    borderWidth: Platform.OS === 'android' ? 2 : 4,
+    borderColor: Platform.OS === 'android' ? '#ffffff' : theme.colors.background,
+    transform: Platform.OS === 'android' ? [] : [{ rotate: '3deg' }],
+    ...(Platform.OS === 'android' ? {
+      elevation: 8,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
+      elevation: 4,
+    }),
   },
   editButton: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
+    bottom: Platform.OS === 'android' ? 2 : -2,
+    right: Platform.OS === 'android' ? 2 : -2,
     backgroundColor: defaultColor, // More vibrant green
     borderRadius: 18,
     width: 36,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: Platform.OS === 'android' ? 2 : 3,
     borderColor: '#ffffff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 6,
+    ...(Platform.OS === 'android' ? {
+      elevation: 6,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.4,
+      shadowRadius: 6,
+      elevation: 6,
+    }),
   },
   petInfo: {
     flex: 1,
@@ -659,14 +741,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     padding: 20,
     gap: 16,
     flex: 1,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 6,
+    ...(Platform.OS === 'android' ? {
+      elevation: 6,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.12,
+      shadowRadius: 10,
+      elevation: 6,
+    }),
   },
   stepsTextContainer: {
     flex: 1,
@@ -688,14 +774,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     padding: 20,
     gap: 16,
     flex: 1,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 6,
+    ...(Platform.OS === 'android' ? {
+      elevation: 6,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.12,
+      shadowRadius: 10,
+      elevation: 6,
+    }),
   },
   vaccineTextContainer: {
     flex: 1,
@@ -713,14 +803,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     marginBottom: 32, // Increased spacing
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    marginHorizontal: Platform.OS === 'android' ? 4 : 0, // Margen horizontal en Android
   },
   eventsSection: {
     backgroundColor: theme.colors.cardSurface,
@@ -728,14 +811,19 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     paddingTop: 24,
     paddingHorizontal: 24,
     marginBottom: 32,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    marginHorizontal: Platform.OS === 'android' ? 4 : 0, // Margen horizontal en Android
+    ...(Platform.OS === 'android' ? {
+      elevation: 8,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+    }),
   },
   eventsList: {
     marginTop: 16,
@@ -793,14 +881,6 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     backgroundColor: theme.colors.cardBackground,
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
   },
   tipText: {
     fontSize: 16,
@@ -813,14 +893,19 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     paddingTop: 24,
     paddingHorizontal: 24, // Add side padding for title
     marginBottom: 32, // Increased spacing
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    marginHorizontal: Platform.OS === 'android' ? 4 : 0, // Margen horizontal en Android
+    ...(Platform.OS === 'android' ? {
+      elevation: 8,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+    }),
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -871,14 +956,19 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 24,
     marginBottom: 32,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 10,
+    marginHorizontal: Platform.OS === 'android' ? 4 : 0, // Margen horizontal en Android
+    ...(Platform.OS === 'android' ? {
+      elevation: 10,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 6,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 16,
+      elevation: 10,
+    }),
   },
   galleryHeader: {
     flexDirection: 'row',
@@ -919,14 +1009,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   albumPage: {
     position: 'relative',
     marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    ...(Platform.OS === 'android' ? {
+      elevation: 8,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 8,
+    }),
   },
   selectedAlbumPage: {
     borderWidth: 3,
@@ -990,14 +1084,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     height: 200,
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    ...(Platform.OS === 'android' ? {
+      elevation: 5,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 5,
+    }),
   },
   mapImageContainer: {
     position: 'relative',
@@ -1022,14 +1120,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 12,
     padding: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 3,
+    ...(Platform.OS === 'android' ? {
+      elevation: 3,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 2,
+      elevation: 3,
+    }),
   },
   mapInfo: {
     position: 'absolute',
@@ -1049,14 +1151,18 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     backgroundColor: theme.colors.cardBackground,
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    ...(Platform.OS === 'android' ? {
+      elevation: 5,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 5,
+    }),
   },
   vetItem: {
     flexDirection: 'row',
@@ -1304,4 +1410,5 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     borderRadius: 23,
     padding: 2,
   },
+
 });

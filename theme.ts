@@ -7,6 +7,7 @@ export interface Theme {
     background: string;
     appBackground: string;
     cardBackground: string;
+    cardSurface: string; // New color for white cards
     clinicalHistoryBg: string;
     text: string;
     textSecondary: string;
@@ -26,6 +27,7 @@ export const themes: Theme[] = [
       background: '#ffffff',
       appBackground: '#f8fbfa', // Very light green background
       cardBackground: '#c8e0d8', // Slightly darker than #ddeee6
+      cardSurface: '#f8f9fa', // Light gray for cards
       clinicalHistoryBg: '#e8f4f0', // Lighter green for clinical history
       text: '#3a4c4c',
       textSecondary: '#666666',
@@ -40,13 +42,14 @@ export const themes: Theme[] = [
       primary: '#2c3e50',
       primaryLight: '#34495e',
       secondary: '#34495e',
-      background: '#1a1a1a',
-      appBackground: '#1e2a2a', // Very light dark green background
-      cardBackground: '#2c3e50',
-      clinicalHistoryBg: '#34495e', // Lighter dark for clinical history
+      background: '#121212', // Darker background
+      appBackground: '#0a0a0a', // Very dark app background
+      cardBackground: '#1e1e1e', // Dark card background
+      cardSurface: '#2a2a2a', // Dark gray for cards
+      clinicalHistoryBg: '#2a2a2a', // Dark clinical history background
       text: '#ffffff',
       textSecondary: '#bdc3c7',
-      border: '#34495e',
+      border: '#404040',
       accent: '#3498db',
       success: '#27ae60',
     }
@@ -60,6 +63,7 @@ export const themes: Theme[] = [
       background: '#FFF8DC',
       appBackground: '#fefaf0', // Very light warm background
       cardBackground: '#F5DEB3',
+      cardSurface: '#fef8e7', // Light warm gray for cards
       clinicalHistoryBg: '#DEB887', // Lighter warm for clinical history
       text: '#8B4513',
       textSecondary: '#A0522D',
@@ -77,6 +81,7 @@ export const themes: Theme[] = [
       background: '#f0f9ff',
       appBackground: '#f8fbff', // Very light ocean background
       cardBackground: '#bfdbfe',
+      cardSurface: '#f1f5f9', // Light ocean gray for cards
       clinicalHistoryBg: '#dbeafe', // Lighter ocean for clinical history
       text: '#1e3a8a',
       textSecondary: '#475569',

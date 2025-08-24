@@ -7,6 +7,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, ShoppingCart, User, Footprints, Heart, Circle, PawPrint } from 'lucide-react-native';
 import { Theme, themes, defaultTheme } from './theme';
 import ProfileScreen from './ProfileScreen';
+import { ThemeProvider, useTheme } from './ThemeContext';
 
 const petAlbums = [
   {
@@ -59,7 +60,7 @@ const nearbyVets = [
 ];
 
 function HomeScreen() {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
+  const { currentTheme } = useTheme();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
 
   const styles = createStyles(currentTheme);
@@ -67,7 +68,7 @@ function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
-        colors={['#f0f8f6', '#e6f0ec']}
+        colors={[currentTheme.colors.appBackground, currentTheme.colors.background]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.container}
@@ -177,14 +178,14 @@ function HomeScreen() {
                  </View>
         <View style={styles.summary}>
           <View style={styles.stepsCard}>
-            <Activity size={24} color="#65b6ad" />
+                              <Activity size={24} color="#65b6ad" />
             <View style={styles.stepsTextContainer}>
               <Text style={styles.stepsValue}>4,567 steps</Text>
               <Text style={styles.stepsLabel}>latest walk</Text>
             </View>
           </View>
           <View style={styles.vaccineCard}>
-            <Syringe size={24} color="#65b6ad" />
+                            <Syringe size={24} color="#65b6ad" />
             <View style={styles.vaccineTextContainer}>
               <Text style={styles.vaccineValue}>Next vaccine</Text>
               <Text style={styles.vaccineLabel}>3 days</Text>
@@ -335,44 +336,44 @@ function HomeScreen() {
   );
 }
 
-// Tab Navigation
+// Tab Navigation Component
 const Tab = createBottomTabNavigator();
-export default function App() {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
 
+function TabNavigator() {
+  const { currentTheme } = useTheme();
+  
   return (
-    <NavigationContainer>
-      <Tab.Navigator 
-        screenOptions={{ 
-          headerShown: false,
-          tabBarActiveTintColor: '#65b6ad',
-          tabBarInactiveTintColor: '#999999',
-          tabBarStyle: {
-            backgroundColor: currentTheme.colors.background,
-            borderTopWidth: 1,
-            borderTopColor: currentTheme.colors.border,
-            paddingBottom: 10,
-            paddingTop: 10,
-            height: 80,
-            elevation: 8,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: -2,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
+    <Tab.Navigator 
+      screenOptions={{ 
+        headerShown: false,
+        tabBarActiveTintColor: '#65b6ad',
+        tabBarInactiveTintColor: '#999999',
+        tabBarStyle: {
+          backgroundColor: currentTheme.colors.background,
+          borderTopWidth: 1,
+          borderTopColor: currentTheme.colors.border,
+          paddingBottom: 10,
+          paddingTop: 10,
+          height: 80,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: -2,
           },
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '600',
-            marginTop: 4,
-          },
-          tabBarIconStyle: {
-            marginBottom: 2,
-          }
-        }}
-      >
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginTop: 4,
+        },
+        tabBarIconStyle: {
+          marginBottom: 2,
+        }
+      }}
+    >
         <Tab.Screen 
           name="Home" 
           component={HomeScreen} 
@@ -409,7 +410,16 @@ export default function App() {
           }} 
         />
       </Tab.Navigator>
-    </NavigationContainer>
+    );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <NavigationContainer>
+        <TabNavigator />
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 
@@ -417,7 +427,7 @@ export default function App() {
 const createStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1, 
-    backgroundColor: '#e6f0ec', // 10% darker than #f0f8f6
+    backgroundColor: theme.colors.appBackground,
   },
   content: {
     padding: 20,
@@ -488,7 +498,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   appName: { 
     fontSize: 24, 
     fontWeight: '800',
-    color: '#3a4c4c',
+    color: theme.colors.text,
     letterSpacing: 0.5,
   },
   headerRight: {
@@ -591,7 +601,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   stepsCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff', // Pure white background
+    backgroundColor: theme.colors.cardSurface,
     borderRadius: 20,
     padding: 20,
     gap: 16,
@@ -620,7 +630,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   vaccineCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff', // Pure white background
+    backgroundColor: theme.colors.cardSurface,
     borderRadius: 20,
     padding: 20,
     gap: 16,
@@ -660,7 +670,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     elevation: 8,
   },
   eventsSection: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.cardSurface,
     borderRadius: 24,
     paddingTop: 24,
     paddingHorizontal: 24,
@@ -681,12 +691,12 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.cardSurface,
     paddingVertical: 16,
     paddingHorizontal: 20,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: theme.colors.border,
   },
   lastEventItem: {
     borderBottomWidth: 0,
@@ -708,12 +718,12 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   eventTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#3a4c4c',
+    color: '#65b6ad',
     marginBottom: 4,
   },
   eventDate: {
     fontSize: 14,
-    color: '#666666',
+    color: theme.colors.textSecondary,
   },
   tipHeader: {
     flexDirection: 'row',
@@ -741,11 +751,11 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   tipText: {
     fontSize: 16,
-    color: '#3a4c4c',
+    color: theme.colors.text,
     fontWeight: '500',
   },
   clinicalHistorySection: {
-    backgroundColor: '#ffffff', // Single white background
+    backgroundColor: theme.colors.cardSurface,
     borderRadius: 24,
     paddingTop: 24,
     paddingHorizontal: 24, // Add side padding for title
@@ -767,7 +777,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: theme.colors.text,
+    color: '#65b6ad',
   },
   historyList: {
     gap: 0,
@@ -775,12 +785,12 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   historyItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff', // Same white background
+    backgroundColor: theme.colors.cardSurface,
     paddingVertical: 16,
     paddingHorizontal: 20,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0', // Light gray border
+    borderBottomColor: theme.colors.border,
   },
   historyIcon: {
     width: 32,
@@ -794,7 +804,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   historyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: theme.colors.text,
+    color: '#65b6ad',
   },
   historyDate: {
     fontSize: 14,
@@ -802,7 +812,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     marginTop: 4,
   },
   gallerySection: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.cardSurface,
     borderRadius: 24,
     paddingTop: 24,
     paddingHorizontal: 24,
@@ -817,7 +827,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#e8f4f0',
+    borderColor: theme.colors.border,
   },
   galleryHeader: {
     flexDirection: 'row',
@@ -845,13 +855,13 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   albumTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#3a4c4c',
+    color: '#65b6ad',
     marginBottom: 4,
     textAlign: 'left',
   },
   albumSubtitle: {
     fontSize: 14,
-    color: '#666666',
+    color: '#ffffff',
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -883,7 +893,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     borderBottomRightRadius: 6,
   },
   albumTitleText: {
-    color: '#ffffff',
+    color: '#65b6ad',
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
@@ -1079,12 +1089,12 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   tipItem: {
     fontSize: 14,
-    color: '#142725',
+    color: theme.colors.text,
     marginBottom: 8,
     lineHeight: 20,
   },
   askMoreButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.cardSurface,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -1101,7 +1111,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   askMoreText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#3a4c4c',
+    color: theme.colors.text,
   },
   albumInfo: {
     flexDirection: 'row',

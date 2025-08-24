@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Edit, CreditCard, Bell, Settings, User, PawPrint } from 'lucide-react-native';
 import { Theme, themes, defaultTheme } from './theme';
+import { useTheme } from './ThemeContext';
 
 const userPets = [
   {
@@ -30,8 +31,7 @@ const colorOptions = [
 ];
 
 function ProfileScreen() {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { currentTheme, isDarkMode, toggleTheme } = useTheme();
   const [selectedColor, setSelectedColor] = useState('green');
   const [notifications, setNotifications] = useState({
     vaccineReminders: true,
@@ -95,7 +95,7 @@ function ProfileScreen() {
                     <Text style={styles.themeLabel}>Theme</Text>
                     <Switch
                       value={isDarkMode}
-                      onValueChange={setIsDarkMode}
+                      onValueChange={toggleTheme}
                       trackColor={{ false: '#e0e0e0', true: '#65b6ad' }}
                       thumbColor={isDarkMode ? '#ffffff' : '#ffffff'}
                     />

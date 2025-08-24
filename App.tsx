@@ -73,12 +73,12 @@ function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={[`${getDynamicColor()}05`, currentTheme.colors.background]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.container}
-      >
+                   <LinearGradient
+               colors={[`${getDynamicColor()}08`, '#f8f9fa']}
+               start={{ x: 0, y: 0 }}
+               end={{ x: 0, y: 1 }}
+               style={styles.container}
+             >
         <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.headerContainer}>
           <View style={styles.headerGlass}>
@@ -265,19 +265,14 @@ function HomeScreen() {
                </View>
 
                {/* Tips */}
-               <LinearGradient
-                 colors={[`${getDynamicColor()}20`, getDynamicColor()]}
-                 start={{ x: 0, y: 0 }}
-                 end={{ x: 1, y: 1 }}
-                 style={styles.tipOuterContainer}
-               >
+               <View style={styles.tipOuterContainer}>
                  <View style={styles.tipHeader}>
                    <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
                      <FontAwesome5 name="lightbulb" size={20} color="#ffffff" />
                    </View>
                    <Text style={[styles.tipTitle, { color: currentTheme.colors.text }]}>Daily Tip</Text>
                  </View>
-                 <View style={[styles.tipInnerCard, { backgroundColor: getDynamicColor() }]}>
+                 <View style={[styles.tipInnerCard, { backgroundColor: `${getDynamicColor()}45` }]}>
                    <Text style={styles.tipText}>🐾 How to calm a nervous dog</Text>
                    <View style={styles.tipsList}>
                      <Text style={styles.tipItem}>• Create a safe space with familiar toys</Text>
@@ -288,7 +283,7 @@ function HomeScreen() {
                      <Text style={styles.askMoreText}>Ask for more tips</Text>
                    </TouchableOpacity>
                  </View>
-               </LinearGradient>
+               </View>
 
                {/* Pet Photos */}
                <View style={styles.gallerySection}>
@@ -546,9 +541,9 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     marginRight: 16,
   },
   petImage: { 
-    width: 100, 
-    height: 100, 
-    borderRadius: 24, 
+    width: 120, 
+    height: 120, 
+    borderRadius: 28, 
     borderWidth: 4,
     borderColor: theme.colors.background,
     transform: [{ rotate: '3deg' }],

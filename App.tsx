@@ -14,6 +14,7 @@ import { defaultColor } from './colorConfig';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
+import { HomeSkeleton } from './components/Skeleton';
 
 const petAlbums = [
   {
@@ -65,9 +66,60 @@ const nearbyVets = [
   }
 ];
 
+// Hook para detectar la barra de navegación del sistema en Android
+function useNavigationBarDetection() {
+  const [hasNavigationBar, setHasNavigationBar] = useState(false);
+  const [navigationBarHeight, setNavigationBarHeight] = useState(0);
+
+  useEffect(() => {
+    const checkNavigationBar = () => {
+      if (Platform.OS === 'android') {
+        try {
+          // Obtener información del dispositivo usando solo APIs nativas
+          const screenHeight = Dimensions.get('window').height;
+          const screenWidth = Dimensions.get('window').width;
+          const pixelRatio = Dimensions.get('window').scale;
+          
+          // Calcular relación de aspecto
+          const aspectRatio = screenHeight / screenWidth;
+          
+          // En Android, dispositivos con relación de aspecto menor a 2.0 
+          // típicamente tienen barra de navegación
+          const likelyHasNavBar = aspectRatio < 2.0;
+          
+          // Altura aproximada de la barra de navegación (48dp = ~24px en densidad media)
+          const estimatedNavBarHeight = likelyHasNavBar ? 24 : 0;
+          
+          setHasNavigationBar(likelyHasNavBar);
+          setNavigationBarHeight(estimatedNavBarHeight);
+          
+          console.log('Navigation bar detection (Expo Go compatible):', {
+            screenHeight,
+            screenWidth,
+            pixelRatio,
+            aspectRatio,
+            likelyHasNavBar,
+            estimatedNavBarHeight
+          });
+        } catch (error) {
+          console.log('Error detecting navigation bar:', error);
+          // Por defecto, asumir que tiene barra de navegación en Android
+          setHasNavigationBar(true);
+          setNavigationBarHeight(24);
+        }
+      }
+    };
+
+    checkNavigationBar();
+  }, []);
+
+  return { hasNavigationBar, navigationBarHeight };
+}
+
 function HomeScreen() {
   const { currentTheme, selectedColor } = useTheme();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
 
   const styles = createStyles(currentTheme);
@@ -76,6 +128,20 @@ function HomeScreen() {
   const getDynamicColor = () => {
     return selectedColor;
   };
+
+  // Simular carga de datos
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // Mostrar skeleton por 2 segundos
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Mostrar skeleton mientras carga
+  if (isLoading) {
+    return <HomeSkeleton />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -100,7 +166,13 @@ function HomeScreen() {
                 <Text style={styles.appName}>Peluditos</Text>
               </View>
               <View style={styles.headerActions}>
-                <TouchableOpacity style={styles.notificationButton}>
+                <TouchableOpacity 
+                  style={styles.notificationButton}
+                  onPress={() => {
+                    setIsLoading(true);
+                    setTimeout(() => setIsLoading(false), 2000);
+                  }}
+                >
                   <View style={styles.notificationIconContainer}>
                     <Bell size={22} color={getDynamicColor()} />
                     <View style={[styles.notificationBadge, { backgroundColor: getDynamicColor() }]}>
@@ -354,55 +426,7 @@ function HomeScreen() {
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// Hook para detectar la barra de navegación del sistema en Android
-function useNavigationBarDetection() {
-  const [hasNavigationBar, setHasNavigationBar] = useState(false);
-  const [navigationBarHeight, setNavigationBarHeight] = useState(0);
 
-  useEffect(() => {
-    const checkNavigationBar = () => {
-      if (Platform.OS === 'android') {
-        try {
-          // Obtener información del dispositivo usando solo APIs nativas
-          const screenHeight = Dimensions.get('window').height;
-          const screenWidth = Dimensions.get('window').width;
-          const pixelRatio = Dimensions.get('window').scale;
-          
-          // Calcular relación de aspecto
-          const aspectRatio = screenHeight / screenWidth;
-          
-          // En Android, dispositivos con relación de aspecto menor a 2.0 
-          // típicamente tienen barra de navegación
-          const likelyHasNavBar = aspectRatio < 2.0;
-          
-          // Altura aproximada de la barra de navegación (48dp = ~24px en densidad media)
-          const estimatedNavBarHeight = likelyHasNavBar ? 24 : 0;
-          
-          setHasNavigationBar(likelyHasNavBar);
-          setNavigationBarHeight(estimatedNavBarHeight);
-          
-          console.log('Navigation bar detection (Expo Go compatible):', {
-            screenHeight,
-            screenWidth,
-            pixelRatio,
-            aspectRatio,
-            likelyHasNavBar,
-            estimatedNavBarHeight
-          });
-        } catch (error) {
-          console.log('Error detecting navigation bar:', error);
-          // Por defecto, asumir que tiene barra de navegación en Android
-          setHasNavigationBar(true);
-          setNavigationBarHeight(24);
-        }
-      }
-    };
-
-    checkNavigationBar();
-  }, []);
-
-  return { hasNavigationBar, navigationBarHeight };
-}
 
 function AuthStack() {
   return (

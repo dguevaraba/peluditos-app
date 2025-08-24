@@ -16,11 +16,17 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.peluditos.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,6 +34,11 @@
     "scheme": "peluditos",
     "plugins": [
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e7c635f3-2f74-4cd3-8e38-72c698579a1b"
+      }
+    }
   }
 }

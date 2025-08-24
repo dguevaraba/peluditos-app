@@ -5,6 +5,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Edit, CreditCard, Bell, Settings, User, PawPrint } from 'lucide-react-native';
 import { Theme, themes, defaultTheme } from './theme';
 import { useTheme } from './ThemeContext';
+import { useAuth } from './contexts/AuthContext';
 import { colorOptions } from './colorConfig';
 
 const userPets = [
@@ -28,6 +29,7 @@ const userPets = [
 
 function ProfileScreen() {
   const { currentTheme, isDarkMode, toggleTheme, selectedColor, setSelectedColor } = useTheme();
+  const { signOut } = useAuth();
   const [notifications, setNotifications] = useState({
     vaccineReminders: true,
     communityUpdates: true,
@@ -179,6 +181,14 @@ function ProfileScreen() {
               </View>
               <Text style={styles.settingText}>Privacy & Security</Text>
               <FontAwesome5 name="chevron-right" size={16} color={selectedColor} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Logout Section */}
+          <View style={styles.section}>
+            <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
+              <FontAwesome5 name="sign-out-alt" size={20} color="#ffffff" />
+              <Text style={styles.logoutText}>Sign Out</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -434,6 +444,29 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: theme.colors.text,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ff4757',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
   },
 });
 

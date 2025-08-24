@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, ShoppingCart, User, Footprints, Heart, Circle, PawPrint } from 'lucide-react-native';
 import { Theme, themes, defaultTheme } from './theme';
 import ProfileScreen from './ProfileScreen';
 import { ThemeProvider, useTheme } from './ThemeContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { defaultColor } from './colorConfig';
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUpScreen';
 
 const petAlbums = [
   {
@@ -342,6 +346,16 @@ function HomeScreen() {
 
 // Tab Navigation Component
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+function AuthStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
+    </Stack.Navigator>
+  );
+}
 
 function TabNavigator() {
   const { currentTheme, selectedColor } = useTheme();
@@ -417,12 +431,38 @@ function TabNavigator() {
     );
 }
 
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <NavigationContainer>
+        <AuthStack />
+      </NavigationContainer>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      <TabNavigator />
+    </NavigationContainer>
+  );
+}
+
 export default function App() {
   return (
     <ThemeProvider>
-      <NavigationContainer>
-        <TabNavigator />
-      </NavigationContainer>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

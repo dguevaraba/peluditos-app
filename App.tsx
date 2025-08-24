@@ -89,9 +89,13 @@ function HomeScreen() {
             <View style={styles.headerContent}>
               <View style={styles.logoContainer}>
                 <View style={[styles.logoIcon, { backgroundColor: `${getDynamicColor()}20` }]}>
-                  <PawPrint size={28} color={getDynamicColor()} />
+                  <Image 
+                    source={require('./assets/icon.png')} 
+                    style={styles.logoImage} 
+                    resizeMode="contain"
+                  />
                 </View>
-                <Text style={styles.appName}>PetCare+</Text>
+                <Text style={styles.appName}>Peluditos</Text>
               </View>
               <View style={styles.headerActions}>
                 <TouchableOpacity style={styles.notificationButton}>
@@ -512,6 +516,11 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
+  },
+  logoImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
   },
   headerActions: {
     flexDirection: 'row',

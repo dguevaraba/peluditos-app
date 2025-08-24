@@ -8,6 +8,7 @@ import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, Sh
 import { Theme, themes, defaultTheme } from './theme';
 import ProfileScreen from './ProfileScreen';
 import { ThemeProvider, useTheme } from './ThemeContext';
+import { defaultColor } from './colorConfig';
 
 const petAlbums = [
   {
@@ -60,15 +61,20 @@ const nearbyVets = [
 ];
 
 function HomeScreen() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, selectedColor } = useTheme();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
 
   const styles = createStyles(currentTheme);
 
+  // Function to get dynamic color based on selected color
+  const getDynamicColor = () => {
+    return selectedColor;
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
-        colors={[currentTheme.colors.appBackground, currentTheme.colors.background]}
+        colors={[`${getDynamicColor()}05`, currentTheme.colors.background]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.container}
@@ -78,16 +84,16 @@ function HomeScreen() {
           <View style={styles.headerGlass}>
             <View style={styles.headerContent}>
               <View style={styles.logoContainer}>
-                <View style={styles.logoIcon}>
-                  <PawPrint size={28} color="#65b6ad" />
+                <View style={[styles.logoIcon, { backgroundColor: `${getDynamicColor()}20` }]}>
+                  <PawPrint size={28} color={getDynamicColor()} />
                 </View>
                 <Text style={styles.appName}>PetCare+</Text>
               </View>
               <View style={styles.headerActions}>
                 <TouchableOpacity style={styles.notificationButton}>
                   <View style={styles.notificationIconContainer}>
-                    <Bell size={22} color="#65b6ad" />
-                    <View style={styles.notificationBadge}>
+                    <Bell size={22} color={getDynamicColor()} />
+                    <View style={[styles.notificationBadge, { backgroundColor: getDynamicColor() }]}>
                       <Text style={styles.notificationCount}>3</Text>
                     </View>
                   </View>
@@ -106,7 +112,7 @@ function HomeScreen() {
 
                        {/* Pet Card */}
                <LinearGradient
-                 colors={['#d4e6e0', '#4a9b8f']}
+                 colors={[`${getDynamicColor()}20`, getDynamicColor()]}
                  start={{ x: 0, y: 0 }}
                  end={{ x: 1, y: 1 }}
                  style={styles.petCard}
@@ -116,7 +122,7 @@ function HomeScreen() {
                      source={{ uri: 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop' }} 
                      style={styles.petImage} 
                    />
-                   <TouchableOpacity style={styles.editButton}>
+                   <TouchableOpacity style={[styles.editButton, { backgroundColor: getDynamicColor() }]}>
                      <Edit size={16} color="#ffffff" />
                    </TouchableOpacity>
                  </View>
@@ -130,62 +136,62 @@ function HomeScreen() {
         {/* Clinical History */}
         <View style={styles.clinicalHistorySection}>
           <View style={styles.sectionHeader}>
-                               <View style={styles.iconCircle}>
+                               <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
                      <FontAwesome5 name="notes-medical" size={24} color="#ffffff" />
                    </View>
-            <Text style={styles.sectionTitle}>Clinical History</Text>
+            <Text style={[styles.sectionTitle, { color: getDynamicColor() }]}>Clinical History</Text>
           </View>
           <View style={styles.historyList}>
-            <TouchableOpacity style={styles.historyItem}>
-              <View style={styles.historyIconCircle}>
-                <FontAwesome5 name="syringe" size={16} color="#ffffff" />
-              </View>
-              <View style={styles.historyContent}>
-                <Text style={styles.historyTitle}>Vaccination</Text>
-                <Text style={styles.historyDate}>March 15, 2024</Text>
-              </View>
-              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.historyItem}>
-              <View style={styles.historyIconCircle}>
-                <FontAwesome5 name="stethoscope" size={16} color="#ffffff" />
-              </View>
-              <View style={styles.historyContent}>
-                <Text style={styles.historyTitle}>Check-up</Text>
-                <Text style={styles.historyDate}>February 28, 2024</Text>
-              </View>
-              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
-            </TouchableOpacity>
+                                 <TouchableOpacity style={[styles.historyItem, { borderBottomColor: getDynamicColor() }]}>
+                       <View style={[styles.historyIconCircle, { backgroundColor: getDynamicColor() }]}>
+                         <FontAwesome5 name="syringe" size={16} color="#ffffff" />
+                       </View>
+                       <View style={styles.historyContent}>
+                         <Text style={[styles.historyTitle, { color: getDynamicColor() }]}>Vaccination</Text>
+                         <Text style={styles.historyDate}>March 15, 2024</Text>
+                       </View>
+                       <FontAwesome5 name="chevron-right" size={16} color={getDynamicColor()} />
+                     </TouchableOpacity>
+                                 <TouchableOpacity style={[styles.historyItem, { borderBottomColor: getDynamicColor() }]}>
+                       <View style={[styles.historyIconCircle, { backgroundColor: getDynamicColor() }]}>
+                         <FontAwesome5 name="stethoscope" size={16} color="#ffffff" />
+                       </View>
+                       <View style={styles.historyContent}>
+                         <Text style={[styles.historyTitle, { color: getDynamicColor() }]}>Check-up</Text>
+                         <Text style={styles.historyDate}>February 28, 2024</Text>
+                       </View>
+                       <FontAwesome5 name="chevron-right" size={16} color={getDynamicColor()} />
+                     </TouchableOpacity>
             <TouchableOpacity style={[styles.historyItem, styles.lastHistoryItem]}>
-              <View style={styles.historyIconCircle}>
+              <View style={[styles.historyIconCircle, { backgroundColor: getDynamicColor() }]}>
                 <FontAwesome5 name="pills" size={16} color="#ffffff" />
               </View>
               <View style={styles.historyContent}>
-                <Text style={styles.historyTitle}>Deworming</Text>
+                <Text style={[styles.historyTitle, { color: getDynamicColor() }]}>Deworming</Text>
                 <Text style={styles.historyDate}>January 10, 2024</Text>
               </View>
-              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+              <FontAwesome5 name="chevron-right" size={16} color={getDynamicColor()} />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Today's Summary */}
                          <View style={styles.sectionHeader}>
-                   <View style={styles.iconCircle}>
+                   <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
                      <FontAwesome5 name="chart-line" size={20} color="#ffffff" />
                    </View>
-                   <Text style={styles.sectionTitle}>Today's Summary</Text>
+                   <Text style={[styles.sectionTitle, { color: getDynamicColor() }]}>Today's Summary</Text>
                  </View>
         <View style={styles.summary}>
           <View style={styles.stepsCard}>
-                              <Activity size={24} color="#65b6ad" />
+                              <Activity size={24} color={getDynamicColor()} />
             <View style={styles.stepsTextContainer}>
               <Text style={styles.stepsValue}>4,567 steps</Text>
               <Text style={styles.stepsLabel}>latest walk</Text>
             </View>
           </View>
           <View style={styles.vaccineCard}>
-                            <Syringe size={24} color="#65b6ad" />
+                            <Syringe size={24} color={getDynamicColor()} />
             <View style={styles.vaccineTextContainer}>
               <Text style={styles.vaccineValue}>Next vaccine</Text>
               <Text style={styles.vaccineLabel}>3 days</Text>
@@ -196,41 +202,41 @@ function HomeScreen() {
                        {/* Events */}
                <View style={styles.eventsSection}>
                  <View style={styles.sectionHeader}>
-                   <View style={styles.iconCircle}>
+                   <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
                      <FontAwesome5 name="calendar-alt" size={20} color="#ffffff" />
                    </View>
-                   <Text style={styles.sectionTitle}>Upcoming Events</Text>
+                   <Text style={[styles.sectionTitle, { color: getDynamicColor() }]}>Upcoming Events</Text>
                  </View>
                  <View style={styles.eventsList}>
-                   <TouchableOpacity style={styles.eventItem}>
-                     <View style={styles.historyIconCircle}>
-                       <FontAwesome5 name="dog" size={16} color="#ffffff" />
-                     </View>
-                     <View style={styles.eventContent}>
-                       <Text style={styles.eventTitle}>Dog Training Class</Text>
-                       <Text style={styles.eventDate}>Tomorrow, 3:00 PM</Text>
-                     </View>
-                     <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
-                   </TouchableOpacity>
-                   <TouchableOpacity style={styles.eventItem}>
-                     <View style={styles.historyIconCircle}>
+                                        <TouchableOpacity style={[styles.eventItem, { borderBottomColor: getDynamicColor() }]}>
+                       <View style={[styles.historyIconCircle, { backgroundColor: getDynamicColor() }]}>
+                         <FontAwesome5 name="dog" size={16} color="#ffffff" />
+                       </View>
+                       <View style={styles.eventContent}>
+                         <Text style={[styles.eventTitle, { color: getDynamicColor() }]}>Dog Training Class</Text>
+                         <Text style={styles.eventDate}>Tomorrow, 3:00 PM</Text>
+                       </View>
+                       <FontAwesome5 name="chevron-right" size={16} color={getDynamicColor()} />
+                     </TouchableOpacity>
+                   <TouchableOpacity style={[styles.eventItem, { borderBottomColor: getDynamicColor() }]}>
+                     <View style={[styles.historyIconCircle, { backgroundColor: getDynamicColor() }]}>
                        <FontAwesome5 name="heartbeat" size={16} color="#ffffff" />
                      </View>
                      <View style={styles.eventContent}>
-                       <Text style={styles.eventTitle}>Vaccination Appointment</Text>
+                       <Text style={[styles.eventTitle, { color: getDynamicColor() }]}>Vaccination Appointment</Text>
                        <Text style={styles.eventDate}>Friday, 10:00 AM</Text>
                      </View>
-                     <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+                     <FontAwesome5 name="chevron-right" size={16} color={getDynamicColor()} />
                    </TouchableOpacity>
                    <TouchableOpacity style={[styles.eventItem, styles.lastEventItem]}>
-                     <View style={styles.historyIconCircle}>
+                     <View style={[styles.historyIconCircle, { backgroundColor: getDynamicColor() }]}>
                        <FontAwesome5 name="cut" size={16} color="#ffffff" />
                      </View>
                      <View style={styles.eventContent}>
-                       <Text style={styles.eventTitle}>Grooming Session</Text>
+                       <Text style={[styles.eventTitle, { color: getDynamicColor() }]}>Grooming Session</Text>
                        <Text style={styles.eventDate}>Next Monday, 2:00 PM</Text>
                      </View>
-                     <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+                     <FontAwesome5 name="chevron-right" size={16} color={getDynamicColor()} />
                    </TouchableOpacity>
                  </View>
                </View>
@@ -238,10 +244,10 @@ function HomeScreen() {
                {/* Nearby Veterinarians */}
                <View style={styles.nearbyVetsSection}>
                  <View style={styles.sectionHeader}>
-                   <View style={styles.iconCircle}>
+                   <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
                      <MapPin size={20} color="#ffffff" />
                    </View>
-                   <Text style={styles.sectionTitle}>Nearby Veterinarians</Text>
+                   <Text style={[styles.sectionTitle, { color: getDynamicColor() }]}>Nearby Veterinarians</Text>
                  </View>
                  <View style={styles.mapContainer}>
                    <View style={styles.mapImageContainer}>
@@ -260,18 +266,18 @@ function HomeScreen() {
 
                {/* Tips */}
                <LinearGradient
-                 colors={['#d4e6e0', '#4a9b8f']}
+                 colors={[`${getDynamicColor()}20`, getDynamicColor()]}
                  start={{ x: 0, y: 0 }}
                  end={{ x: 1, y: 1 }}
                  style={styles.tipOuterContainer}
                >
                  <View style={styles.tipHeader}>
-                   <View style={styles.iconCircle}>
+                   <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
                      <FontAwesome5 name="lightbulb" size={20} color="#ffffff" />
                    </View>
-                   <Text style={styles.tipTitle}>Daily Tip</Text>
+                   <Text style={[styles.tipTitle, { color: currentTheme.colors.text }]}>Daily Tip</Text>
                  </View>
-                 <View style={styles.tipInnerCard}>
+                 <View style={[styles.tipInnerCard, { backgroundColor: getDynamicColor() }]}>
                    <Text style={styles.tipText}>🐾 How to calm a nervous dog</Text>
                    <View style={styles.tipsList}>
                      <Text style={styles.tipItem}>• Create a safe space with familiar toys</Text>
@@ -288,10 +294,10 @@ function HomeScreen() {
                <View style={styles.gallerySection}>
                  <View style={styles.galleryHeader}>
                    <View style={styles.titleContainer}>
-                     <View style={styles.iconCircle}>
-                       <FontAwesome5 name="images" size={20} color="#ffffff" />
-                     </View>
-                     <Text style={styles.galleryTitle}>Pet Photos</Text>
+                                            <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
+                         <FontAwesome5 name="images" size={20} color="#ffffff" />
+                       </View>
+                     <Text style={[styles.galleryTitle, { color: getDynamicColor() }]}>Pet Photos</Text>
                    </View>
                    <TouchableOpacity>
                      <Text style={styles.seeAllText}>See all</Text>
@@ -299,8 +305,8 @@ function HomeScreen() {
                  </View>
                  <View style={styles.albumContainer}>
                    <View style={styles.albumInfo}>
-                     <Text style={styles.albumTitle}>{petAlbums[selectedAlbum].title}</Text>
-                     <View style={styles.photoCountBadge}>
+                     <Text style={[styles.albumTitle, { color: getDynamicColor() }]}>{petAlbums[selectedAlbum].title}</Text>
+                     <View style={[styles.photoCountBadge, { backgroundColor: getDynamicColor() }]}>
                        <FontAwesome5 name="images" size={12} color="#ffffff" />
                        <Text style={styles.photoCountText}>{petAlbums[selectedAlbum].photoCount} photos</Text>
                      </View>
@@ -311,15 +317,18 @@ function HomeScreen() {
                      keyExtractor={(item, index) => index.toString()}
                      renderItem={({ item, index }) => (
                        <TouchableOpacity 
-                         style={[styles.albumPage, selectedAlbum === index && styles.selectedAlbumPage]}
+                         style={[
+                           styles.albumPage, 
+                           selectedAlbum === index && [styles.selectedAlbumPage, { borderColor: getDynamicColor() }]
+                         ]}
                          onPress={() => setSelectedAlbum(index)}
                        >
                          <Image source={{ uri: item.image }} style={styles.albumImage} />
-                         <View style={styles.albumBadge}>
+                         <View style={[styles.albumBadge, { backgroundColor: getDynamicColor() }]}>
                            <Text style={styles.albumBadgeText}>{item.photoCount}</Text>
                          </View>
                          <View style={styles.albumTitleOverlay}>
-                           <Text style={styles.albumTitleText}>{item.title}</Text>
+                           <Text style={[styles.albumTitleText, { color: getDynamicColor() }]}>{item.title}</Text>
                          </View>
                        </TouchableOpacity>
                      )}
@@ -340,13 +349,13 @@ function HomeScreen() {
 const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, selectedColor } = useTheme();
   
   return (
     <Tab.Navigator 
       screenOptions={{ 
         headerShown: false,
-        tabBarActiveTintColor: '#65b6ad',
+        tabBarActiveTintColor: selectedColor,
         tabBarInactiveTintColor: '#999999',
         tabBarStyle: {
           backgroundColor: currentTheme.colors.background,
@@ -556,7 +565,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     position: 'absolute',
     bottom: -2,
     right: -2,
-    backgroundColor: '#65b6ad', // More vibrant green
+    backgroundColor: defaultColor, // More vibrant green
     borderRadius: 18,
     width: 36,
     height: 36,
@@ -696,7 +705,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderBottomColor: defaultColor,
   },
   lastEventItem: {
     borderBottomWidth: 0,
@@ -777,7 +786,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#65b6ad',
+    color: defaultColor,
   },
   historyList: {
     gap: 0,
@@ -790,7 +799,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderBottomColor: defaultColor,
   },
   historyIcon: {
     width: 32,
@@ -821,13 +830,11 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 6,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 10,
   },
   galleryHeader: {
     flexDirection: 'row',
@@ -855,7 +862,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   albumTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#65b6ad',
+    color: defaultColor,
     marginBottom: 4,
     textAlign: 'left',
   },
@@ -879,7 +886,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   selectedAlbumPage: {
     borderWidth: 3,
-    borderColor: '#65b6ad',
+    borderColor: defaultColor,
     borderRadius: 12,
   },
   albumTitleOverlay: {
@@ -893,7 +900,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     borderBottomRightRadius: 6,
   },
   albumTitleText: {
-    color: '#65b6ad',
+    color: defaultColor,
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
@@ -909,7 +916,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     position: 'absolute',
     bottom: 8,
     right: 8,
-    backgroundColor: '#65b6ad',
+    backgroundColor: defaultColor,
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -1123,7 +1130,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   photoCountBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#65b6ad',
+    backgroundColor: defaultColor,
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,

@@ -5,6 +5,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Edit, CreditCard, Bell, Settings, User, PawPrint } from 'lucide-react-native';
 import { Theme, themes, defaultTheme } from './theme';
 import { useTheme } from './ThemeContext';
+import { colorOptions } from './colorConfig';
 
 const userPets = [
   {
@@ -23,16 +24,10 @@ const userPets = [
   }
 ];
 
-const colorOptions = [
-  { id: 'green', color: '#4CAF50', name: 'Green' },
-  { id: 'teal', color: '#65b6ad', name: 'Teal' },
-  { id: 'purple', color: '#9C27B0', name: 'Purple' },
-  { id: 'orange', color: '#FF9800', name: 'Orange' }
-];
+
 
 function ProfileScreen() {
-  const { currentTheme, isDarkMode, toggleTheme } = useTheme();
-  const [selectedColor, setSelectedColor] = useState('green');
+  const { currentTheme, isDarkMode, toggleTheme, selectedColor, setSelectedColor } = useTheme();
   const [notifications, setNotifications] = useState({
     vaccineReminders: true,
     communityUpdates: true,
@@ -122,11 +117,11 @@ function ProfileScreen() {
                       style={[
                         styles.colorSwatch,
                         { backgroundColor: colorOption.color },
-                        selectedColor === colorOption.id && styles.selectedColorSwatch
+                        selectedColor === colorOption.color && styles.selectedColorSwatch
                       ]}
-                      onPress={() => setSelectedColor(colorOption.id)}
+                      onPress={() => setSelectedColor(colorOption.color)}
                     >
-                      {selectedColor === colorOption.id && (
+                      {selectedColor === colorOption.color && (
                         <FontAwesome5 name="check" size={10} color="#ffffff" />
                       )}
                     </TouchableOpacity>
@@ -166,24 +161,24 @@ function ProfileScreen() {
             <Text style={styles.sectionTitle}>Account & Settings</Text>
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingIcon}>
-                <CreditCard size={20} color="#65b6ad" />
+                <CreditCard size={20} color={selectedColor} />
               </View>
               <Text style={styles.settingText}>Manage Payment Methods</Text>
-              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+              <FontAwesome5 name="chevron-right" size={16} color={selectedColor} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingIcon}>
-                <Bell size={20} color="#65b6ad" />
+                <Bell size={20} color={selectedColor} />
               </View>
               <Text style={styles.settingText}>Notification Settings</Text>
-              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+              <FontAwesome5 name="chevron-right" size={16} color={selectedColor} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingIcon}>
-                <Settings size={20} color="#65b6ad" />
+                <Settings size={20} color={selectedColor} />
               </View>
               <Text style={styles.settingText}>Privacy & Security</Text>
-              <FontAwesome5 name="chevron-right" size={16} color="#65b6ad" />
+              <FontAwesome5 name="chevron-right" size={16} color={selectedColor} />
             </TouchableOpacity>
           </View>
         </ScrollView>

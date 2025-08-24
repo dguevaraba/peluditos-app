@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Theme, themes, defaultTheme } from './theme';
+import { defaultColor } from './colorConfig';
 
 interface ThemeContextType {
   currentTheme: Theme;
   isDarkMode: boolean;
+  selectedColor: string;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
+  setSelectedColor: (color: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -25,6 +28,7 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
+  const [selectedColor, setSelectedColor] = useState(defaultColor); // Default green (matching the first color option)
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -41,11 +45,17 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setIsDarkMode(theme.name === 'dark');
   };
 
+  const setSelectedColorHandler = (color: string) => {
+    setSelectedColor(color);
+  };
+
   const value: ThemeContextType = {
     currentTheme,
     isDarkMode,
+    selectedColor,
     toggleTheme,
     setTheme,
+    setSelectedColor: setSelectedColorHandler,
   };
 
   return (

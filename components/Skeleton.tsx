@@ -246,7 +246,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   );
 };
 
-// Skeleton para Gallery
+// Skeleton para Gallery - Optimizado y más rápido
 export const GallerySkeleton: React.FC = () => {
   const { currentTheme } = useTheme();
 
@@ -254,48 +254,41 @@ export const GallerySkeleton: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.colors.background }]}>
       <View style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
         {/* Header Skeleton */}
-        <View style={styles.headerContainer}>
-          <View style={styles.headerContent}>
-            <View style={styles.titleContainer}>
+        <View style={styles.galleryHeaderContainer}>
+          <View style={styles.galleryHeaderContent}>
+            <View style={styles.galleryTitleContainer}>
               <SkeletonItem width={40} height={40} borderRadius={20} />
-              <SkeletonItem width={150} height={24} borderRadius={12} style={{ marginLeft: 12 }} />
+              <SkeletonItem width={120} height={24} borderRadius={12} style={{ marginLeft: 12 }} />
             </View>
-            <SkeletonItem width={200} height={16} borderRadius={8} style={{ marginTop: 8 }} />
+            <SkeletonItem width={180} height={16} borderRadius={8} style={{ marginTop: 8 }} />
           </View>
         </View>
 
-        {/* Search Bar Skeleton */}
-        <View style={styles.searchContainer}>
-          <SkeletonItem width="100%" height={50} borderRadius={12} />
+        {/* View Mode Toggle Skeleton */}
+        <View style={styles.galleryViewModeContainer}>
+          <View style={styles.galleryViewModeButtons}>
+            <SkeletonItem width={40} height={40} borderRadius={8} />
+            <SkeletonItem width={40} height={40} borderRadius={8} style={{ marginLeft: 8 }} />
+          </View>
         </View>
 
         {/* Filter Buttons Skeleton */}
-        <View style={styles.filterContainer}>
-          <View style={styles.filterButtons}>
-            {[1, 2, 3, 4, 5].map((item) => (
-              <SkeletonItem key={item} width={80} height={32} borderRadius={16} style={{ marginRight: 12 }} />
+        <View style={styles.galleryFilterContainer}>
+          <View style={styles.galleryFilterButtons}>
+            {[1, 2, 3, 4].map((item) => (
+              <SkeletonItem key={item} width={70} height={32} borderRadius={16} style={{ marginRight: 12 }} />
             ))}
           </View>
         </View>
 
-        {/* Organization Cards Skeleton */}
-        <View style={styles.cardsContainer}>
-          {[1, 2, 3].map((card) => (
-            <View key={card} style={styles.cardSkeleton}>
-              <View style={styles.cardHeader}>
-                <SkeletonItem width={60} height={60} borderRadius={12} />
-                <View style={styles.cardInfo}>
-                  <SkeletonItem width={120} height={18} borderRadius={9} />
-                  <SkeletonItem width={80} height={14} borderRadius={7} style={{ marginTop: 4 }} />
-                  <SkeletonItem width={150} height={14} borderRadius={7} style={{ marginTop: 4 }} />
-                </View>
-                <SkeletonItem width={20} height={20} borderRadius={10} />
-              </View>
-              <View style={styles.cardActions}>
-                <SkeletonItem width={60} height={28} borderRadius={8} />
-                <SkeletonItem width={60} height={28} borderRadius={8} />
-                <SkeletonItem width={60} height={28} borderRadius={8} />
-              </View>
+        {/* Album Cards Skeleton - Grid View */}
+        <View style={styles.galleryCardsContainer}>
+          {[1, 2, 3, 4, 5, 6].map((card) => (
+            <View key={card} style={styles.galleryCardSkeleton}>
+              <SkeletonItem width="100%" height={120} borderRadius={12} style={{ marginBottom: 8 }} />
+              <SkeletonItem width="80%" height={16} borderRadius={8} style={{ marginBottom: 4 }} />
+              <SkeletonItem width="60%" height={12} borderRadius={6} style={{ marginBottom: 4 }} />
+              <SkeletonItem width="40%" height={12} borderRadius={6} />
             </View>
           ))}
         </View>
@@ -314,10 +307,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   // Gallery Skeleton styles
-  headerContent: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -424,6 +413,42 @@ const styles = StyleSheet.create({
   editProfileInputRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  // Gallery Skeleton styles
+  galleryHeaderContainer: {
+    marginBottom: 16,
+    marginHorizontal: Platform.OS === 'android' ? -16 : -20,
+    paddingHorizontal: Platform.OS === 'android' ? 16 : 20,
+  },
+  galleryHeaderContent: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  galleryTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  galleryViewModeContainer: {
+    marginBottom: 20,
+  },
+  galleryViewModeButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  galleryFilterContainer: {
+    marginBottom: 20,
+  },
+  galleryFilterButtons: {
+    flexDirection: 'row',
+  },
+  galleryCardsContainer: {
+    gap: 16,
+  },
+  galleryCardSkeleton: {
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
   },
 });
 

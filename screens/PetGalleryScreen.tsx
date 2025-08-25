@@ -99,13 +99,22 @@ const petAlbums = [
 const PetGalleryScreen = () => {
   const { currentTheme, selectedColor } = useTheme();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState<PetPhoto | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   const getDynamicColor = () => selectedColor;
+
+  // Simular carga inicial más rápida
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 800); // Más rápido que el home (800ms vs 2000ms)
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);

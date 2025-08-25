@@ -13,8 +13,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { defaultColor } from './colorConfig';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
 import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
-import { HomeSkeleton } from './components/Skeleton';
+import { HomeSkeleton, AvatarSkeleton } from './components/Skeleton';
+import { UserService } from './services/userService';
 
 const petAlbums = [
   {
@@ -118,6 +120,7 @@ function useNavigationBarDetection() {
 
 function HomeScreen() {
   const { currentTheme, selectedColor } = useTheme();
+  const { user } = useAuth();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
@@ -128,6 +131,8 @@ function HomeScreen() {
   const getDynamicColor = () => {
     return selectedColor;
   };
+
+
 
   // Simular carga de datos
   useEffect(() => {
@@ -181,10 +186,16 @@ function HomeScreen() {
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.profileButton}>
-                  <Image 
-                    source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' }} 
-                    style={styles.profilePic} 
-                  />
+                  {user?.user_metadata?.avatar_url ? (
+                    <Image 
+                      source={{ uri: user.user_metadata.avatar_url }} 
+                      style={styles.profilePic} 
+                    />
+                  ) : (
+                    <View style={[styles.profilePic, { backgroundColor: getDynamicColor(), justifyContent: 'center', alignItems: 'center' }]}>
+                      <User size={20} color="#ffffff" />
+                    </View>
+                  )}
                   <View style={styles.profileIndicator} />
                 </TouchableOpacity>
               </View>
@@ -437,6 +448,15 @@ function AuthStack() {
   );
 }
 
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function TabNavigator() {
   const { currentTheme, selectedColor } = useTheme();
   const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
@@ -507,7 +527,7 @@ function TabNavigator() {
         />
         <Tab.Screen 
           name="Profile" 
-          component={ProfileScreen} 
+          component={ProfileStack} 
           options={{ 
             tabBarIcon: ({ color }) => <User size={20} color={color} /> 
           }} 

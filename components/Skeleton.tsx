@@ -159,6 +159,76 @@ export const HomeSkeleton: React.FC = () => {
   );
 };
 
+// Skeleton para EditProfile
+export const EditProfileSkeleton: React.FC = () => {
+  const { currentTheme } = useTheme();
+  return (
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.colors.background }]}>
+      <View style={[styles.editProfileContainer, { backgroundColor: currentTheme.colors.background }]}>
+        {/* Header Skeleton */}
+        <View style={styles.editProfileHeader}>
+          <SkeletonItem width={24} height={24} borderRadius={12} />
+          <SkeletonItem width={100} height={24} />
+          <SkeletonItem width={60} height={24} borderRadius={12} />
+        </View>
+        {/* Avatar Section Skeleton */}
+        <View style={styles.editProfileAvatarSection}>
+          <SkeletonItem width={100} height={100} borderRadius={50} />
+          <SkeletonItem width={80} height={32} borderRadius={16} marginTop={12} />
+        </View>
+        {/* Form Sections Skeleton */}
+        <View style={styles.editProfileFormSection}>
+          <SkeletonItem width={120} height={20} marginBottom={16} />
+          <View style={styles.editProfileInputRow}>
+            <SkeletonItem width="48%" height={48} borderRadius={12} />
+            <SkeletonItem width="48%" height={48} borderRadius={12} />
+          </View>
+          <SkeletonItem width="100%" height={48} borderRadius={12} marginTop={16} />
+          <SkeletonItem width="100%" height={48} borderRadius={12} marginTop={16} />
+        </View>
+        <View style={styles.editProfileFormSection}>
+          <SkeletonItem width={140} height={20} marginBottom={16} />
+          <SkeletonItem width="100%" height={48} borderRadius={12} />
+          <View style={styles.editProfileInputRow}>
+            <SkeletonItem width="48%" height={48} borderRadius={12} marginTop={16} />
+            <SkeletonItem width="48%" height={48} borderRadius={12} marginTop={16} />
+          </View>
+          <View style={styles.editProfileInputRow}>
+            <SkeletonItem width="48%" height={48} borderRadius={12} marginTop={16} />
+            <SkeletonItem width="48%" height={48} borderRadius={12} marginTop={16} />
+          </View>
+        </View>
+        <View style={styles.editProfileFormSection}>
+          <SkeletonItem width={160} height={20} marginBottom={16} />
+          <SkeletonItem width="100%" height={48} borderRadius={12} />
+          <SkeletonItem width="100%" height={48} borderRadius={12} marginTop={16} />
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+// Skeleton específico para avatares
+export const AvatarSkeleton: React.FC<{ size?: number; style?: any }> = ({ 
+  size = 100, 
+  style 
+}) => {
+  const { currentTheme } = useTheme();
+  return (
+    <SkeletonItem 
+      width={size} 
+      height={size} 
+      borderRadius={size / 2}
+      style={[
+        {
+          backgroundColor: currentTheme.colors.border,
+        },
+        style
+      ]}
+    />
+  );
+};
+
 // Skeleton genérico reutilizable
 export const Skeleton: React.FC<SkeletonProps> = ({ 
   width = '100%', 
@@ -235,6 +305,28 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: 4,
+  },
+  // EditProfile Skeleton styles
+  editProfileContainer: {
+    flex: 1,
+    padding: Platform.OS === 'android' ? 16 : 20,
+  },
+  editProfileHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  editProfileAvatarSection: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  editProfileFormSection: {
+    marginBottom: 24,
+  },
+  editProfileInputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
 

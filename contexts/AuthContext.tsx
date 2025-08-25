@@ -13,6 +13,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: any }>;
   signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: any }>;
   signOut: () => Promise<void>;
+  updateUserAvatar: (avatarUrl: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -217,6 +218,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateUserAvatar = (avatarUrl: string) => {
+    if (user) {
+      setUser({
+        ...user,
+        user_metadata: {
+          ...user.user_metadata,
+          avatar_url: avatarUrl,
+        },
+      });
+    }
+  };
+
   const value: AuthContextType = {
     user,
     loading,
@@ -226,6 +239,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signUpWithEmail,
     signInWithEmail,
     signOut,
+    updateUserAvatar,
   };
 
   return (

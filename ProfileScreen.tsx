@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { Theme, themes, defaultTheme } from './theme';
 import { useTheme } from './ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { colorOptions } from './colorConfig';
+import { UserService, UserProfile } from './services/userService';
 
 const userPets = [
   {
@@ -27,14 +28,34 @@ const userPets = [
 
 
 
-function ProfileScreen() {
+function ProfileScreen({ navigation }: { navigation: any }) {
   const { currentTheme, isDarkMode, toggleTheme, selectedColor, setSelectedColor } = useTheme();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState({
     vaccineReminders: true,
     communityUpdates: true,
     promotions: true
   });
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      setLoading(true);
+      const result = await UserService.getCurrentUserProfile();
+      if (result.success && result.data) {
+        setProfile(result.data);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const styles = createStyles(currentTheme);
 
@@ -51,15 +72,24 @@ function ProfileScreen() {
           <View style={styles.header}>
             <View style={styles.profileInfo}>
               <Image 
-                source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' }} 
+                source={{ 
+                  uri: profile?.avatar_url || user?.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' 
+                }} 
                 style={styles.profileImage} 
               />
               <View style={styles.userInfo}>
-                <Text style={styles.userName}>Sarah Williams</Text>
-                <Text style={styles.userEmail}>sarah@example.com</Text>
+                <Text style={styles.userName}>
+                  {profile?.full_name || user?.user_metadata?.full_name || 'User'}
+                </Text>
+                <Text style={styles.userEmail}>
+                  {profile?.email || user?.email || 'user@example.com'}
+                </Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity 
+              style={styles.editButton}
+              onPress={() => navigation.navigate('EditProfile')}
+            >
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
@@ -234,7 +264,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     marginBottom: 4,
   },
   userEmail: {
-    fontSize: 16,
+    fontSize: 14,
     color: theme.colors.textSecondary,
   },
   editButton: {

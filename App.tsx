@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, ShoppingCart, User, Footprints, Heart, Circle, PawPrint } from 'lucide-react-native';
+import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, ShoppingCart, User, Footprints, Heart, Circle, PawPrint, Building2, Image as ImageIcon } from 'lucide-react-native';
 import { Theme, themes, defaultTheme } from './theme';
 import ProfileScreen from './ProfileScreen';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -14,6 +14,7 @@ import { defaultColor } from './colorConfig';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
+import PetGalleryScreen from './screens/PetGalleryScreen';
 import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeSkeleton, AvatarSkeleton } from './components/Skeleton';
 import { UserService } from './services/userService';
@@ -118,7 +119,7 @@ function useNavigationBarDetection() {
   return { hasNavigationBar, navigationBarHeight };
 }
 
-function HomeScreen() {
+function HomeScreen({ navigation }: any) {
   const { currentTheme, selectedColor } = useTheme();
   const { user } = useAuth();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
@@ -132,7 +133,9 @@ function HomeScreen() {
     return selectedColor;
   };
 
-
+  const navigateToGallery = () => {
+    navigation.navigate('Gallery');
+  };
 
   // Simular carga de datos
   useEffect(() => {
@@ -387,7 +390,7 @@ function HomeScreen() {
                        </View>
                      <Text style={[styles.galleryTitle, { color: getDynamicColor() }]}>Pet Photos</Text>
                    </View>
-                   <TouchableOpacity>
+                   <TouchableOpacity onPress={navigateToGallery}>
                      <Text style={styles.seeAllText}>See all</Text>
                    </TouchableOpacity>
                  </View>
@@ -509,6 +512,13 @@ function TabNavigator() {
           component={HomeScreen} 
           options={{ 
             tabBarIcon: ({ color }) => <Calendar size={20} color={color} /> 
+          }} 
+        />
+        <Tab.Screen 
+          name="Gallery" 
+          component={PetGalleryScreen} 
+          options={{ 
+            tabBarIcon: ({ color }) => <ImageIcon size={20} color={color} /> 
           }} 
         />
         <Tab.Screen 

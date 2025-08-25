@@ -98,6 +98,114 @@ export class OrganizationService {
     }
   }
 
+  // Get all public organizations (for Gallery view)
+  static async getAllOrganizations(): Promise<{ success: boolean; data?: Organization[]; error?: any }> {
+    try {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching organizations:', error);
+        return { success: false, error };
+      }
+
+      // Si no hay datos, devolver organizaciones de ejemplo
+      if (!data || data.length === 0) {
+        const sampleOrganizations: Organization[] = [
+          {
+            id: '1',
+            name: 'PetCare Veterinary Clinic',
+            description: 'Complete veterinary care for all types of pets. Specializing in preventive medicine and emergency care.',
+            address: '123 Main Street',
+            city: 'Los Angeles',
+            state: 'CA',
+            country: 'United States',
+            phone: '+1 (555) 123-4567',
+            email: 'info@petcareclinic.com',
+            website: 'https://petcareclinic.com',
+            logo_url: '',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            name: 'Animal Hospital Center',
+            description: '24/7 emergency veterinary services and specialized care for exotic animals.',
+            address: '456 Oak Avenue',
+            city: 'Los Angeles',
+            state: 'CA',
+            country: 'United States',
+            phone: '+1 (555) 234-5678',
+            email: 'emergency@animalhospital.com',
+            website: 'https://animalhospital.com',
+            logo_url: '',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            id: '3',
+            name: 'VetCare Express',
+            description: 'Fast and affordable veterinary care with mobile services available.',
+            address: '789 Pine Street',
+            city: 'Los Angeles',
+            state: 'CA',
+            country: 'United States',
+            phone: '+1 (555) 345-6789',
+            email: 'contact@vetcareexpress.com',
+            website: 'https://vetcareexpress.com',
+            logo_url: '',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            id: '4',
+            name: 'Pawsome Grooming Salon',
+            description: 'Professional pet grooming services for dogs and cats. Spa treatments and styling available.',
+            address: '321 Elm Street',
+            city: 'Los Angeles',
+            state: 'CA',
+            country: 'United States',
+            phone: '+1 (555) 456-7890',
+            email: 'grooming@pawsome.com',
+            website: 'https://pawsomegrooming.com',
+            logo_url: '',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            id: '5',
+            name: 'Pet Paradise Store',
+            description: 'Premium pet supplies, food, toys, and accessories. Everything your pet needs under one roof.',
+            address: '654 Maple Drive',
+            city: 'Los Angeles',
+            state: 'CA',
+            country: 'United States',
+            phone: '+1 (555) 567-8901',
+            email: 'shop@petparadise.com',
+            website: 'https://petparadise.com',
+            logo_url: '',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ];
+        return { success: true, data: sampleOrganizations };
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error in getAllOrganizations:', error);
+      return { success: false, error };
+    }
+  }
+
   // Get organization by ID
   static async getOrganization(organizationId: string): Promise<{ success: boolean; data?: Organization; error?: any }> {
     try {

@@ -246,6 +246,64 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   );
 };
 
+// Skeleton para Gallery
+export const GallerySkeleton: React.FC = () => {
+  const { currentTheme } = useTheme();
+
+  return (
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.colors.background }]}>
+      <View style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
+        {/* Header Skeleton */}
+        <View style={styles.headerContainer}>
+          <View style={styles.headerContent}>
+            <View style={styles.titleContainer}>
+              <SkeletonItem width={40} height={40} borderRadius={20} />
+              <SkeletonItem width={150} height={24} borderRadius={12} style={{ marginLeft: 12 }} />
+            </View>
+            <SkeletonItem width={200} height={16} borderRadius={8} style={{ marginTop: 8 }} />
+          </View>
+        </View>
+
+        {/* Search Bar Skeleton */}
+        <View style={styles.searchContainer}>
+          <SkeletonItem width="100%" height={50} borderRadius={12} />
+        </View>
+
+        {/* Filter Buttons Skeleton */}
+        <View style={styles.filterContainer}>
+          <View style={styles.filterButtons}>
+            {[1, 2, 3, 4, 5].map((item) => (
+              <SkeletonItem key={item} width={80} height={32} borderRadius={16} style={{ marginRight: 12 }} />
+            ))}
+          </View>
+        </View>
+
+        {/* Organization Cards Skeleton */}
+        <View style={styles.cardsContainer}>
+          {[1, 2, 3].map((card) => (
+            <View key={card} style={styles.cardSkeleton}>
+              <View style={styles.cardHeader}>
+                <SkeletonItem width={60} height={60} borderRadius={12} />
+                <View style={styles.cardInfo}>
+                  <SkeletonItem width={120} height={18} borderRadius={9} />
+                  <SkeletonItem width={80} height={14} borderRadius={7} style={{ marginTop: 4 }} />
+                  <SkeletonItem width={150} height={14} borderRadius={7} style={{ marginTop: 4 }} />
+                </View>
+                <SkeletonItem width={20} height={20} borderRadius={10} />
+              </View>
+              <View style={styles.cardActions}>
+                <SkeletonItem width={60} height={28} borderRadius={8} />
+                <SkeletonItem width={60} height={28} borderRadius={8} />
+                <SkeletonItem width={60} height={28} borderRadius={8} />
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -254,6 +312,45 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Platform.OS === 'android' ? 16 : 20,
     paddingBottom: 40,
+  },
+  // Gallery Skeleton styles
+  headerContent: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  searchContainer: {
+    marginBottom: 20,
+  },
+  filterContainer: {
+    marginBottom: 20,
+  },
+  filterButtons: {
+    flexDirection: 'row',
+  },
+  cardsContainer: {
+    gap: 16,
+  },
+  cardSkeleton: {
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  cardInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
   headerContainer: {
     marginBottom: 16,

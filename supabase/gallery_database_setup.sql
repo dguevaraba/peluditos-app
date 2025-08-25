@@ -121,6 +121,18 @@ ALTER TABLE album_shares ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Categories are viewable by authenticated users" ON categories
     FOR SELECT USING (auth.role() = 'authenticated');
 
+-- Categories: Users can insert new categories
+CREATE POLICY "Users can insert categories" ON categories
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+-- Categories: Users can update categories they created
+CREATE POLICY "Users can update categories" ON categories
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+-- Categories: Users can delete categories they created
+CREATE POLICY "Users can delete categories" ON categories
+    FOR DELETE USING (auth.role() = 'authenticated');
+
 -- Albums: Users can see their own albums and public albums
 CREATE POLICY "Users can view their own albums" ON albums
     FOR SELECT USING (auth.uid() = user_id);

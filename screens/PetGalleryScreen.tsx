@@ -14,6 +14,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { GallerySkeleton } from '../components/Skeleton';
+import AddPhotoOrCategoryScreen from './AddPhotoOrCategoryScreen';
+import AddPhotoScreen from './AddPhotoScreen';
+import CreateCategoryScreen from './CreateCategoryScreen';
+import { CategoryService } from '../services/categoryService';
 import { 
   ArrowLeft,
   Heart,
@@ -104,12 +108,35 @@ const PetGalleryScreen = () => {
   const [selectedAlbum, setSelectedAlbum] = useState<PetPhoto | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [showAddOptions, setShowAddOptions] = useState(false);
+  const [showAddPhoto, setShowAddPhoto] = useState(false);
+  const [showCreateCategory, setShowCreateCategory] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   const getDynamicColor = () => selectedColor;
 
+  // Cargar categorías reales
+  const loadCategories = async () => {
+    try {
+      console.log('Loading all categories...');
+      const allCategories = await CategoryService.getAllCategories();
+      console.log('Categories loaded from database:', allCategories);
+      setCategories(allCategories);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      // Fallback a categorías de ejemplo si hay error
+      setCategories([
+        { id: '1', name: 'Vet Visits', color: '#65b6ad', icon: 'heart' },
+        { id: '2', name: 'Walks', color: '#8b5cf6', icon: 'dog' },
+        { id: '3', name: 'Birthday', color: '#f59e0b', icon: 'star' },
+      ]);
+    }
+  };
+
   // Simular carga inicial más rápida
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      await loadCategories();
       setLoading(false);
     }, 800); // Más rápido que el home (800ms vs 2000ms)
 
@@ -133,9 +160,26 @@ const PetGalleryScreen = () => {
   };
 
   const handleAddPhoto = () => {
-    // Aquí podrías abrir la cámara o galería para agregar fotos
-    console.log('Add photo pressed');
-    // TODO: Implementar funcionalidad de agregar fotos
+    setShowAddPhoto(true);
+  };
+
+  const handleAddCategory = () => {
+    setShowCreateCategory(true);
+  };
+
+  const handlePhotoAdded = () => {
+    // TODO: Refresh gallery data
+    console.log('Photo added, refreshing gallery...');
+  };
+
+  const handleCategoryCreated = () => {
+    // Recargar categorías cuando se crea una nueva
+    loadCategories();
+    console.log('Category created, refreshing data...');
+  };
+
+  const handleAddButtonPress = () => {
+    setShowAddOptions(true);
   };
 
   const renderFilterButton = (filter: string, label: string) => (
@@ -398,9 +442,23 @@ const PetGalleryScreen = () => {
                 {renderFilterButton('all', 'All')}
                 {renderFilterButton('recent', 'Recent')}
                 {renderFilterButton('favorites', 'Favorites')}
-                {renderFilterButton('vets', 'Vet Visits')}
-                {renderFilterButton('walks', 'Walks')}
-                {renderFilterButton('birthday', 'Birthday')}
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.id}
+                    style={[
+                      styles.filterButton,
+                      selectedFilter === category.id && { backgroundColor: category.color }
+                    ]}
+                    onPress={() => setSelectedFilter(category.id)}
+                  >
+                    <Text style={[
+                      styles.filterButtonText,
+                      { color: selectedFilter === category.id ? '#ffffff' : currentTheme.colors.text }
+                    ]}>
+                      {category.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </ScrollView>
             </View>
 
@@ -440,10 +498,32 @@ const PetGalleryScreen = () => {
             {/* Floating Add Button */}
             <TouchableOpacity 
               style={[styles.floatingAddButton, { backgroundColor: getDynamicColor() }]}
-              onPress={handleAddPhoto}
+              onPress={handleAddButtonPress}
             >
               <Plus size={28} color="#ffffff" />
             </TouchableOpacity>
+
+            {/* Add Photo or Category Modal */}
+            <AddPhotoOrCategoryScreen
+              visible={showAddOptions}
+              onClose={() => setShowAddOptions(false)}
+              onAddPhoto={handleAddPhoto}
+              onAddCategory={handleAddCategory}
+            />
+
+            {/* Add Photo Modal */}
+            <AddPhotoScreen
+              visible={showAddPhoto}
+              onClose={() => setShowAddPhoto(false)}
+              onPhotoAdded={handlePhotoAdded}
+            />
+
+            {/* Create Category Modal */}
+            <CreateCategoryScreen
+              visible={showCreateCategory}
+              onClose={() => setShowCreateCategory(false)}
+              onCategoryCreated={handleCategoryCreated}
+            />
           </>
         )}
       </LinearGradient>

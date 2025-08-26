@@ -18,6 +18,7 @@ import PetGalleryScreen from './screens/PetGalleryScreen';
 import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeSkeleton, AvatarSkeleton } from './components/Skeleton';
 import { UserService } from './services/userService';
+import { AlbumService } from './services/albumService';
 
 const petAlbums = [
   {
@@ -124,6 +125,7 @@ function HomeScreen({ navigation }: any) {
   const { user } = useAuth();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [featuredAlbums, setFeaturedAlbums] = useState<any[]>([]);
   const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
 
   const styles = createStyles(currentTheme);
@@ -133,17 +135,49 @@ function HomeScreen({ navigation }: any) {
     return selectedColor;
   };
 
+  // Obtener álbumes para mostrar (destacados reales o de ejemplo)
+  const getDisplayAlbums = () => {
+    if (featuredAlbums.length > 0) {
+      // Transformar álbumes reales al formato esperado
+      return featuredAlbums.map((album) => ({
+        title: album.title,
+        image: album.cover_image_url || 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop',
+        photoCount: 0, // TODO: Implementar conteo real de fotos
+      }));
+    }
+    // Fallback a álbumes de ejemplo si no hay destacados
+    return petAlbums;
+  };
+
   const navigateToGallery = () => {
     navigation.navigate('Gallery');
   };
 
+  // Cargar álbumes destacados
+  const loadFeaturedAlbums = async () => {
+    try {
+      if (user?.id) {
+        const albums = await AlbumService.getUserAlbums(user.id);
+        const featured = albums.filter(album => album.is_featured);
+        setFeaturedAlbums(featured);
+      }
+    } catch (error) {
+      console.error('Error loading featured albums:', error);
+    }
+  };
+
   // Simular carga de datos
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // Mostrar skeleton por 2 segundos
+    const loadData = async () => {
+      await loadFeaturedAlbums();
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000); // Mostrar skeleton por 2 segundos
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    };
+    
+    loadData();
   }, []);
 
   // Mostrar skeleton mientras carga
@@ -396,15 +430,15 @@ function HomeScreen({ navigation }: any) {
                  </View>
                  <View style={styles.albumContainer}>
                    <View style={styles.albumInfo}>
-                     <Text style={[styles.albumTitle, { color: getDynamicColor() }]}>{petAlbums[selectedAlbum].title}</Text>
+                     <Text style={[styles.albumTitle, { color: getDynamicColor() }]}>{getDisplayAlbums()[selectedAlbum]?.title || 'No featured albums'}</Text>
                      <View style={[styles.photoCountBadge, { backgroundColor: getDynamicColor() }]}>
                        <FontAwesome5 name="images" size={12} color="#ffffff" />
-                       <Text style={styles.photoCountText}>{petAlbums[selectedAlbum].photoCount} photos</Text>
+                       <Text style={styles.photoCountText}>{getDisplayAlbums()[selectedAlbum]?.photoCount || 0} photos</Text>
                      </View>
                    </View>
                    <FlatList
                      horizontal
-                     data={petAlbums}
+                     data={getDisplayAlbums()}
                      keyExtractor={(item, index) => index.toString()}
                      renderItem={({ item, index }) => (
                        <TouchableOpacity 
@@ -427,6 +461,13 @@ function HomeScreen({ navigation }: any) {
                      showsHorizontalScrollIndicator={false}
                      nestedScrollEnabled={false}
                      scrollEnabled={true}
+                     ListEmptyComponent={
+                       <View style={styles.emptyAlbumsContainer}>
+                         <Text style={[styles.emptyAlbumsText, { color: currentTheme.colors.textSecondary }]}>
+                           No featured albums yet
+                         </Text>
+                       </View>
+                     }
                    />
                  </View>
                </View>
@@ -1463,6 +1504,15 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     borderColor: '#65b6ad',
     borderRadius: 23,
     padding: 2,
+  },
+  emptyAlbumsContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  emptyAlbumsText: {
+    fontSize: 14,
+    textAlign: 'center',
   },
 
 });

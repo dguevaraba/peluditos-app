@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -56,12 +56,14 @@ interface CreateCategoryScreenProps {
   visible: boolean;
   onClose: () => void;
   onCategoryCreated: () => void;
+  editingCategory?: any; // Categoría existente para editar
 }
 
 const CreateCategoryScreen: React.FC<CreateCategoryScreenProps> = ({
   visible,
   onClose,
   onCategoryCreated,
+  editingCategory
 }) => {
   const { currentTheme, selectedColor } = useTheme();
   const { user } = useAuth();
@@ -82,6 +84,22 @@ const CreateCategoryScreen: React.FC<CreateCategoryScreenProps> = ({
     message: '',
     type: 'success',
   });
+
+  // Cargar datos de la categoría si estamos editando
+  useEffect(() => {
+    if (editingCategory) {
+      setCategoryName(editingCategory.name || '');
+      setCategoryDescription(editingCategory.description || '');
+      setCategoryColor(editingCategory.color || '#65b6ad');
+      setSelectedIcon(editingCategory.icon || 'folder');
+    } else {
+      // Resetear formulario si no estamos editando
+      setCategoryName('');
+      setCategoryDescription('');
+      setCategoryColor('#65b6ad');
+      setSelectedIcon('folder');
+    }
+  }, [editingCategory, visible]);
 
   const colorOptions: ColorOption[] = [
     { id: 'green', color: '#65b6ad', name: 'Green' },
@@ -146,10 +164,18 @@ const CreateCategoryScreen: React.FC<CreateCategoryScreenProps> = ({
         icon: selectedIcon,
       };
 
-      const newCategory = await CategoryService.createCategory(categoryData);
-      
-      console.log('Category created successfully:', newCategory);
-      showToast('Category created successfully!', 'success');
+      let newCategory;
+      if (editingCategory) {
+        // Modo edición
+        newCategory = await CategoryService.updateCategory(editingCategory.id, categoryData);
+        console.log('Category updated successfully:', newCategory);
+        showToast('Category updated successfully!', 'success');
+      } else {
+        // Modo creación
+        newCategory = await CategoryService.createCategory(categoryData);
+        console.log('Category created successfully:', newCategory);
+        showToast('Category created successfully!', 'success');
+      }
       
       // Wait for toast to show before closing
       setTimeout(() => {
@@ -157,8 +183,8 @@ const CreateCategoryScreen: React.FC<CreateCategoryScreenProps> = ({
         handleClose();
       }, 800);
     } catch (error) {
-      console.error('Error creating category:', error);
-      showToast('Failed to create category. Please try again.', 'error');
+      console.error('Error saving category:', error);
+      showToast('Failed to save category. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -325,7 +351,7 @@ const CreateCategoryScreen: React.FC<CreateCategoryScreenProps> = ({
               <X size={24} color={currentTheme.colors.text} />
             </TouchableOpacity>
             <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>
-              Create Category
+              {editingCategory ? 'Edit Category' : 'Create Category'}
             </Text>
             <TouchableOpacity 
               style={[
@@ -339,7 +365,7 @@ const CreateCategoryScreen: React.FC<CreateCategoryScreenProps> = ({
               disabled={saving || !categoryName.trim()}
             >
               <Text style={styles.saveButtonText}>
-                {saving ? 'Creating...' : 'Create'}
+                {saving ? (editingCategory ? 'Updating...' : 'Creating...') : (editingCategory ? 'Update' : 'Create')}
               </Text>
             </TouchableOpacity>
           </View>

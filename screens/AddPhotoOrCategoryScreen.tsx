@@ -17,7 +17,8 @@ import {
   FolderPlus,
   X,
   Image as ImageIcon,
-  Tag
+  Tag,
+  Album
 } from 'lucide-react-native';
 
 interface AddPhotoOrCategoryScreenProps {
@@ -25,6 +26,9 @@ interface AddPhotoOrCategoryScreenProps {
   onClose: () => void;
   onAddPhoto: () => void;
   onAddCategory: () => void;
+  onCreateAlbum: () => void;
+  onQuickCamera: () => void;
+  onQuickGallery: () => void;
 }
 
 const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
@@ -32,6 +36,9 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
   onClose,
   onAddPhoto,
   onAddCategory,
+  onCreateAlbum,
+  onQuickCamera,
+  onQuickGallery,
 }) => {
   const { currentTheme, selectedColor } = useTheme();
   const { user } = useAuth();
@@ -46,6 +53,21 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
   const handleAddCategory = () => {
     onClose();
     onAddCategory();
+  };
+
+  const handleCreateAlbum = () => {
+    onClose();
+    onCreateAlbum();
+  };
+
+  const handleQuickCamera = () => {
+    onClose();
+    onQuickCamera();
+  };
+
+  const handleQuickGallery = () => {
+    onClose();
+    onQuickGallery();
   };
 
   return (
@@ -105,6 +127,34 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
               </LinearGradient>
             </TouchableOpacity>
 
+            {/* Album Option */}
+            <TouchableOpacity
+              style={[styles.optionCard, { backgroundColor: `${getDynamicColor()}15` }]}
+              onPress={handleCreateAlbum}
+            >
+              <LinearGradient
+                colors={[`${getDynamicColor()}20`, `${getDynamicColor()}10`]}
+                style={styles.optionGradient}
+              >
+                <View style={styles.optionIconContainer}>
+                  <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
+                    <Album size={28} color="#ffffff" />
+                  </View>
+                </View>
+                <View style={styles.optionContent}>
+                  <Text style={[styles.optionTitle, { color: currentTheme.colors.text }]}>
+                    Create Album
+                  </Text>
+                  <Text style={[styles.optionDescription, { color: currentTheme.colors.textSecondary }]}>
+                    Create a new album to organize your photos by theme or event
+                  </Text>
+                </View>
+                <View style={styles.optionArrow}>
+                  <FolderPlus size={20} color={getDynamicColor()} />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
             {/* Category Option */}
             <TouchableOpacity
               style={[styles.optionCard, { backgroundColor: `${getDynamicColor()}15` }]}
@@ -116,7 +166,7 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
               >
                 <View style={styles.optionIconContainer}>
                   <View style={[styles.iconCircle, { backgroundColor: getDynamicColor() }]}>
-                    <FolderPlus size={28} color="#ffffff" />
+                    <Tag size={28} color="#ffffff" />
                   </View>
                 </View>
                 <View style={styles.optionContent}>
@@ -124,7 +174,7 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
                     Create Category
                   </Text>
                   <Text style={[styles.optionDescription, { color: currentTheme.colors.textSecondary }]}>
-                    Create a new category to organize your photos better
+                    Create a new category to organize your albums better
                   </Text>
                 </View>
                 <View style={styles.optionArrow}>
@@ -140,7 +190,10 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
               </Text>
               
               <View style={styles.quickActionsGrid}>
-                <TouchableOpacity style={styles.quickActionButton}>
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={handleQuickCamera}
+                >
                   <View style={[styles.quickActionIcon, { backgroundColor: getDynamicColor() }]}>
                     <Camera size={16} color="#ffffff" />
                   </View>
@@ -149,7 +202,10 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.quickActionButton}>
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={handleQuickGallery}
+                >
                   <View style={[styles.quickActionIcon, { backgroundColor: getDynamicColor() }]}>
                     <ImageIcon size={16} color="#ffffff" />
                   </View>
@@ -158,7 +214,10 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.quickActionButton}>
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={handleCreateAlbum}
+                >
                   <View style={[styles.quickActionIcon, { backgroundColor: getDynamicColor() }]}>
                     <FolderPlus size={16} color="#ffffff" />
                   </View>
@@ -167,7 +226,10 @@ const AddPhotoOrCategoryScreen: React.FC<AddPhotoOrCategoryScreenProps> = ({
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.quickActionButton}>
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={handleAddCategory}
+                >
                   <View style={[styles.quickActionIcon, { backgroundColor: getDynamicColor() }]}>
                     <Tag size={16} color="#ffffff" />
                   </View>

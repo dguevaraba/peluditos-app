@@ -114,7 +114,7 @@ const petAlbums = [
   }
 ];
 
-const PetGalleryScreen = () => {
+const PetGalleryScreen = ({ navigation, route }: { navigation: any; route: any }) => {
   const { currentTheme, selectedColor } = useTheme();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -154,6 +154,24 @@ const PetGalleryScreen = () => {
   }, [showDeleteConfirmation]);
 
   const getDynamicColor = () => selectedColor;
+
+  // Manejar parámetros de navegación
+  useEffect(() => {
+    if (route?.params?.selectedAlbum && route?.params?.openAlbumDetail) {
+      const albumData = route.params.selectedAlbum;
+      setSelectedAlbum({
+        id: albumData.id,
+        title: albumData.title,
+        image: albumData.cover_image_url || '',
+        photoCount: albumPhotoCounts[albumData.id] || 0,
+        date: albumData.date || '',
+        location: albumData.location || '',
+        description: albumData.description || ''
+      });
+      // Limpiar parámetros para evitar que se ejecute de nuevo
+      navigation.setParams({ selectedAlbum: null, openAlbumDetail: false });
+    }
+  }, [route?.params, albumPhotoCounts]);
 
   // Cargar categorías reales
   const loadCategories = async () => {

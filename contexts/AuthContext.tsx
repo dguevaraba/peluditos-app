@@ -7,6 +7,7 @@ import * as WebBrowser from 'expo-web-browser';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  userProfile: any;
   signInWithGoogle: () => Promise<void>;
   signInWithFacebook: () => Promise<void>;
   signInWithApple: () => Promise<void>;
@@ -14,6 +15,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: any }>;
   signOut: () => Promise<void>;
   updateUserAvatar: (avatarUrl: string) => void;
+  refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +35,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     // Check for existing session on app start
@@ -62,11 +65,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { success, user } = await AuthService.getCurrentUser();
       if (success && user) {
         setUser(user as User);
+        // Load user profile immediately after setting user
+        await loadUserProfile(user.id);
       }
     } catch (error) {
       console.error('Error checking user:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const { UserService } = await import('../services/userService');
+      const result = await UserService.getCurrentUserProfile();
+      if (result.success && result.data) {
+        setUserProfile(result.data);
+        // Update user with profile data including avatar
+        if (result.data.avatar_url) {
+          setUser(prevUser => prevUser ? {
+            ...prevUser,
+            user_metadata: {
+              ...prevUser.user_metadata,
+              avatar_url: result.data.avatar_url,
+              full_name: result.data.full_name || prevUser.user_metadata?.full_name
+            }
+          } : null);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
     }
   };
 
@@ -233,6 +261,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     loading,
+    userProfile,
     signInWithGoogle,
     signInWithFacebook,
     signInWithApple,
@@ -240,6 +269,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signInWithEmail,
     signOut,
     updateUserAvatar,
+    refreshUserProfile: () => loadUserProfile(user?.id || ''),
   };
 
   return (

@@ -126,6 +126,7 @@ function HomeScreen({ navigation }: any) {
   const [selectedAlbum, setSelectedAlbum] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [featuredAlbums, setFeaturedAlbums] = useState<any[]>([]);
+  const [albumPhotoCounts, setAlbumPhotoCounts] = useState<{[key: string]: number}>({});
   const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
 
   const styles = createStyles(currentTheme);
@@ -140,9 +141,11 @@ function HomeScreen({ navigation }: any) {
     if (featuredAlbums.length > 0) {
       // Transformar álbumes reales al formato esperado
       return featuredAlbums.map((album) => ({
+        id: album.id,
         title: album.title,
         image: album.cover_image_url || 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop',
-        photoCount: 0, // TODO: Implementar conteo real de fotos
+        photoCount: albumPhotoCounts[album.id] || 0,
+        albumData: album, // Datos completos del álbum para navegación
       }));
     }
     // Fallback a álbumes de ejemplo si no hay destacados
@@ -153,6 +156,14 @@ function HomeScreen({ navigation }: any) {
     navigation.navigate('Gallery');
   };
 
+  // Navegar a un álbum específico
+  const navigateToAlbum = (albumData: any) => {
+    navigation.navigate('Gallery', { 
+      selectedAlbum: albumData,
+      openAlbumDetail: true 
+    });
+  };
+
   // Cargar álbumes destacados
   const loadFeaturedAlbums = async () => {
     try {
@@ -160,9 +171,34 @@ function HomeScreen({ navigation }: any) {
         const albums = await AlbumService.getUserAlbums(user.id);
         const featured = albums.filter(album => album.is_featured);
         setFeaturedAlbums(featured);
+        
+        // Cargar conteo de fotos para cada álbum destacado
+        await loadAlbumPhotoCounts(featured);
       }
     } catch (error) {
       console.error('Error loading featured albums:', error);
+    }
+  };
+
+  // Cargar conteo de fotos para álbumes
+  const loadAlbumPhotoCounts = async (albums: any[]) => {
+    try {
+      const { PhotoService } = await import('./services/photoService');
+      const counts: {[key: string]: number} = {};
+      
+      for (const album of albums) {
+        try {
+          const photos = await PhotoService.getPhotosByAlbum(album.id);
+          counts[album.id] = photos.length;
+        } catch (error) {
+          console.error(`Error loading photos for album ${album.id}:`, error);
+          counts[album.id] = 0;
+        }
+      }
+      
+      setAlbumPhotoCounts(counts);
+    } catch (error) {
+      console.error('Error loading album photo counts:', error);
     }
   };
 
@@ -446,7 +482,23 @@ function HomeScreen({ navigation }: any) {
                            styles.albumPage, 
                            selectedAlbum === index && [styles.selectedAlbumPage, { borderColor: getDynamicColor() }]
                          ]}
-                         onPress={() => setSelectedAlbum(index)}
+                         onPress={() => {
+                           if (selectedAlbum === index) {
+                             // Si ya está seleccionado, navegar al álbum
+                             if (item.albumData) {
+                               navigateToAlbum(item.albumData);
+                             }
+                           } else {
+                             // Si no está seleccionado, seleccionarlo
+                             setSelectedAlbum(index);
+                           }
+                         }}
+                         onLongPress={() => {
+                           // Long press siempre navega al álbum
+                           if (item.albumData) {
+                             navigateToAlbum(item.albumData);
+                           }
+                         }}
                        >
                          <Image source={{ uri: item.image }} style={styles.albumImage} />
                          <View style={[styles.albumBadge, { backgroundColor: getDynamicColor() }]}>

@@ -5,9 +5,23 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { Activity, Syringe, Edit, Bell, MapPin, Phone, Home, Calendar, Users, ShoppingCart, User, Footprints, Heart, Circle, PawPrint, Building2, Image as ImageIcon } from 'lucide-react-native';
-import { Theme, themes, defaultTheme } from './theme';
-import ProfileScreen from './ProfileScreen';
+import { 
+  Activity, 
+  Bell, 
+  MapPin, 
+  Home, 
+  Calendar, 
+  Users, 
+  User, 
+  Heart, 
+  PawPrint, 
+  Image as ImageIcon,
+  Edit,
+  Syringe,
+  ShoppingCart
+} from 'lucide-react-native';
+import { defaultTheme, Theme } from './theme';
+import ProfileScreen from './screens/ProfileScreen';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { defaultColor } from './colorConfig';
@@ -485,7 +499,7 @@ function HomeScreen({ navigation }: any) {
                          onPress={() => {
                            if (selectedAlbum === index) {
                              // Si ya está seleccionado, navegar al álbum
-                             if (item.albumData) {
+                             if ('albumData' in item && item.albumData) {
                                navigateToAlbum(item.albumData);
                              }
                            } else {
@@ -495,7 +509,7 @@ function HomeScreen({ navigation }: any) {
                          }}
                          onLongPress={() => {
                            // Long press siempre navega al álbum
-                           if (item.albumData) {
+                           if ('albumData' in item && item.albumData) {
                              navigateToAlbum(item.albumData);
                            }
                          }}

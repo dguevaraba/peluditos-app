@@ -110,48 +110,7 @@ export class UserService {
     }
   }
 
-  // Debug method to check database state
-  static async debugDatabaseState(): Promise<{ success: boolean; data?: any; error?: any }> {
-    try {
-      console.log('🔍 UserService: Debugging database state...');
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        return { success: false, error: 'No user found' };
-      }
 
-      console.log('🔍 UserService: Current user:', user);
-
-      // Check if table exists
-      const { data: tableCheck, error: tableError } = await supabase
-        .from('user_profiles')
-        .select('count')
-        .limit(1);
-
-      console.log('🔍 UserService: Table check:', { tableCheck, tableError });
-
-      // Check if user profile exists
-      const { data: profileData, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id);
-
-      console.log('🔍 UserService: Profile check:', { profileData, profileError });
-
-      return { 
-        success: true, 
-        data: { 
-          user, 
-          tableExists: !tableError, 
-          profileExists: profileData && profileData.length > 0,
-          profileData: profileData?.[0] || null
-        } 
-      };
-    } catch (error) {
-      console.error('🔴 UserService: Debug error:', error);
-      return { success: false, error };
-    }
-  }
 
   // Sync user data between auth.users and user_profiles
   static async syncUserData(): Promise<{ success: boolean; error?: any }> {

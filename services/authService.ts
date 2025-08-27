@@ -162,27 +162,17 @@ export class AuthService {
   // Sign in with email and password
   static async signInWithEmail(email: string, password: string) {
     try {
-      console.log('🔵 Starting email sign in...');
-      console.log('🔵 Email:', email);
-      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
-      console.log('🔵 Email sign in response:', data);
-      console.log('🔵 Email sign in error:', error);
       
       if (error) {
-        console.error('🔴 Email sign in error:', error);
-        console.error('🔴 Error message:', error.message);
-        console.error('🔴 Error status:', error.status);
         return { success: false, error };
       }
 
       return { success: true, data, error: null };
     } catch (error) {
-      console.error('🔴 Email sign in error:', error);
       return { success: false, error: error as Error };
     }
   }

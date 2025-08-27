@@ -42,7 +42,6 @@ export default function LoginScreen({ navigation }: any) {
         // Handle specific error messages
         let errorMessage = 'Login failed. Please try again.';
         if (result.error?.message) {
-          console.log('🔴 Login error details:', result.error);
           if (result.error.message.includes('Invalid login credentials')) {
             errorMessage = 'Invalid email or password.';
           } else if (result.error.message.includes('Email not confirmed')) {
@@ -56,7 +55,6 @@ export default function LoginScreen({ navigation }: any) {
         alert(errorMessage);
       }
     } catch (error) {
-      console.error('Email login error:', error);
       alert('Login failed. Please try again.');
     } finally {
       setEmailLoading(false);

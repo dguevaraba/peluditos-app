@@ -44,7 +44,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth state changes
     const { data: { subscription } } = AuthService.onAuthStateChange(
       async (event, session) => {
-        console.log('🔵 Auth state change:', event, session?.user?.email);
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user as User);
         } else if (event === 'SIGNED_OUT') {
@@ -69,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await loadUserProfile(user.id);
       }
     } catch (error) {
-      console.error('Error checking user:', error);
+      // Error handling - could integrate with crash reporting in production
     } finally {
       setLoading(false);
     }
@@ -94,44 +93,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      // Error handling - could integrate with crash reporting in production
     }
   };
 
   const signInWithGoogle = async () => {
     try {
-      console.log('🔵 AuthContext: Starting Google sign in...');
+
       setLoading(true);
       const result = await AuthService.signInWithGoogle();
-      console.log('🔵 AuthContext: Google sign in result:', result);
       
       if (result.success && result.data?.url) {
-        console.log('🔵 AuthContext: Opening URL with WebBrowser...');
         try {
           const authResult = await WebBrowser.openAuthSessionAsync(
             result.data.url,
             'peluditos://auth/callback'
           );
           
-          console.log('🔵 AuthContext: WebBrowser result:', authResult);
-          
           if (authResult.type === 'success' && authResult.url) {
-            console.log('🔵 AuthContext: Auth successful, URL:', authResult.url);
             // The session should be automatically handled by Supabase
             // We just need to wait for the auth state change
           } else if (authResult.type === 'cancel') {
-            console.log('🔵 AuthContext: Auth cancelled by user');
+            // User cancelled authentication
           } else {
-            console.error('🔴 AuthContext: Auth failed:', authResult);
+            // Auth failed
           }
         } catch (browserError) {
-          console.error('🔴 AuthContext: WebBrowser error:', browserError);
+          // WebBrowser error handling
         }
       } else if (!result.success) {
-        console.error('🔴 AuthContext: Google sign in error:', result.error);
+        // Google sign in error handling
       }
     } catch (error) {
-      console.error('🔴 AuthContext: Google sign in error:', error);
+      // Google sign in error handling
     } finally {
       setLoading(false);
     }
@@ -181,10 +175,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       const result = await AuthService.signInWithApple();
       if (!result.success) {
-        console.error('Apple sign in error:', result.error);
+        // Apple sign in error handling
       }
     } catch (error) {
-      console.error('Apple sign in error:', error);
+      // Apple sign in error handling
     } finally {
       setLoading(false);
     }
@@ -192,19 +186,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUpWithEmail = async (email: string, password: string, fullName: string) => {
     try {
-      console.log('🔵 AuthContext: Starting email sign up...');
       setLoading(true);
       const result = await AuthService.signUpWithEmail(email, password, fullName);
-      console.log('🔵 AuthContext: Email sign up result:', result);
       
       if (!result.success) {
-        console.error('🔴 AuthContext: Email sign up error:', result.error);
         return { success: false, error: result.error };
       }
 
       return { success: true };
     } catch (error) {
-      console.error('🔴 AuthContext: Email sign up error:', error);
       return { success: false, error };
     } finally {
       setLoading(false);
@@ -213,19 +203,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      console.log('🔵 AuthContext: Starting email sign in...');
       setLoading(true);
       const result = await AuthService.signInWithEmail(email, password);
-      console.log('🔵 AuthContext: Email sign in result:', result);
       
       if (!result.success) {
-        console.error('🔴 AuthContext: Email sign in error:', result.error);
         return { success: false, error: result.error };
       }
 
       return { success: true };
     } catch (error) {
-      console.error('🔴 AuthContext: Email sign in error:', error);
       return { success: false, error };
     } finally {
       setLoading(false);
@@ -237,10 +223,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       const result = await AuthService.signOut();
       if (!result.success) {
-        console.error('Sign out error:', result.error);
+        // Sign out error handling
       }
     } catch (error) {
-      console.error('Sign out error:', error);
+      // Sign out error handling
     } finally {
       setLoading(false);
     }

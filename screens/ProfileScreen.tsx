@@ -3,11 +3,11 @@ import { View, Text, Image, StyleSheet, SafeAreaView, TouchableOpacity, ScrollVi
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Edit, CreditCard, Bell, Settings, User, PawPrint } from 'lucide-react-native';
-import { Theme, themes, defaultTheme } from './theme';
-import { useTheme } from './ThemeContext';
-import { useAuth } from './contexts/AuthContext';
-import { colorOptions } from './colorConfig';
-import { UserService, UserProfile } from './services/userService';
+import { Theme, themes, defaultTheme } from '../theme';
+import { useTheme } from '../ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { colorOptions } from '../colorConfig';
+import { UserService, UserProfile } from '../services/userService';
 
 const userPets = [
   {

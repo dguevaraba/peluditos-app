@@ -14,13 +14,14 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { GallerySkeleton } from '../components/Skeleton';
+import { GallerySkeleton, AllPhotosSkeleton, AlbumDetailSkeleton } from '../components/Skeleton';
 import AddPhotoOrCategoryScreen from './AddPhotoOrCategoryScreen';
 import AddPhotoScreen from './AddPhotoScreen';
 import CreateCategoryScreen from './CreateCategoryScreen';
 import CreateAlbumScreen from './CreateAlbumScreen';
 import { CategoryService } from '../services/categoryService';
 import { AlbumService } from '../services/albumService';
+import { PhotoService } from '../services/photoService';
 import { 
   ArrowLeft,
   Heart,
@@ -35,7 +36,10 @@ import {
   Grid3X3,
   List,
   Plus,
-  Settings
+  Settings,
+  FolderOpen,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react-native';
 
 interface PetPhoto {
@@ -129,6 +133,20 @@ const PetGalleryScreen = () => {
   const [showCategoryManagement, setShowCategoryManagement] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showAlbumActions, setShowAlbumActions] = useState(false);
+  const [selectedAlbumForAction, setSelectedAlbumForAction] = useState<any>(null);
+  const [showAlbumManagement, setShowAlbumManagement] = useState(false);
+  const [editingAlbum, setEditingAlbum] = useState<any>(null);
+  const [showAlbumDeleteConfirmation, setShowAlbumDeleteConfirmation] = useState(false);
+  const [showUnifiedSettings, setShowUnifiedSettings] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandedAlbums, setExpandedAlbums] = useState<Set<string>>(new Set());
+  const [albumPhotoCounts, setAlbumPhotoCounts] = useState<Record<string, number>>({});
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const [allPhotos, setAllPhotos] = useState<any[]>([]);
+  const [albumPhotos, setAlbumPhotos] = useState<Record<string, any[]>>({});
+  const [loadingAllPhotos, setLoadingAllPhotos] = useState(false);
+  const [loadingAlbumDetail, setLoadingAlbumDetail] = useState(false);
 
   // Debug modal de confirmación
   useEffect(() => {
@@ -155,6 +173,47 @@ const PetGalleryScreen = () => {
     }
   };
 
+  // Cargar conteos de fotos por álbum
+  const loadAlbumPhotoCounts = async (albumsToCount: any[] = []) => {
+    try {
+      if (user?.id) {
+        const albumsToProcess = albumsToCount.length > 0 ? albumsToCount : albums;
+        
+        if (albumsToProcess.length > 0) {
+          const counts: Record<string, number> = {};
+          const photos: Record<string, any[]> = {};
+          
+          // Cargar conteos y fotos para cada álbum
+          for (const album of albumsToProcess) {
+            console.log(`Loading photos for album: ${album.id} - ${album.title}`);
+            const albumPhotos = await PhotoService.getPhotosByAlbum(album.id);
+            counts[album.id] = albumPhotos.length;
+            photos[album.id] = albumPhotos;
+            console.log(`Found ${albumPhotos.length} photos for album ${album.id}`);
+          }
+          
+          setAlbumPhotoCounts(counts);
+          setAlbumPhotos(photos);
+          console.log('Album photo counts loaded:', counts);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading album photo counts:', error);
+    }
+  };
+
+  // Cargar todas las fotos del usuario
+  const loadAllPhotos = async () => {
+    try {
+      if (user?.id) {
+        const photos = await PhotoService.getPhotosByUser();
+        setAllPhotos(photos);
+      }
+    } catch (error) {
+      console.error('Error loading all photos:', error);
+    }
+  };
+
   // Cargar álbumes reales
   const loadAlbums = async () => {
     try {
@@ -163,37 +222,62 @@ const PetGalleryScreen = () => {
         const userAlbums = await AlbumService.getUserAlbums(user.id);
         console.log('Albums loaded from database:', userAlbums);
         setAlbums(userAlbums);
+        
+        // Cargar conteos de fotos después de cargar álbumes
+        if (userAlbums.length > 0) {
+          await loadAlbumPhotoCounts(userAlbums);
+        }
       }
     } catch (error) {
       console.error('Error loading albums:', error);
     }
   };
 
-  // Transformar álbumes de la BD al formato de la UI
+  // Transformar álbumes de la BD al formato de la UI con filtros
   const getDisplayAlbums = (): PetPhoto[] => {
     if (albums.length === 0) {
       // Si no hay álbumes reales, usar los de ejemplo
       return petAlbums;
     }
 
-    return albums.map((album) => ({
-      id: album.id,
-      title: album.title,
-      image: album.cover_image_url || 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=400&h=400&fit=crop', // Imagen por defecto
-      photoCount: 0, // TODO: Implementar conteo real de fotos
-      date: new Date(album.date).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      }),
-      location: album.location,
-      description: album.description,
-      // Datos adicionales del álbum real
-      is_featured: album.is_featured,
-      is_public: album.is_public,
-      category_id: album.category_id,
-      category: album.categories
-    }));
+    let filteredAlbums = albums;
+
+    // Aplicar filtros
+    if (selectedFilter === 'recent') {
+      // Mostrar álbumes creados en los últimos 30 días
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      filteredAlbums = albums.filter(album => new Date(album.created_at) > thirtyDaysAgo);
+    } else if (selectedFilter === 'favorites') {
+      // Mostrar solo álbumes destacados
+      filteredAlbums = albums.filter(album => album.is_featured);
+    } else if (selectedFilter !== 'all') {
+      // Filtrar por categoría específica
+      filteredAlbums = albums.filter(album => album.category_id === selectedFilter);
+    }
+
+    return filteredAlbums.map((album) => {
+      const photoCount = albumPhotoCounts[album.id] || 0;
+      
+      return {
+        id: album.id,
+        title: album.title,
+        image: album.cover_image_url || 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=400&h=400&fit=crop', // Imagen por defecto
+        photoCount: photoCount, // Usar conteo real de fotos
+        date: new Date(album.date).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }),
+        location: album.location,
+        description: album.description,
+        // Datos adicionales del álbum real
+        is_featured: album.is_featured,
+        is_public: album.is_public,
+        category_id: album.category_id,
+        category: album.categories
+      };
+    });
   };
 
   // Simular carga inicial más rápida
@@ -207,18 +291,38 @@ const PetGalleryScreen = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Recargar conteos cuando cambien los álbumes
+  useEffect(() => {
+    if (albums.length > 0) {
+      loadAlbumPhotoCounts(albums);
+    }
+  }, [albums]);
+
+
+
   const onRefresh = async () => {
     setRefreshing(true);
     // Recargar datos reales
     await loadCategories();
     await loadAlbums();
+    
+    // Si estamos en la vista de All Photos, también recargar fotos
+    if (showAllPhotos) {
+      await loadAllPhotos();
+    }
+    
     setTimeout(() => {
       setRefreshing(false);
     }, 1000);
   };
 
-  const handleAlbumPress = (album: PetPhoto) => {
+  const handleAlbumPress = async (album: PetPhoto) => {
+    setLoadingAlbumDetail(true);
     setSelectedAlbum(album);
+    // Simular un pequeño delay para mostrar el skeleton
+    setTimeout(() => {
+      setLoadingAlbumDetail(false);
+    }, 500);
   };
 
   const handleBackPress = () => {
@@ -233,9 +337,10 @@ const PetGalleryScreen = () => {
     setShowCreateCategory(true);
   };
 
-  const handlePhotoAdded = () => {
-    // TODO: Refresh gallery data
-    console.log('Photo added, refreshing gallery...');
+  const handlePhotoAdded = async () => {
+    // Refresh albums list and photo counts
+    await loadAlbums();
+    console.log('Photo added, albums and photo counts refreshed');
   };
 
   const handleCategoryCreated = () => {
@@ -291,10 +396,88 @@ const PetGalleryScreen = () => {
     setShowAddOptions(true);
   };
 
+  const handleShowAllPhotos = async () => {
+    setLoadingAllPhotos(true);
+    await loadAllPhotos();
+    setLoadingAllPhotos(false);
+    setShowAllPhotos(true);
+  };
+
+  const handleBackFromPhotos = () => {
+    setShowAllPhotos(false);
+  };
+
   const handleAlbumCreated = () => {
     // Recargar álbumes cuando se crea uno nuevo
     loadAlbums();
     console.log('Album created/updated, refreshing data...');
+  };
+
+  // Funciones para edición de álbumes
+  const handleAlbumLongPress = (album: any) => {
+    setSelectedAlbumForAction(album);
+    setShowAlbumActions(true);
+  };
+
+  const handleEditAlbum = () => {
+    setEditingAlbum(selectedAlbumForAction);
+    setShowAlbumActions(false);
+    setShowCreateAlbum(true);
+  };
+
+  const handleDeleteAlbum = () => {
+    setShowAlbumActions(false);
+    setShowAlbumDeleteConfirmation(true);
+  };
+
+  const handleDeleteAlbumFromManagement = (album: any) => {
+    setSelectedAlbumForAction(album);
+    setShowAlbumManagement(false);
+    setShowAlbumDeleteConfirmation(true);
+  };
+
+  const handleConfirmDeleteAlbum = async () => {
+    try {
+      if (selectedAlbumForAction) {
+        await AlbumService.deleteAlbum(selectedAlbumForAction.id);
+        await loadAlbums(); // Recargar álbumes
+        console.log('Album deleted successfully');
+      }
+    } catch (error) {
+      console.error('Error deleting album:', error);
+    }
+    setShowAlbumDeleteConfirmation(false);
+  };
+
+  const handleEditAlbumFromManagement = (album: any) => {
+    setEditingAlbum(album);
+    setShowAlbumManagement(false);
+    setShowCreateAlbum(true);
+  };
+
+  // Funciones para el modal unificado
+  const toggleCategoryExpansion = (categoryId: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  const getAlbumsByCategory = (categoryId: string) => {
+    return getDisplayAlbums().filter(album => album.category_id === categoryId);
+  };
+
+  const toggleAlbumExpansion = (albumId: string) => {
+    const newExpanded = new Set(expandedAlbums);
+    if (newExpanded.has(albumId)) {
+      newExpanded.delete(albumId);
+    } else {
+      newExpanded.add(albumId);
+    }
+    setExpandedAlbums(newExpanded);
   };
 
   const handleCreateAlbum = () => {
@@ -329,18 +512,22 @@ const PetGalleryScreen = () => {
   );
 
   const renderAlbumCard = ({ item }: { item: PetPhoto }) => {
+    // Usar la imagen de portada del álbum (cover_image_url) si existe, sino usar la imagen por defecto
+    const displayImage = item.image;
+    
     if (viewMode === 'list') {
       return (
         <TouchableOpacity
           style={[styles.albumCardList, { backgroundColor: `${selectedColor}15` }]}
           onPress={() => handleAlbumPress(item)}
+          onLongPress={() => handleAlbumLongPress(item)}
         >
           <LinearGradient
             colors={[`${selectedColor}15`, 'transparent']}
             style={styles.cardGradientList}
           >
             <View style={styles.imageContainerList}>
-              <Image source={{ uri: item.image }} style={styles.albumImageList} />
+              <Image source={{ uri: displayImage }} style={styles.albumImageList} />
             </View>
             
             <View style={styles.albumInfoList}>
@@ -398,13 +585,14 @@ const PetGalleryScreen = () => {
       <TouchableOpacity
         style={[styles.albumCard, { backgroundColor: `${selectedColor}15` }]}
         onPress={() => handleAlbumPress(item)}
+        onLongPress={() => handleAlbumLongPress(item)}
       >
         <LinearGradient
           colors={[`${selectedColor}15`, 'transparent']}
           style={styles.cardGradient}
         >
           <View style={styles.imageContainer}>
-            <Image source={{ uri: item.image }} style={styles.albumImage} />
+            <Image source={{ uri: displayImage }} style={styles.albumImage} />
             <TouchableOpacity style={styles.favoriteButton}>
               {item.is_featured ? (
                 <Heart size={20} color="#ff4757" />
@@ -460,7 +648,17 @@ const PetGalleryScreen = () => {
     if (!selectedAlbum) return null;
 
     return (
-      <View style={styles.detailContainer}>
+      <ScrollView 
+        style={styles.detailContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[getDynamicColor()]}
+            tintColor={getDynamicColor()}
+          />
+        }
+      >
         <View style={styles.detailHeader}>
           <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
             <ArrowLeft size={24} color={getDynamicColor()} />
@@ -507,23 +705,47 @@ const PetGalleryScreen = () => {
           )}
 
           <View style={styles.photoGrid}>
-            {/* Aquí podrías mostrar más fotos del álbum */}
-            {Array.from({ length: Math.min(selectedAlbum.photoCount, 6) }).map((_, index) => (
-              <View key={index} style={styles.photoThumbnail}>
-                <Image 
-                  source={{ uri: selectedAlbum.image }} 
-                  style={styles.thumbnailImage} 
-                />
-              </View>
-            ))}
+            {/* Mostrar las fotos reales del álbum */}
+            {(() => {
+              const albumPhotosList = albumPhotos[selectedAlbum.id] || [];
+              const photosToShow = albumPhotosList.slice(0, 6); // Mostrar máximo 6 fotos
+              
+              if (photosToShow.length === 0) {
+                return (
+                  <View style={styles.noPhotosContainer}>
+                    <ImageIcon size={48} color={getDynamicColor()} />
+                    <Text style={[styles.noPhotosText, { color: currentTheme.colors.textSecondary }]}>
+                      No photos in this album yet
+                    </Text>
+                  </View>
+                );
+              }
+              
+              return photosToShow.map((photo, index) => (
+                <View key={photo.id || index} style={styles.photoThumbnail}>
+                  <Image 
+                    source={{ uri: photo.image_url }} 
+                    style={styles.thumbnailImage} 
+                  />
+                </View>
+              ));
+            })()}
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   };
 
   if (loading) {
     return <GallerySkeleton />;
+  }
+
+  if (loadingAllPhotos) {
+    return <AllPhotosSkeleton />;
+  }
+
+  if (loadingAlbumDetail) {
+    return <AlbumDetailSkeleton />;
   }
 
   return (
@@ -550,6 +772,15 @@ const PetGalleryScreen = () => {
                 <Text style={[styles.headerSubtitle, { color: currentTheme.colors.textSecondary }]}>
                   All your precious moments
                 </Text>
+                <TouchableOpacity 
+                  style={styles.allPhotosButton}
+                  onPress={handleShowAllPhotos}
+                >
+                  <ImageIcon size={16} color={getDynamicColor()} style={{ marginRight: 6 }} />
+                  <Text style={[styles.allPhotosButtonText, { color: getDynamicColor() }]}>
+                    All Photos
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -579,10 +810,11 @@ const PetGalleryScreen = () => {
                     styles.viewModeButton,
                     { backgroundColor: getDynamicColor() }
                   ]}
-                  onPress={() => setShowCategoryManagement(true)}
+                  onPress={() => setShowUnifiedSettings(true)}
                 >
                   <Settings size={20} color="#ffffff" />
                 </TouchableOpacity>
+
               </View>
             </View>
 
@@ -614,38 +846,94 @@ const PetGalleryScreen = () => {
               </ScrollView>
             </View>
 
-            {/* Albums Grid */}
-            <FlatList
-              key={viewMode} // Forzar re-render cuando cambia el modo de vista
-              data={getDisplayAlbums()}
-              renderItem={renderAlbumCard}
-              keyExtractor={(item) => item.id}
-              numColumns={viewMode === 'grid' ? 2 : 1}
-              contentContainerStyle={[
-                styles.listContainer,
-                viewMode === 'list' && styles.listContainerList
-              ]}
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  colors={[getDynamicColor()]}
-                  tintColor={getDynamicColor()}
-                />
-              }
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <ImageIcon size={64} color={getDynamicColor()} />
-                  <Text style={[styles.emptyTitle, { color: currentTheme.colors.text }]}>
-                    {albums.length === 0 ? 'No albums yet' : 'No photos yet'}
-                  </Text>
-                  <Text style={[styles.emptySubtitle, { color: currentTheme.colors.textSecondary }]}>
-                    {albums.length === 0 ? 'Create your first album' : 'Start capturing your pet\'s moments'}
+            {/* Albums Grid or All Photos */}
+            {showAllPhotos ? (
+              // Vista de todas las fotos
+              <View style={styles.allPhotosContainer}>
+                <View style={styles.allPhotosHeader}>
+                  <TouchableOpacity onPress={handleBackFromPhotos} style={styles.backButton}>
+                    <ArrowLeft size={24} color={currentTheme.colors.text} />
+                  </TouchableOpacity>
+                  <Text style={[styles.allPhotosTitle, { color: currentTheme.colors.text }]}>
+                    All Photos ({allPhotos.length})
                   </Text>
                 </View>
-              }
-            />
+                <FlatList
+                  data={allPhotos}
+                  renderItem={({ item }) => (
+                    <View style={styles.photoItem}>
+                      <Image source={{ uri: item.image_url }} style={styles.photoImage} />
+                      <View style={styles.photoInfo}>
+                        <Text style={[styles.photoTitle, { color: currentTheme.colors.text }]}>
+                          {item.title}
+                        </Text>
+                        {item.description && (
+                          <Text style={[styles.photoDescription, { color: currentTheme.colors.textSecondary }]}>
+                            {item.description}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  )}
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  contentContainerStyle={styles.allPhotosList}
+                  showsVerticalScrollIndicator={false}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      colors={[getDynamicColor()]}
+                      tintColor={getDynamicColor()}
+                    />
+                  }
+                  ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                      <ImageIcon size={64} color={getDynamicColor()} />
+                      <Text style={[styles.emptyTitle, { color: currentTheme.colors.text }]}>
+                        No photos yet
+                      </Text>
+                      <Text style={[styles.emptySubtitle, { color: currentTheme.colors.textSecondary }]}>
+                        Start capturing your pet's moments
+                      </Text>
+                    </View>
+                  }
+                />
+              </View>
+            ) : (
+              // Vista normal de álbumes
+              <FlatList
+                key={viewMode} // Forzar re-render cuando cambia el modo de vista
+                data={getDisplayAlbums()}
+                renderItem={renderAlbumCard}
+                keyExtractor={(item) => item.id}
+                numColumns={viewMode === 'grid' ? 2 : 1}
+                contentContainerStyle={[
+                  styles.listContainer,
+                  viewMode === 'list' && styles.listContainerList
+                ]}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={[getDynamicColor()]}
+                    tintColor={getDynamicColor()}
+                  />
+                }
+                ListEmptyComponent={
+                  <View style={styles.emptyContainer}>
+                    <ImageIcon size={64} color={getDynamicColor()} />
+                    <Text style={[styles.emptyTitle, { color: currentTheme.colors.text }]}>
+                      {albums.length === 0 ? 'No albums yet' : 'No photos yet'}
+                    </Text>
+                    <Text style={[styles.emptySubtitle, { color: currentTheme.colors.textSecondary }]}>
+                      {albums.length === 0 ? 'Create your first album' : 'Start capturing your pet\'s moments'}
+                    </Text>
+                  </View>
+                }
+              />
+            )}
 
             {/* Floating Add Button */}
             <TouchableOpacity 
@@ -687,8 +975,12 @@ const PetGalleryScreen = () => {
             {/* Create Album Modal */}
             <CreateAlbumScreen
               visible={showCreateAlbum}
-              onClose={() => setShowCreateAlbum(false)}
+              onClose={() => {
+                setShowCreateAlbum(false);
+                setEditingAlbum(null);
+              }}
               onAlbumCreated={handleAlbumCreated}
+              editingAlbum={editingAlbum}
             />
 
             {/* Category Actions Modal */}
@@ -818,6 +1110,308 @@ const PetGalleryScreen = () => {
                   </View>
                 </View>
               </View>
+            </Modal>
+
+            {/* Album Actions Modal */}
+            <Modal
+              visible={showAlbumActions}
+              transparent={true}
+              animationType="fade"
+              onRequestClose={() => setShowAlbumActions(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={[styles.categoryActionsModal, { backgroundColor: '#ffffff' }]}>
+                  <Text style={[styles.categoryActionsTitle, { color: currentTheme.colors.text }]}>
+                    {selectedAlbumForAction?.title}
+                  </Text>
+                  
+                  <TouchableOpacity
+                    style={[styles.categoryActionButton, { backgroundColor: getDynamicColor() }]}
+                    onPress={handleEditAlbum}
+                  >
+                    <Text style={styles.categoryActionButtonText}>Edit Album</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.categoryActionButton, { backgroundColor: '#ff4444' }]}
+                    onPress={handleDeleteAlbum}
+                  >
+                    <Text style={styles.categoryActionButtonText}>Delete Album</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.categoryActionButton, { backgroundColor: getDynamicColor() }]}
+                    onPress={() => setShowAlbumActions(false)}
+                  >
+                    <Text style={styles.categoryActionButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+
+            {/* Album Management Modal */}
+            <Modal
+              visible={showAlbumManagement}
+              animationType="slide"
+              presentationStyle="pageSheet"
+              onRequestClose={() => setShowAlbumManagement(false)}
+            >
+              <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
+                <LinearGradient
+                  colors={[currentTheme.colors.background, `${getDynamicColor()}10`]}
+                  style={styles.gradient}
+                >
+                  {/* Header */}
+                  <View style={styles.header}>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setShowAlbumManagement(false)}>
+                      <ArrowLeft size={24} color={currentTheme.colors.text} />
+                    </TouchableOpacity>
+                    <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>
+                      Manage Albums
+                    </Text>
+                    <View style={styles.placeholder} />
+                  </View>
+
+                  {/* Albums List */}
+                  <ScrollView style={styles.categoriesList}>
+                    {getDisplayAlbums().map((album) => (
+                      <TouchableOpacity
+                        key={album.id}
+                        style={[styles.categoryItem, { backgroundColor: `${getDynamicColor()}08` }]}
+                        onPress={() => handleEditAlbumFromManagement(album)}
+                      >
+                        <View style={styles.categoryItemContent}>
+                          <View style={[styles.categoryIcon, { backgroundColor: getDynamicColor() }]}>
+                            <FolderOpen size={20} color="#ffffff" />
+                          </View>
+                          <View style={styles.categoryItemInfo}>
+                            <Text style={[styles.categoryItemName, { color: currentTheme.colors.text }]}>
+                              {album.title}
+                            </Text>
+                            {album.description && (
+                              <Text style={[styles.categoryItemDescription, { color: currentTheme.colors.textSecondary }]}>
+                                {album.description}
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+                        <TouchableOpacity
+                          style={[styles.deleteButton, { backgroundColor: '#ff4444' }]}
+                          onPress={() => handleDeleteAlbumFromManagement(album)}
+                        >
+                          <Text style={styles.deleteButtonText}>Delete</Text>
+                        </TouchableOpacity>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </LinearGradient>
+              </SafeAreaView>
+            </Modal>
+
+            {/* Album Delete Confirmation Modal */}
+            <Modal
+              visible={showAlbumDeleteConfirmation}
+              transparent={true}
+              animationType="fade"
+              onRequestClose={() => setShowAlbumDeleteConfirmation(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={[styles.deleteConfirmationModal, { backgroundColor: '#ffffff' }]}>
+                  <Text style={[styles.deleteConfirmationTitle, { color: currentTheme.colors.text }]}>
+                    Delete Album
+                  </Text>
+                  <Text style={[styles.deleteConfirmationMessage, { color: currentTheme.colors.textSecondary }]}>
+                    Are you sure you want to delete "{selectedAlbumForAction?.title}"? This action cannot be undone.
+                  </Text>
+                  <View style={styles.deleteConfirmationButtons}>
+                    <TouchableOpacity
+                      style={[styles.deleteConfirmationButton, { backgroundColor: '#ff4444' }]}
+                      onPress={handleConfirmDeleteAlbum}
+                    >
+                      <Text style={styles.deleteConfirmationButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.deleteConfirmationButton, { backgroundColor: getDynamicColor() }]}
+                      onPress={() => setShowAlbumDeleteConfirmation(false)}
+                    >
+                      <Text style={styles.deleteConfirmationButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+
+            {/* Unified Settings Modal */}
+            <Modal
+              visible={showUnifiedSettings}
+              animationType="slide"
+              presentationStyle="pageSheet"
+              onRequestClose={() => setShowUnifiedSettings(false)}
+            >
+              <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
+                <LinearGradient
+                  colors={[currentTheme.colors.background, `${getDynamicColor()}10`]}
+                  style={styles.gradient}
+                >
+                  {/* Header */}
+                  <View style={styles.header}>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setShowUnifiedSettings(false)}>
+                      <ArrowLeft size={24} color={currentTheme.colors.text} />
+                    </TouchableOpacity>
+                    <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>
+                      Settings
+                    </Text>
+                    <View style={styles.placeholder} />
+                  </View>
+
+                  {/* Content */}
+                  <ScrollView style={styles.categoriesList}>
+                    {/* Categories Section */}
+                    <View style={styles.settingsSection}>
+                      <TouchableOpacity
+                        style={[styles.mainSectionHeader, { backgroundColor: `${getDynamicColor()}08` }]}
+                        onPress={() => toggleCategoryExpansion('categories')}
+                      >
+                        <View style={styles.mainSectionContent}>
+                          <View style={[styles.mainSectionIcon, { backgroundColor: getDynamicColor() }]}>
+                            <Text style={styles.mainSectionIconText}>📁</Text>
+                          </View>
+                          <View style={styles.mainSectionInfo}>
+                            <Text style={[styles.mainSectionTitle, { color: currentTheme.colors.text }]}>
+                              Categories
+                            </Text>
+                            <Text style={[styles.mainSectionSubtitle, { color: currentTheme.colors.textSecondary }]}>
+                              {categories.length} categories
+                            </Text>
+                          </View>
+                        </View>
+                        <View style={styles.mainSectionActions}>
+                          {expandedCategories.has('categories') ? (
+                            <ChevronDown size={20} color={getDynamicColor()} />
+                          ) : (
+                            <ChevronRight size={20} color={getDynamicColor()} />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                      
+                      {/* Expanded Categories */}
+                      {expandedCategories.has('categories') && (
+                        <View style={styles.expandedSection}>
+                          {categories.map((category) => (
+                            <View key={category.id} style={styles.itemContainer}>
+                              <View style={[styles.itemHeader, { backgroundColor: `${getDynamicColor()}04` }]}>
+                                <View style={styles.itemContent}>
+                                  <View style={[styles.itemIcon, { backgroundColor: category.color }]}>
+                                    <Text style={styles.itemIconText}>📁</Text>
+                                  </View>
+                                  <View style={styles.itemInfo}>
+                                    <Text style={[styles.itemName, { color: currentTheme.colors.text }]}>
+                                      {category.name}
+                                    </Text>
+                                    {category.description && (
+                                      <Text style={[styles.itemDescription, { color: currentTheme.colors.textSecondary }]}>
+                                        {category.description}
+                                      </Text>
+                                    )}
+                                  </View>
+                                </View>
+                              </View>
+                              
+                              {/* Item Actions */}
+                              <View style={styles.itemActions}>
+                                <TouchableOpacity
+                                  style={[styles.editButton, { backgroundColor: getDynamicColor() }]}
+                                  onPress={() => handleEditFromManagement(category)}
+                                >
+                                  <Text style={styles.editButtonText}>Edit</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  style={[styles.deleteButton, { backgroundColor: '#ff4444' }]}
+                                  onPress={() => handleDeleteFromManagement(category)}
+                                >
+                                  <Text style={styles.deleteButtonText}>Delete</Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Albums Section */}
+                    <View style={styles.settingsSection}>
+                      <TouchableOpacity
+                        style={[styles.mainSectionHeader, { backgroundColor: `${getDynamicColor()}08` }]}
+                        onPress={() => toggleCategoryExpansion('albums')}
+                      >
+                        <View style={styles.mainSectionContent}>
+                          <View style={[styles.mainSectionIcon, { backgroundColor: getDynamicColor() }]}>
+                            <FolderOpen size={20} color="#ffffff" />
+                          </View>
+                          <View style={styles.mainSectionInfo}>
+                            <Text style={[styles.mainSectionTitle, { color: currentTheme.colors.text }]}>
+                              Albums
+                            </Text>
+                            <Text style={[styles.mainSectionSubtitle, { color: currentTheme.colors.textSecondary }]}>
+                              {getDisplayAlbums().length} albums
+                            </Text>
+                          </View>
+                        </View>
+                        <View style={styles.mainSectionActions}>
+                          {expandedCategories.has('albums') ? (
+                            <ChevronDown size={20} color={getDynamicColor()} />
+                          ) : (
+                            <ChevronRight size={20} color={getDynamicColor()} />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                      
+                      {/* Expanded Albums */}
+                      {expandedCategories.has('albums') && (
+                        <View style={styles.expandedSection}>
+                          {getDisplayAlbums().map((album) => (
+                            <View key={album.id} style={styles.itemContainer}>
+                              <View style={[styles.itemHeader, { backgroundColor: `${getDynamicColor()}04` }]}>
+                                <View style={styles.itemContent}>
+                                  <View style={[styles.itemIcon, { backgroundColor: getDynamicColor() }]}>
+                                    <FolderOpen size={16} color="#ffffff" />
+                                  </View>
+                                  <View style={styles.itemInfo}>
+                                    <Text style={[styles.itemName, { color: currentTheme.colors.text }]}>
+                                      {album.title}
+                                    </Text>
+                                    {album.description && (
+                                      <Text style={[styles.itemDescription, { color: currentTheme.colors.textSecondary }]}>
+                                        {album.description}
+                                      </Text>
+                                    )}
+                                  </View>
+                                </View>
+                              </View>
+                              
+                              {/* Item Actions */}
+                              <View style={styles.itemActions}>
+                                <TouchableOpacity
+                                  style={[styles.editButton, { backgroundColor: getDynamicColor() }]}
+                                  onPress={() => handleEditAlbumFromManagement(album)}
+                                >
+                                  <Text style={styles.editButtonText}>Edit</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  style={[styles.deleteButton, { backgroundColor: '#ff4444' }]}
+                                  onPress={() => handleDeleteAlbumFromManagement(album)}
+                                >
+                                  <Text style={styles.deleteButtonText}>Delete</Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  </ScrollView>
+                </LinearGradient>
+              </SafeAreaView>
             </Modal>
           </>
         )}
@@ -1225,6 +1819,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 12,
     alignItems: 'center',
+    minWidth: 80,
+    justifyContent: 'center',
   },
   deleteButtonText: {
     color: '#ffffff',
@@ -1236,7 +1832,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 12,
     alignItems: 'center',
-    marginTop: 8,
+    minWidth: 80,
+    justifyContent: 'center',
   },
   editButtonText: {
     color: '#ffffff',
@@ -1280,6 +1877,269 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  settingsSection: {
+    marginBottom: 24,
+  },
+  settingsSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    paddingHorizontal: 20,
+  },
+  categoryContainer: {
+    marginBottom: 12,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  categoryHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  expandedAlbums: {
+    marginLeft: 20,
+    marginBottom: 12,
+  },
+  albumItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 6,
+  },
+  albumItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  albumIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  albumItemInfo: {
+    flex: 1,
+  },
+  albumItemName: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  albumItemDescription: {
+    fontSize: 12,
+  },
+
+  emptyAlbumsText: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    paddingVertical: 8,
+  },
+  albumContainer: {
+    marginBottom: 12,
+  },
+  albumHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  albumHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  albumActions: {
+    marginLeft: 12,
+  },
+  albumDetails: {
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    marginLeft: 20,
+  },
+  albumDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  albumDetailLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  albumDetailValue: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  mainSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  mainSectionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  mainSectionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  mainSectionIconText: {
+    fontSize: 24,
+  },
+  mainSectionInfo: {
+    flex: 1,
+  },
+  mainSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  mainSectionSubtitle: {
+    fontSize: 14,
+  },
+  mainSectionActions: {
+    marginLeft: 12,
+  },
+  expandedSection: {
+    marginLeft: 20,
+    marginBottom: 16,
+  },
+  itemContainer: {
+    marginBottom: 12,
+  },
+  itemHeader: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  itemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  itemIconText: {
+    fontSize: 20,
+  },
+  itemInfo: {
+    flex: 1,
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  itemDescription: {
+    fontSize: 12,
+  },
+  itemActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+    paddingHorizontal: 16,
+  },
+  allPhotosButton: {
+    marginTop: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  allPhotosButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  allPhotosContainer: {
+    flex: 1,
+  },
+  allPhotosHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  allPhotosTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  allPhotosList: {
+    padding: 10,
+  },
+  photoItem: {
+    flex: 1,
+    margin: 5,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  photoImage: {
+    width: '100%',
+    height: 150,
+    resizeMode: 'cover',
+  },
+  photoInfo: {
+    padding: 12,
+  },
+  photoTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  photoDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  noPhotosContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  noPhotosText: {
+    fontSize: 16,
+    marginTop: 12,
+    textAlign: 'center',
   },
 });
 

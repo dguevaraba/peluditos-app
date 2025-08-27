@@ -151,7 +151,22 @@ const CreateAlbumScreen: React.FC<CreateAlbumScreenProps> = ({
       setAlbumTitle(editingAlbum.title || '');
       setAlbumDescription(editingAlbum.description || '');
       setAlbumLocation(editingAlbum.location || '');
-      setAlbumDate(editingAlbum.date ? new Date(editingAlbum.date) : new Date());
+      // Manejar la fecha de forma más robusta
+      if (editingAlbum.date) {
+        try {
+          const parsedDate = new Date(editingAlbum.date);
+          if (!isNaN(parsedDate.getTime())) {
+            setAlbumDate(parsedDate);
+          } else {
+            setAlbumDate(new Date());
+          }
+        } catch (error) {
+          console.warn('Invalid date format, using current date:', editingAlbum.date);
+          setAlbumDate(new Date());
+        }
+      } else {
+        setAlbumDate(new Date());
+      }
       setIsFeatured(editingAlbum.is_featured || false);
       setIsPublic(editingAlbum.is_public !== false);
       setSelectedCategory(editingAlbum.category_id ? { id: editingAlbum.category_id } : null);
@@ -208,20 +223,38 @@ const CreateAlbumScreen: React.FC<CreateAlbumScreenProps> = ({
     setSaving(true);
     
     try {
+      // Validar y formatear la fecha correctamente
+      const formattedDate = albumDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      
+      // Validar que la fecha sea válida
+      if (!formattedDate || formattedDate === 'Invalid Date') {
+        showToast('Invalid date format. Please select a valid date.', 'error');
+        return;
+      }
+
       const albumData: CreateAlbumData = {
         title: albumTitle.trim(),
         description: albumDescription.trim() || undefined,
         location: albumLocation.trim() || undefined,
-        date: albumDate.toISOString().split('T')[0], // YYYY-MM-DD format
+        date: formattedDate,
         is_featured: isFeatured,
         is_public: isPublic,
         category_id: selectedCategory?.id,
         cover_image_url: coverImage || undefined,
       };
 
+      console.log('Sending album data:', albumData);
+      console.log('Date being sent:', formattedDate, 'Type:', typeof formattedDate);
+
       let newAlbum;
       if (editingAlbum) {
         // Modo edición
+        if (coverImage && coverImage !== editingAlbum.cover_image_url) {
+          // Si hay una nueva imagen de portada, actualizarla primero
+          await AlbumService.updateAlbumCoverImage(editingAlbum.id, coverImage);
+        }
+        
+        // Actualizar el resto de los datos del álbum
         newAlbum = await AlbumService.updateAlbum(editingAlbum.id, albumData);
         console.log('Album updated successfully:', newAlbum);
         showToast('Album updated successfully!', 'success');
@@ -239,7 +272,8 @@ const CreateAlbumScreen: React.FC<CreateAlbumScreenProps> = ({
       }, 1200);
     } catch (error) {
       console.error('Error saving album:', error);
-      showToast('Failed to save album. Please try again.', 'error');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save album. Please try again.';
+      showToast(errorMessage, 'error');
     } finally {
       setSaving(false);
     }
@@ -495,7 +529,7 @@ const CreateAlbumScreen: React.FC<CreateAlbumScreenProps> = ({
                       <View style={styles.coverImagePlaceholder}>
                         <Upload size={24} color={getDynamicColor()} />
                         <Text style={[styles.coverImagePlaceholderText, { color: currentTheme.colors.textSecondary }]}>
-                          Tap to add cover image
+                          {editingAlbum ? 'Tap to change cover image' : 'Tap to add cover image'}
                         </Text>
                       </View>
                     )}

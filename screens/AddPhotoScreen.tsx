@@ -17,6 +17,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import { PhotoService, CreatePhotoData } from '../services/photoService';
+import { AlbumService } from '../services/albumService';
+import Toast from '../components/Toast';
 import { 
   ArrowLeft,
   Camera,
@@ -34,8 +37,17 @@ import {
 interface Album {
   id: string;
   title: string;
+  description?: string;
   cover_image_url?: string;
-  photo_count: number;
+  location?: string;
+  date: string;
+  is_featured: boolean;
+  is_public: boolean;
+  user_id: string;
+  organization_id?: string;
+  category_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface AddPhotoScreenProps {
@@ -58,14 +70,74 @@ const AddPhotoScreen: React.FC<AddPhotoScreenProps> = ({
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [showAlbumSelector, setShowAlbumSelector] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'info' as const });
 
-  // Sample albums - esto vendría de la base de datos
-  const sampleAlbums: Album[] = [
-    { id: '1', title: 'London Walk', photo_count: 10 },
-    { id: '2', title: 'Vet Visit', photo_count: 3 },
-    { id: '3', title: 'Park Day', photo_count: 7 },
-    { id: '4', title: 'Rocky\'s Birthday', photo_count: 15 },
-  ];
+  // Load albums from database
+  useEffect(() => {
+    if (visible) {
+      loadAlbums();
+    }
+  }, [visible]);
+
+  const loadAlbums = async () => {
+    try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+      const userAlbums = await AlbumService.getUserAlbums(user.id);
+      setAlbums(userAlbums);
+    } catch (error) {
+      console.error('Error loading albums:', error);
+      // Fallback to sample albums if database fails
+      setAlbums([
+        { 
+          id: '1', 
+          title: 'London Walk', 
+          description: 'Photos from our walk in London',
+          date: new Date().toISOString(),
+          is_featured: false,
+          is_public: false,
+          user_id: user?.id || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        { 
+          id: '2', 
+          title: 'Vet Visit', 
+          description: 'Annual checkup',
+          date: new Date().toISOString(),
+          is_featured: false,
+          is_public: false,
+          user_id: user?.id || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        { 
+          id: '3', 
+          title: 'Park Day', 
+          description: 'Fun day at the park',
+          date: new Date().toISOString(),
+          is_featured: false,
+          is_public: false,
+          user_id: user?.id || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        { 
+          id: '4', 
+          title: 'Rocky\'s Birthday', 
+          description: 'Birthday celebration',
+          date: new Date().toISOString(),
+          is_featured: false,
+          is_public: false,
+          user_id: user?.id || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+      ]);
+    }
+  };
 
   const getDynamicColor = () => selectedColor;
 
@@ -129,34 +201,43 @@ const AddPhotoScreen: React.FC<AddPhotoScreenProps> = ({
 
   const handleSavePhoto = async () => {
     if (!selectedImage) {
-      Alert.alert('No Image', 'Please select an image first');
+      setToast({ visible: true, message: 'Please select an image first', type: 'error' });
       return;
     }
 
-    if (!selectedAlbum) {
-      Alert.alert('No Album', 'Please select an album for this photo');
+    if (!photoTitle.trim()) {
+      setToast({ visible: true, message: 'Please enter a title for the photo', type: 'error' });
       return;
     }
 
     setUploading(true);
     
     try {
-      // TODO: Implement actual upload to Supabase
-      console.log('Uploading photo:', {
-        image: selectedImage,
-        title: photoTitle,
-        description: photoDescription,
-        album: selectedAlbum,
-      });
+      const photoData: CreatePhotoData = {
+        title: photoTitle.trim(),
+        description: photoDescription.trim() || undefined,
+        album_id: selectedAlbum?.id,
+        is_featured: false,
+      };
 
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await PhotoService.uploadPhoto(selectedImage, photoData);
 
-      Alert.alert('Success', 'Photo uploaded successfully!');
-      onPhotoAdded();
-      handleClose();
+      setToast({ visible: true, message: 'Photo uploaded successfully!', type: 'success' });
+      
+      // Close after a short delay to show the success toast
+      setTimeout(() => {
+        onPhotoAdded();
+        if (onClose) {
+          handleClose();
+        }
+      }, 1500);
     } catch (error) {
-      Alert.alert('Error', 'Failed to upload photo');
+      console.error('Error uploading photo:', error);
+      setToast({ 
+        visible: true, 
+        message: error instanceof Error ? error.message : 'Failed to upload photo', 
+        type: 'error' 
+      });
     } finally {
       setUploading(false);
     }
@@ -168,7 +249,10 @@ const AddPhotoScreen: React.FC<AddPhotoScreenProps> = ({
     setPhotoDescription('');
     setSelectedAlbum(null);
     setShowAlbumSelector(false);
-    onClose();
+    setToast({ visible: false, message: '', type: 'info' });
+    if (onClose) {
+      onClose();
+    }
   };
 
   const renderAlbumSelector = () => (
@@ -196,7 +280,7 @@ const AddPhotoScreen: React.FC<AddPhotoScreenProps> = ({
 
           {/* Albums List */}
           <ScrollView style={styles.albumsList}>
-            {sampleAlbums.map((album) => (
+            {albums.map((album) => (
               <TouchableOpacity
                 key={album.id}
                 style={[
@@ -217,7 +301,7 @@ const AddPhotoScreen: React.FC<AddPhotoScreenProps> = ({
                       {album.title}
                     </Text>
                     <Text style={[styles.albumItemCount, { color: currentTheme.colors.textSecondary }]}>
-                      {album.photo_count} photos
+                      {album.description || 'No description'}
                     </Text>
                   </View>
                   {selectedAlbum?.id === album.id && (
@@ -436,6 +520,14 @@ const AddPhotoScreen: React.FC<AddPhotoScreenProps> = ({
           {renderAlbumSelector()}
         </LinearGradient>
       </SafeAreaView>
+
+      {/* Toast */}
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ visible: false, message: '', type: 'info' })}
+      />
     </Modal>
   );
 };

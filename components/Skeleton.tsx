@@ -450,6 +450,345 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
   },
+  // All Photos Skeleton styles
+  allPhotosHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  allPhotosGridContainer: {
+    padding: 20,
+  },
+  allPhotosPhotoSkeleton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  // Album Detail Skeleton styles
+  albumDetailHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  albumDetailImageContainer: {
+    marginBottom: 20,
+  },
+  albumDetailInfoContainer: {
+    paddingHorizontal: 20,
+  },
+  albumDetailMetaContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  albumDetailPhotoGridContainer: {
+    marginTop: 20,
+  },
 });
+
+// Skeleton para All Photos
+export const AllPhotosSkeleton: React.FC = () => {
+  const { currentTheme, selectedColor } = useTheme();
+  const screenWidth = Dimensions.get('window').width;
+
+  const getDynamicColor = () => selectedColor;
+
+  return (
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.colors.background }]}>
+      <View style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
+        {/* Header Skeleton - Matching exact structure */}
+        <View style={[styles.allPhotosHeaderContainer, { borderBottomColor: `${selectedColor}20` }]}>
+          <SkeletonItem 
+            width={24} 
+            height={24} 
+            borderRadius={12} 
+            style={{ backgroundColor: `${selectedColor}30` }}
+          />
+          <SkeletonItem 
+            width={140} 
+            height={20} 
+            borderRadius={10} 
+            style={{ marginLeft: 16, backgroundColor: `${selectedColor}30` }} 
+          />
+        </View>
+
+        {/* Photos Grid Skeleton - 2x2 Grid Layout */}
+        <View style={[styles.allPhotosGridContainer, { backgroundColor: currentTheme.colors.background }]}>
+          {/* Primera fila */}
+          <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+            <View 
+              style={[
+                styles.allPhotosPhotoSkeleton,
+                { 
+                  backgroundColor: `${selectedColor}08`,
+                  width: screenWidth * 0.42, // 42% del ancho de pantalla para cada elemento
+                  marginRight: 10,
+
+                }
+              ]}
+            >
+              <SkeletonItem 
+                width="100%" 
+                height={150} 
+                borderRadius={12} 
+                style={{ backgroundColor: `${selectedColor}20` }}
+                marginBottom={0}
+              />
+              <View style={{ padding: 12 }}>
+                <SkeletonItem 
+                  width="85%" 
+                  height={16} 
+                  borderRadius={8} 
+                  marginBottom={8} 
+                  style={{ backgroundColor: `${selectedColor}30` }}
+                />
+                <SkeletonItem 
+                  width="65%" 
+                  height={14} 
+                  borderRadius={7}
+                  marginBottom={0}
+                  style={{ backgroundColor: `${selectedColor}20` }}
+                />
+              </View>
+            </View>
+            
+            <View 
+              style={[
+                styles.allPhotosPhotoSkeleton,
+                { 
+                  backgroundColor: `${selectedColor}08`,
+                  width: screenWidth * 0.42, // 42% del ancho de pantalla para cada elemento
+
+                }
+              ]}
+            >
+              <SkeletonItem 
+                width="100%" 
+                height={150} 
+                borderRadius={12} 
+                style={{ backgroundColor: `${selectedColor}20` }}
+                marginBottom={0}
+              />
+              <View style={{ padding: 12 }}>
+                <SkeletonItem 
+                  width="85%" 
+                  height={16} 
+                  borderRadius={8} 
+                  marginBottom={8} 
+                  style={{ backgroundColor: `${selectedColor}30` }}
+                />
+                <SkeletonItem 
+                  width="65%" 
+                  height={14} 
+                  borderRadius={7}
+                  marginBottom={0}
+                  style={{ backgroundColor: `${selectedColor}20` }}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Segunda fila */}
+          <View style={{ flexDirection: 'row' }}>
+            <View 
+              style={[
+                styles.allPhotosPhotoSkeleton,
+                { 
+                  backgroundColor: `${selectedColor}08`,
+                  width: screenWidth * 0.42, // 42% del ancho de pantalla para cada elemento
+                  marginRight: 10,
+
+                }
+              ]}
+            >
+              <SkeletonItem 
+                width="100%" 
+                height={150} 
+                borderRadius={12} 
+                style={{ backgroundColor: `${selectedColor}20` }}
+                marginBottom={0}
+              />
+              <View style={{ padding: 12 }}>
+                <SkeletonItem 
+                  width="85%" 
+                  height={16} 
+                  borderRadius={8} 
+                  marginBottom={8} 
+                  style={{ backgroundColor: `${selectedColor}30` }}
+                />
+                <SkeletonItem 
+                  width="65%" 
+                  height={14} 
+                  borderRadius={7}
+                  marginBottom={0}
+                  style={{ backgroundColor: `${selectedColor}20` }}
+                />
+              </View>
+            </View>
+            
+            <View 
+              style={[
+                styles.allPhotosPhotoSkeleton,
+                { 
+                  backgroundColor: `${selectedColor}08`,
+                  width: screenWidth * 0.42, // 42% del ancho de pantalla para cada elemento
+
+                }
+              ]}
+            >
+              <SkeletonItem 
+                width="100%" 
+                height={150} 
+                borderRadius={12} 
+                style={{ backgroundColor: `${selectedColor}20` }}
+                marginBottom={0}
+              />
+              <View style={{ padding: 12 }}>
+                <SkeletonItem 
+                  width="85%" 
+                  height={16} 
+                  borderRadius={8} 
+                  marginBottom={8} 
+                  style={{ backgroundColor: `${selectedColor}30` }}
+                />
+                <SkeletonItem 
+                  width="65%" 
+                  height={14} 
+                  borderRadius={7}
+                  marginBottom={0}
+                  style={{ backgroundColor: `${selectedColor}20` }}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+// Skeleton para Album Detail
+export const AlbumDetailSkeleton: React.FC = () => {
+  const { currentTheme, selectedColor } = useTheme();
+
+  const getDynamicColor = () => selectedColor;
+
+  return (
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.colors.background }]}>
+      <View style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
+        {/* Header Skeleton */}
+        <View style={[styles.albumDetailHeaderContainer, { borderBottomColor: `${selectedColor}20` }]}>
+          <SkeletonItem 
+            width={24} 
+            height={24} 
+            borderRadius={12} 
+            style={{ backgroundColor: `${selectedColor}30` }}
+          />
+          <SkeletonItem 
+            width={150} 
+            height={20} 
+            borderRadius={10} 
+            style={{ marginLeft: 16, backgroundColor: `${selectedColor}30` }} 
+          />
+          <View style={{ flexDirection: 'row' }}>
+            <SkeletonItem 
+              width={40} 
+              height={40} 
+              borderRadius={20} 
+              marginBottom={0}
+              style={{ backgroundColor: `${selectedColor}20` }}
+            />
+            <SkeletonItem 
+              width={40} 
+              height={40} 
+              borderRadius={20} 
+              style={{ marginLeft: 8, backgroundColor: `${selectedColor}20` }} 
+              marginBottom={0} 
+            />
+          </View>
+        </View>
+
+        {/* Main Image Skeleton */}
+        <View style={styles.albumDetailImageContainer}>
+          <SkeletonItem 
+            width="100%" 
+            height={250} 
+            borderRadius={16}
+            style={{ backgroundColor: `${selectedColor}15` }}
+          />
+        </View>
+
+        {/* Info Skeleton */}
+        <View style={styles.albumDetailInfoContainer}>
+          <View style={styles.albumDetailMetaContainer}>
+            <SkeletonItem 
+              width={100} 
+              height={16} 
+              borderRadius={8} 
+              marginBottom={0}
+              style={{ backgroundColor: `${selectedColor}25` }}
+            />
+            <SkeletonItem 
+              width={120} 
+              height={16} 
+              borderRadius={8} 
+              style={{ marginLeft: 16, backgroundColor: `${selectedColor}25` }} 
+              marginBottom={0} 
+            />
+          </View>
+          
+          <SkeletonItem 
+            width="90%" 
+            height={16} 
+            borderRadius={8} 
+            marginBottom={8}
+            style={{ backgroundColor: `${selectedColor}20` }}
+          />
+          <SkeletonItem 
+            width="70%" 
+            height={16} 
+            borderRadius={8} 
+            marginBottom={8}
+            style={{ backgroundColor: `${selectedColor}15` }}
+          />
+          <SkeletonItem 
+            width="80%" 
+            height={16} 
+            borderRadius={8}
+            style={{ backgroundColor: `${selectedColor}20` }}
+          />
+
+          {/* Photo Grid Skeleton */}
+          <View style={styles.albumDetailPhotoGridContainer}>
+            <SkeletonItem 
+              width="60%" 
+              height={18} 
+              borderRadius={9} 
+              marginBottom={16}
+              style={{ backgroundColor: `${selectedColor}25` }}
+            />
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {Array.from({ length: 6 }).map((_, index) => (
+                <SkeletonItem 
+                  key={index} 
+                  width={80} 
+                  height={80} 
+                  borderRadius={8} 
+                  marginBottom={0}
+                  style={{ backgroundColor: `${selectedColor}20` }}
+                />
+              ))}
+            </View>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 export default Skeleton;

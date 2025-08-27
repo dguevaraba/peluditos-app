@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import * as FileSystem from 'expo-file-system';
 
 export interface Album {
   id: string;
@@ -216,4 +217,104 @@ export class AlbumService {
       throw error;
     }
   }
+
+  // Actualizar imagen de portada del álbum
+  static async updateAlbumCoverImage(albumId: string, imageUri: string): Promise<Album> {
+    try {
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get or create user profile
+      let { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (!userProfile?.id) {
+        // Create user profile if it doesn't exist
+        const { data: newProfile, error: createError } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: user.id,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            email: user.email,
+            avatar_url: user.user_metadata?.avatar_url,
+          })
+          .select('id')
+          .single();
+
+        if (createError) {
+          console.error('Error creating user profile:', createError);
+          throw new Error('Failed to create user profile');
+        }
+
+        userProfile = newProfile;
+      }
+
+      // Generate unique filename for cover image
+      const fileExtension = imageUri.split('.').pop() || 'jpg';
+      const fileName = `album-covers/${user.id}/${albumId}/${Date.now()}.${fileExtension}`;
+
+      // Convert image to base64
+      const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('gallery-photos')
+        .upload(fileName, decode(base64Image), {
+          contentType: `image/${fileExtension}`,
+          cacheControl: '3600',
+          upsert: true, // Overwrite if exists
+        });
+
+      if (uploadError) {
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('gallery-photos')
+        .getPublicUrl(fileName);
+
+      // Update album with new cover image URL
+      const { data: album, error: updateError } = await supabase
+        .from('albums')
+        .update({
+          cover_image_url: publicUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', albumId)
+        .select()
+        .single();
+
+      if (updateError) {
+        // If update fails, delete the uploaded file
+        await supabase.storage
+          .from('gallery-photos')
+          .remove([fileName]);
+        throw new Error(`Database update failed: ${updateError.message}`);
+      }
+
+      return album;
+    } catch (error) {
+      console.error('Error updating album cover image:', error);
+      throw error;
+    }
+  }
+}
+
+// Helper function to decode base64
+function decode(base64: string): Uint8Array {
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
 }

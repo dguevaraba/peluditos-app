@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Dimensions, Platform } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Dimensions, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -18,7 +18,8 @@ import {
   Image as ImageIcon,
   Edit,
   Syringe,
-  ShoppingCart
+  ShoppingCart,
+  Menu
 } from 'lucide-react-native';
 import { defaultTheme, Theme } from './theme';
 import ProfileScreen from './screens/ProfileScreen';
@@ -33,6 +34,14 @@ import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-cont
 import { HomeSkeleton, AvatarSkeleton } from './components/Skeleton';
 import { UserService } from './services/userService';
 import { AlbumService } from './services/albumService';
+import HamburgerMenu from './components/HamburgerMenu';
+import PetsScreen from './screens/PetsScreen';
+import AddPhotoOrCategoryScreen from './screens/AddPhotoOrCategoryScreen';
+import AddPhotoScreen from './screens/AddPhotoScreen';
+import CreateCategoryScreen from './screens/CreateCategoryScreen';
+import CreateAlbumScreen from './screens/CreateAlbumScreen';
+import ThemeSettingsScreen from './screens/ThemeSettingsScreen';
+
 
 const petAlbums = [
   {
@@ -141,6 +150,8 @@ function HomeScreen({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(true);
   const [featuredAlbums, setFeaturedAlbums] = useState<any[]>([]);
   const [albumPhotoCounts, setAlbumPhotoCounts] = useState<{[key: string]: number}>({});
+  const [showHamburgerMenu, setShowHamburgerMenu] = useState(false);
+
   const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
 
   const styles = createStyles(currentTheme);
@@ -177,6 +188,32 @@ function HomeScreen({ navigation }: any) {
       openAlbumDetail: true 
     });
   };
+
+  // Manejar navegación desde el menú hamburguesa
+  const handleMenuNavigation = (screen: string) => {
+    switch (screen) {
+      case 'home':
+        // Ya estamos en home
+        break;
+      case 'profile':
+        navigation.navigate('Profile');
+        break;
+      case 'gallery':
+        navigation.navigate('Gallery');
+        break;
+      case 'favorites':
+        navigation.navigate('Gallery', { filter: 'favorites' });
+        break;
+      case 'theme':
+        navigation.navigate('ThemeSettings');
+        break;
+      case 'settings':
+        navigation.navigate('Profile');
+        break;
+    }
+  };
+
+
 
   // Cargar álbumes destacados
   const loadFeaturedAlbums = async () => {
@@ -247,16 +284,25 @@ function HomeScreen({ navigation }: any) {
         <View style={styles.headerContainer}>
           <View style={styles.headerGlass}>
             <View style={styles.headerContent}>
-              <View style={styles.logoContainer}>
-                <View style={[styles.logoIcon, { backgroundColor: `${getDynamicColor()}20` }]}>
-                  <Image 
-                    source={require('./assets/icon.png')} 
-                    style={styles.logoImage} 
-                    resizeMode="contain"
-                  />
-                </View>
-                <Text style={styles.appName}>Peluditos</Text>
-              </View>
+                        <TouchableOpacity 
+            style={[
+              styles.hamburgerButton,
+              { backgroundColor: `${getDynamicColor()}20` }
+            ]}
+            onPress={() => setShowHamburgerMenu(true)}
+          >
+            <Menu size={24} color={getDynamicColor()} />
+          </TouchableOpacity>
+          <View style={styles.logoContainer}>
+            <View style={[styles.logoIcon, { backgroundColor: `${getDynamicColor()}20` }]}>
+              <Image 
+                source={require('./assets/icon.png')} 
+                style={styles.logoImage} 
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.appName}>Peluditos</Text>
+          </View>
               <View style={styles.headerActions}>
                 <TouchableOpacity 
                   style={styles.notificationButton}
@@ -539,6 +585,13 @@ function HomeScreen({ navigation }: any) {
                </View>
               </ScrollView>
       </LinearGradient>
+      
+      {/* Hamburger Menu */}
+      <HamburgerMenu
+        visible={showHamburgerMenu}
+        onClose={() => setShowHamburgerMenu(false)}
+        onNavigate={handleMenuNavigation}
+      />
     </SafeAreaView>
   );
 }
@@ -567,13 +620,22 @@ function ProfileStack() {
   );
 }
 
+function MainStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Gallery" component={PetGalleryScreen} />
+      <Stack.Screen name="Pets" component={PetsScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="ThemeSettings" component={ThemeSettingsScreen} options={{ headerShown: false }} />
+
+    </Stack.Navigator>
+  );
+}
+
 function TabNavigator() {
   const { currentTheme, selectedColor } = useTheme();
-  const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
-  const insets = useSafeAreaInsets();
-  
-  // Opción para ajuste manual - puedes cambiar esto si la detección automática no funciona
-  const manualNavigationBarAdjustment = 20; // Ajustado a 20 para subirlo un poco más
   
   return (
     <Tab.Navigator 
@@ -585,9 +647,9 @@ function TabNavigator() {
           backgroundColor: currentTheme.colors.background,
           borderTopWidth: 1,
           borderTopColor: currentTheme.colors.border,
-          paddingBottom: Platform.OS === 'android' && hasNavigationBar ? 10 + navigationBarHeight + manualNavigationBarAdjustment : 10,
+          paddingBottom: 10,
           paddingTop: 10,
-          height: Platform.OS === 'android' && hasNavigationBar ? 80 + navigationBarHeight + manualNavigationBarAdjustment : 80,
+          height: 80,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: {
@@ -607,50 +669,24 @@ function TabNavigator() {
         }
       }}
     >
-        <Tab.Screen 
-          name="Home" 
-          component={HomeScreen} 
-          options={{ 
-            tabBarIcon: ({ color }) => <Home size={20} color={color} /> 
-          }} 
-        />
-        <Tab.Screen 
-          name="Agenda" 
-          component={HomeScreen} 
-          options={{ 
-            tabBarIcon: ({ color }) => <Calendar size={20} color={color} /> 
-          }} 
-        />
-        <Tab.Screen 
-          name="Gallery" 
-          component={PetGalleryScreen} 
-          options={{ 
-            tabBarIcon: ({ color }) => <ImageIcon size={20} color={color} /> 
-          }} 
-        />
-        <Tab.Screen 
-          name="Community" 
-          component={HomeScreen} 
-          options={{ 
-            tabBarIcon: ({ color }) => <Users size={20} color={color} /> 
-          }} 
-        />
-        <Tab.Screen 
-          name="Marketplace" 
-          component={HomeScreen} 
-          options={{ 
-            tabBarIcon: ({ color }) => <ShoppingCart size={20} color={color} /> 
-          }} 
-        />
-        <Tab.Screen 
-          name="Profile" 
-          component={ProfileStack} 
-          options={{ 
-            tabBarIcon: ({ color }) => <User size={20} color={color} /> 
-          }} 
-        />
-      </Tab.Navigator>
-    );
+      <Tab.Screen 
+        name="Main" 
+        component={MainStack} 
+        options={{ 
+          tabBarLabel: 'Inicio',
+          tabBarIcon: ({ color }) => <Home size={20} color={color} /> 
+        }} 
+      />
+      <Tab.Screen 
+        name="Pets" 
+        component={PetsScreen} 
+        options={{ 
+          tabBarLabel: 'Mascotas',
+          tabBarIcon: ({ color }) => <PawPrint size={20} color={color} /> 
+        }} 
+      />
+    </Tab.Navigator>
+  );
 }
 
 function AppContent() {
@@ -720,6 +756,15 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  hamburgerButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(101, 182, 173, 0.2)',
+    marginLeft: -12, // Pegar totalmente a la izquierda
   },
   logoIcon: {
     width: 50,

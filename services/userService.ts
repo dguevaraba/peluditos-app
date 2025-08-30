@@ -20,6 +20,9 @@ export interface UserProfile {
   preferred_vet?: string;
   emergency_contact?: string;
   pet_preferences?: string[];
+  // Preferencias de tema y color
+  theme_preference?: 'light' | 'dark';
+  color_preference?: string;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +43,9 @@ export interface UpdateUserProfileData {
   preferred_vet?: string;
   emergency_contact?: string;
   pet_preferences?: string[];
+  // Preferencias de tema y color
+  theme_preference?: 'light' | 'dark';
+  color_preference?: string;
 }
 
 export class UserService {
@@ -364,6 +370,67 @@ export class UserService {
       return { success: true };
     } catch (error) {
       console.error('Error in deleteAccount:', error);
+      return { success: false, error };
+    }
+  }
+
+  // Save theme and color preferences
+  static async saveThemePreferences(themePreference: 'light' | 'dark', colorPreference: string): Promise<{ success: boolean; error?: any }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { success: false, error: 'No authenticated user found' };
+      }
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          theme_preference: themePreference,
+          color_preference: colorPreference,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error saving theme preferences:', error);
+        return { success: false, error };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error saving theme preferences:', error);
+      return { success: false, error };
+    }
+  }
+
+  // Load theme and color preferences
+  static async loadThemePreferences(): Promise<{ success: boolean; themePreference?: 'light' | 'dark'; colorPreference?: string; error?: any }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { success: false, error: 'No authenticated user found' };
+      }
+
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('theme_preference, color_preference')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading theme preferences:', error);
+        return { success: false, error };
+      }
+
+      return { 
+        success: true, 
+        themePreference: data.theme_preference || 'light',
+        colorPreference: data.color_preference || '#65b6ad'
+      };
+    } catch (error) {
+      console.error('Error loading theme preferences:', error);
       return { success: false, error };
     }
   }

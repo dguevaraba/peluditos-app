@@ -25,6 +25,9 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   preferred_vet TEXT,
   emergency_contact TEXT,
   pet_preferences TEXT[],
+  -- Preferencias de tema y color
+  theme_preference TEXT DEFAULT 'light' CHECK (theme_preference IN ('light', 'dark')),
+  color_preference TEXT DEFAULT '#65b6ad',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -33,7 +36,9 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 ALTER TABLE user_profiles 
 ADD COLUMN IF NOT EXISTS preferred_vet TEXT,
 ADD COLUMN IF NOT EXISTS emergency_contact TEXT,
-ADD COLUMN IF NOT EXISTS pet_preferences TEXT[];
+ADD COLUMN IF NOT EXISTS pet_preferences TEXT[],
+ADD COLUMN IF NOT EXISTS theme_preference TEXT DEFAULT 'light' CHECK (theme_preference IN ('light', 'dark')),
+ADD COLUMN IF NOT EXISTS color_preference TEXT DEFAULT '#65b6ad';
 
 -- =====================================================
 -- 2. TABLA ORGANIZATIONS

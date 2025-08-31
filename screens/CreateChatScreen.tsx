@@ -12,11 +12,12 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Plus, PawPrint, Scissors, ShoppingBag, Dog, Package, Users } from 'lucide-react-native';
+import { ArrowLeft, Plus, Scissors, ShoppingBag, Dog, Package, Users } from 'lucide-react-native';
+import VetClinicIcon from '../components/VetClinicIcon';
 import { chatService, ChatCategory } from '../services/chatService';
 
 const iconMap: { [key: string]: any } = {
-  PawPrint,
+  VetClinicIcon,
   Scissors,
   ShoppingBag,
   Dog,
@@ -99,9 +100,15 @@ export default function CreateChatScreen({ navigation, route }: any) {
           }
           style={styles.categoryGradient}
         >
-          <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
-            <IconComponent size={24} color="#FFFFFF" />
-          </View>
+          {IconComponent === VetClinicIcon ? (
+            <View style={styles.categoryIconNoBg}>
+              <IconComponent size={28} />
+            </View>
+          ) : (
+            <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
+              <IconComponent size={24} color="#FFFFFF" />
+            </View>
+          )}
           <Text style={[
             styles.categoryName,
             { color: isSelected ? '#FFFFFF' : currentTheme.colors.text }
@@ -286,6 +293,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  categoryIconNoBg: {
+    width: 64,
+    height: 64,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   categoryName: {
     fontSize: 16,

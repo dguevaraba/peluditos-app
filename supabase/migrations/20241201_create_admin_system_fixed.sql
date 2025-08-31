@@ -1,5 +1,5 @@
 -- =====================================================
--- MIGRATION: Create Administrative System
+-- MIGRATION: Create Administrative System (FIXED VERSION)
 -- Date: 2024-12-01
 -- Description: Creates roles, permissions, products, and sales tables
 -- =====================================================
@@ -284,49 +284,119 @@ CREATE TRIGGER audit_sales
   FOR EACH ROW EXECUTE FUNCTION log_audit_event();
 
 -- =====================================================
--- 11. DATOS INICIALES
+-- 11. DATOS INICIALES (CON MANEJO DE ERRORES)
 -- =====================================================
 
--- Insert basic permissions
-INSERT INTO permissions (name, display_name, description, resource, action) VALUES
-  ('organizations:manage:global', 'Manage Organizations Globally', 'Full control over all organizations', 'organizations', 'manage'),
-  ('organizations:read:global', 'View Organizations Globally', 'View all organizations', 'organizations', 'read'),
-  ('users:manage:global', 'Manage Users Globally', 'Full control over all users', 'users', 'manage'),
-  ('users:create:organization', 'Create Users in Organization', 'Invite users to organization', 'users', 'create'),
-  ('users:read:organization', 'View Users in Organization', 'View organization members', 'users', 'read'),
-  ('products:manage:organization', 'Manage Products in Organization', 'Full control over organization products', 'products', 'manage'),
-  ('products:read:organization', 'View Products in Organization', 'View organization products', 'products', 'read'),
-  ('sales:manage:organization', 'Manage Sales in Organization', 'Full control over organization sales', 'sales', 'manage'),
-  ('sales:create:own', 'Create Own Sales', 'Create sales records', 'sales', 'create'),
-  ('pets:read:organization', 'View Pets in Organization', 'View pets in organization', 'pets', 'read'),
-  ('medical_records:manage:organization', 'Manage Medical Records', 'Full control over medical records', 'medical_records', 'manage');
+-- Insert basic permissions (with error handling)
+DO $$
+BEGIN
+  -- Insert permissions one by one to avoid conflicts
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('organizations:manage:global', 'Manage Organizations Globally', 'Full control over all organizations', 'organizations', 'manage')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('organizations:read:global', 'View Organizations Globally', 'View all organizations', 'organizations', 'read')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('users:manage:global', 'Manage Users Globally', 'Full control over all users', 'users', 'manage')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('users:create:organization', 'Create Users in Organization', 'Invite users to organization', 'users', 'create')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('users:read:organization', 'View Users in Organization', 'View organization members', 'users', 'read')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('products:manage:organization', 'Manage Products in Organization', 'Full control over organization products', 'products', 'manage')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('products:read:organization', 'View Products in Organization', 'View organization products', 'products', 'read')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('sales:manage:organization', 'Manage Sales in Organization', 'Full control over organization sales', 'sales', 'manage')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('sales:create:own', 'Create Own Sales', 'Create sales records', 'sales', 'create')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('pets:read:organization', 'View Pets in Organization', 'View pets in organization', 'pets', 'read')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO permissions (name, display_name, description, resource, action) VALUES
+    ('medical_records:manage:organization', 'Manage Medical Records', 'Full control over medical records', 'medical_records', 'manage')
+  ON CONFLICT (name) DO NOTHING;
+END $$;
 
--- Insert system roles
-INSERT INTO roles (name, display_name, description, permissions, is_system_role) VALUES
-  ('super_admin', 'Super Administrator', 'Full platform control', 
-   '["organizations:manage:global", "users:manage:global", "products:manage:organization", "sales:manage:organization", "pets:read:organization", "medical_records:manage:organization"]'::jsonb, 
-   true),
-  ('admin', 'Administrator', 'Organization management', 
-   '["users:create:organization", "users:read:organization", "products:manage:organization", "sales:manage:organization", "pets:read:organization", "medical_records:manage:organization"]'::jsonb, 
-   true),
-  ('vet_support', 'Veterinary Support', 'Medical records and pet management', 
-   '["pets:read:organization", "medical_records:manage:organization"]'::jsonb, 
-   true),
-  ('sales', 'Sales Representative', 'Product and sales management', 
-   '["products:read:organization", "sales:create:own"]'::jsonb, 
-   true),
-  ('user', 'Regular User', 'Basic user permissions', 
-   '[]'::jsonb, 
-   true);
+-- Insert system roles (with error handling)
+DO $$
+BEGIN
+  INSERT INTO roles (name, display_name, description, permissions, is_system_role) VALUES
+    ('super_admin', 'Super Administrator', 'Full platform control', 
+     '["organizations:manage:global", "users:manage:global", "products:manage:organization", "sales:manage:organization", "pets:read:organization", "medical_records:manage:organization"]'::jsonb, 
+     true)
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO roles (name, display_name, description, permissions, is_system_role) VALUES
+    ('admin', 'Administrator', 'Organization management', 
+     '["users:create:organization", "users:read:organization", "products:manage:organization", "sales:manage:organization", "pets:read:organization", "medical_records:manage:organization"]'::jsonb, 
+     true)
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO roles (name, display_name, description, permissions, is_system_role) VALUES
+    ('vet_support', 'Veterinary Support', 'Medical records and pet management', 
+     '["pets:read:organization", "medical_records:manage:organization"]'::jsonb, 
+     true)
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO roles (name, display_name, description, permissions, is_system_role) VALUES
+    ('sales', 'Sales Representative', 'Product and sales management', 
+     '["products:read:organization", "sales:create:own"]'::jsonb, 
+     true)
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO roles (name, display_name, description, permissions, is_system_role) VALUES
+    ('user', 'Regular User', 'Basic user permissions', 
+     '[]'::jsonb, 
+     true)
+  ON CONFLICT (name) DO NOTHING;
+END $$;
 
--- Insert basic product categories
-INSERT INTO product_categories (name, description) VALUES
-  ('Food & Nutrition', 'Pet food and nutritional supplements'),
-  ('Health & Medicine', 'Veterinary medicines and health products'),
-  ('Grooming & Care', 'Grooming tools and care products'),
-  ('Toys & Entertainment', 'Pet toys and entertainment items'),
-  ('Accessories', 'Collars, leashes, and other accessories'),
-  ('Equipment', 'Crates, beds, and other equipment');
+-- Insert basic product categories (with error handling)
+DO $$
+BEGIN
+  INSERT INTO product_categories (name, description) VALUES
+    ('Food & Nutrition', 'Pet food and nutritional supplements')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO product_categories (name, description) VALUES
+    ('Health & Medicine', 'Veterinary medicines and health products')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO product_categories (name, description) VALUES
+    ('Grooming & Care', 'Grooming tools and care products')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO product_categories (name, description) VALUES
+    ('Toys & Entertainment', 'Pet toys and entertainment items')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO product_categories (name, description) VALUES
+    ('Accessories', 'Collars, leashes, and other accessories')
+  ON CONFLICT (name) DO NOTHING;
+  
+  INSERT INTO product_categories (name, description) VALUES
+    ('Equipment', 'Crates, beds, and other equipment')
+  ON CONFLICT (name) DO NOTHING;
+END $$;
 
 -- =====================================================
 -- 12. COMENTARIOS

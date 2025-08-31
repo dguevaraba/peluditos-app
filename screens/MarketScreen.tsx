@@ -21,6 +21,7 @@ import {
   Star
 } from 'lucide-react-native';
 import { useTheme } from '../ThemeContext';
+import VetClinicIcon from '../components/VetClinicIcon';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -32,7 +33,7 @@ const MarketScreen: React.FC = () => {
     { id: 1, name: 'Food', icon: Bone, color: '#FF6B6B' },
     { id: 2, name: 'Toys', icon: Bone, color: '#4ECDC4' },
     { id: 3, name: 'Grooming', icon: Scissors, color: '#45B7D1' },
-    { id: 4, name: 'Vets', icon: Pill, color: '#96CEB4' },
+    { id: 4, name: 'Vets', icon: VetClinicIcon, color: '#96CEB4' },
   ];
 
   const recommendedProducts = [
@@ -110,9 +111,15 @@ const MarketScreen: React.FC = () => {
                 key={category.id}
                 style={[styles.categoryButton, { backgroundColor: currentTheme.colors.cardSurface }]}
               >
-                <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
-                  <IconComponent size={24} color="#FFFFFF" />
-                </View>
+                {IconComponent === VetClinicIcon ? (
+                  <View style={styles.categoryIconNoBg}>
+                    <IconComponent size={28} />
+                  </View>
+                ) : (
+                  <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
+                    <IconComponent size={24} color="#FFFFFF" />
+                  </View>
+                )}
                 <Text style={[styles.categoryText, { color: currentTheme.colors.text }]}>
                   {category.name}
                 </Text>
@@ -276,6 +283,13 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  categoryIconNoBg: {
+    width: 48,
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,

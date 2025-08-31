@@ -11,8 +11,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, MessageCircle, Plus, PawPrint, Scissors, ShoppingBag, Dog, Package, Pin } from 'lucide-react-native';
+import { ArrowLeft, MessageCircle, Plus, Scissors, ShoppingBag, Dog, Package, Pin } from 'lucide-react-native';
 import RobotDogIcon from '../components/RobotDogIcon';
+import VetClinicIcon from '../components/VetClinicIcon';
 import { aiService } from '../services/aiService';
 import { chatService, ChatConversation } from '../services/chatService';
 
@@ -27,7 +28,7 @@ export default function ChatsScreen({ navigation }: any) {
 
   // Datos de chats predeterminados
   const predeterminedChats = [
-    { id: 1, name: 'Vet Clinic', icon: PawPrint, color: '#4ECDC4', description: 'Chat with veterinarians' },
+    { id: 1, name: 'Vet Clinic', icon: VetClinicIcon, color: '#4ECDC4', description: 'Chat with veterinarians' },
     { id: 2, name: 'Grooming', icon: Scissors, color: '#FF6B6B', description: 'Chat with groomers' },
     { id: 3, name: 'Pet Shop', icon: ShoppingBag, color: '#45B7D1', description: 'Chat with pet store' },
     { id: 4, name: 'Dog Walking', icon: Dog, color: '#96CEB4', description: 'Chat with dog walkers' },
@@ -42,7 +43,7 @@ export default function ChatsScreen({ navigation }: any) {
       lastMessage: 'Your appointment is confirmed...',
       time: '10:20 AM',
       avatar: null,
-      icon: PawPrint,
+      icon: VetClinicIcon,
       color: '#4ECDC4',
       isPinned: true,
     },
@@ -328,13 +329,17 @@ export default function ChatsScreen({ navigation }: any) {
                           style={[styles.avatarImage, { borderColor: getDynamicColor() }]}
                         />
                       ) : (
-                        <View style={[styles.avatarIcon, { backgroundColor: conversation.color || getDynamicColor() }]}>
-                          {conversation.icon === Dog ? (
-                            <RobotDogIcon size={20} color="#FFFFFF" />
-                          ) : (
-                            conversation.icon && <conversation.icon size={20} color="#FFFFFF" />
-                          )}
-                        </View>
+                        conversation.icon === VetClinicIcon ? (
+                          <conversation.icon size={32} />
+                        ) : (
+                          <View style={[styles.avatarIcon, { backgroundColor: conversation.color || getDynamicColor() }]}>
+                            {conversation.icon === Dog ? (
+                              <RobotDogIcon size={20} color="#FFFFFF" />
+                            ) : (
+                              conversation.icon && <conversation.icon size={20} color="#FFFFFF" />
+                            )}
+                          </View>
+                        )
                       )}
                     </View>
                     <View style={styles.conversationContent}>
@@ -436,9 +441,17 @@ export default function ChatsScreen({ navigation }: any) {
                     colors={[`${getDynamicColor()}15`, 'transparent']}
                     style={styles.serviceGradient}
                   >
-                    <View style={[styles.serviceIconContainer, { backgroundColor: chat.color }]}>
-                      <chat.icon size={28} color="#FFFFFF" />
-                    </View>
+                    {chat.icon === VetClinicIcon ? (
+                      // Para VetClinicIcon, mostrar sin contenedor circular
+                      <View style={styles.serviceIconContainerNoBg}>
+                        <chat.icon size={32} />
+                      </View>
+                    ) : (
+                      // Para otros iconos, mostrar con contenedor circular
+                      <View style={[styles.serviceIconContainer, { backgroundColor: chat.color }]}>
+                        <chat.icon size={28} color="#FFFFFF" />
+                      </View>
+                    )}
                     <Text style={[styles.serviceName, { color: currentTheme.colors.text }]}>
                       {chat.name}
                     </Text>
@@ -684,6 +697,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  serviceIconContainerNoBg: {
+    width: 64,
+    height: 64,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   serviceName: {
     fontSize: 16,

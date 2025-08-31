@@ -157,13 +157,17 @@ function useNavigationBarDetection() {
 }
 
 function HomeScreen({ navigation }: any) {
-  const { currentTheme, selectedColor } = useTheme();
+  const { currentTheme, selectedColor, isDarkMode } = useTheme();
   const { user } = useAuth();
   const [selectedAlbum, setSelectedAlbum] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [featuredAlbums, setFeaturedAlbums] = useState<any[]>([]);
   const [albumPhotoCounts, setAlbumPhotoCounts] = useState<{[key: string]: number}>({});
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const headerTranslateY = useRef(new Animated.Value(0)).current;
+  const headerOpacity = useRef(new Animated.Value(1)).current;
 
   const { hasNavigationBar, navigationBarHeight } = useNavigationBarDetection();
 
@@ -172,6 +176,49 @@ function HomeScreen({ navigation }: any) {
   // Function to get dynamic color based on selected color
   const getDynamicColor = () => {
     return selectedColor;
+  };
+
+  // Función para manejar el scroll y mostrar/ocultar header
+  const handleScroll = (event: any) => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    
+    if (currentScrollY > lastScrollY && currentScrollY > 50) {
+      // Scroll hacia abajo - ocultar header
+      if (headerVisible) {
+        setHeaderVisible(false);
+        Animated.parallel([
+          Animated.timing(headerTranslateY, {
+            toValue: -100,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(headerOpacity, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    } else if (currentScrollY < lastScrollY) {
+      // Scroll hacia arriba - mostrar header
+      if (!headerVisible) {
+        setHeaderVisible(true);
+        Animated.parallel([
+          Animated.timing(headerTranslateY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(headerOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    }
+    
+    setLastScrollY(currentScrollY);
   };
 
   // Custom avatars para renderizar
@@ -329,35 +376,49 @@ function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-                   <LinearGradient
-               colors={[`${getDynamicColor()}08`, '#f8f9fa']}
-               start={{ x: 0, y: 0 }}
-               end={{ x: 0, y: 1 }}
-               style={styles.container}
-             >
-        <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.headerContainer}>
+      <LinearGradient
+        colors={[`${getDynamicColor()}08`, '#f8f9fa']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.container}
+      >
+        {/* Header Fijo */}
+        <Animated.View 
+          style={[
+            styles.fixedHeader,
+            {
+              backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              borderBottomColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+              shadowColor: isDarkMode ? '#000' : '#000',
+              shadowOpacity: isDarkMode ? 0.3 : 0.1,
+              transform: [{
+                translateY: headerTranslateY
+              }],
+              opacity: headerOpacity
+            }
+          ]}
+        >
           <View style={styles.headerGlass}>
             <View style={styles.headerContent}>
-                        <TouchableOpacity 
-            style={[
-              styles.hamburgerButton,
-              { backgroundColor: `${getDynamicColor()}20` }
-            ]}
-            onPress={() => setShowHamburgerMenu(true)}
-          >
-            <Menu size={24} color={getDynamicColor()} />
-          </TouchableOpacity>
-          <View style={styles.logoContainer}>
-            <View style={[styles.logoIcon, { backgroundColor: `${getDynamicColor()}20` }]}>
-              <Image 
-                source={require('./assets/icon.png')} 
-                style={styles.logoImage} 
-                resizeMode="contain"
-              />
-    </View>
-            <Text style={styles.appName}>Peluditos</Text>
-          </View>
+              <TouchableOpacity 
+                style={[
+                  styles.hamburgerButton,
+                  { backgroundColor: `${getDynamicColor()}20` }
+                ]}
+                onPress={() => setShowHamburgerMenu(true)}
+              >
+                <Menu size={24} color={getDynamicColor()} />
+              </TouchableOpacity>
+              <View style={styles.logoContainer}>
+                <View style={[styles.logoIcon, { backgroundColor: `${getDynamicColor()}20` }]}>
+                  <Image 
+                    source={require('./assets/icon.png')} 
+                    style={styles.logoImage} 
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={styles.appName}>Peluditos</Text>
+              </View>
               <View style={styles.headerActions}>
                 <TouchableOpacity 
                   style={styles.notificationButton}
@@ -399,7 +460,14 @@ function HomeScreen({ navigation }: any) {
               </View>
             </View>
           </View>
-        </View>
+        </Animated.View>
+
+        <ScrollView 
+          contentContainerStyle={[styles.content, { paddingTop: 100 }]}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+        >
 
                        {/* Pet Card */}
                <LinearGradient
@@ -849,6 +917,20 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     marginBottom: 24,
     marginHorizontal: Platform.OS === 'android' ? -16 : -20,
     paddingHorizontal: Platform.OS === 'android' ? 16 : 20,
+  },
+  fixedHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    borderBottomWidth: 1,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 8,
+    elevation: 5,
   },
   headerGlass: {
     // Sin card, solo layout

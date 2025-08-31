@@ -11,9 +11,13 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, MessageCircle, Plus, Scissors, ShoppingBag, Dog, Package, Pin } from 'lucide-react-native';
+import { ArrowLeft, MessageCircle, Plus, Pin } from 'lucide-react-native';
 import RobotDogIcon from '../components/RobotDogIcon';
 import VetClinicIcon from '../components/VetClinicIcon';
+import DogWalkingIcon from '../components/DogWalkingIcon';
+import OrderSupportIcon from '../components/OrderSupportIcon';
+import PetShopIcon from '../components/PetShopIcon';
+import GroomingIcon from '../components/GroomingIcon';
 import { aiService } from '../services/aiService';
 import { chatService, ChatConversation } from '../services/chatService';
 
@@ -29,10 +33,10 @@ export default function ChatsScreen({ navigation }: any) {
   // Datos de chats predeterminados
   const predeterminedChats = [
     { id: 1, name: 'Vet Clinic', icon: VetClinicIcon, color: '#4ECDC4', description: 'Chat with veterinarians' },
-    { id: 2, name: 'Grooming', icon: Scissors, color: '#FF6B6B', description: 'Chat with groomers' },
-    { id: 3, name: 'Pet Shop', icon: ShoppingBag, color: '#45B7D1', description: 'Chat with pet store' },
-    { id: 4, name: 'Dog Walking', icon: Dog, color: '#96CEB4', description: 'Chat with dog walkers' },
-    { id: 5, name: 'Orders / Support', icon: Package, color: '#FFA07A', description: 'Chat with support' },
+    { id: 2, name: 'Grooming', icon: GroomingIcon, color: '#FF6B6B', description: 'Chat with groomers' },
+    { id: 3, name: 'Pet Shop', icon: PetShopIcon, color: '#45B7D1', description: 'Chat with pet store' },
+    { id: 4, name: 'Dog Walking', icon: DogWalkingIcon, color: '#96CEB4', description: 'Chat with dog walkers' },
+    { id: 5, name: 'Orders / Support', icon: OrderSupportIcon, color: '#FFA07A', description: 'Chat with support' },
   ];
 
   // Conversaciones recientes de ejemplo
@@ -53,7 +57,7 @@ export default function ChatsScreen({ navigation }: any) {
       lastMessage: 'Promo: 20% OFF today...',
       time: 'Yesterday',
       avatar: null,
-      icon: Scissors,
+      icon: GroomingIcon,
       color: '#FF6B6B',
       isPinned: false,
     },
@@ -63,7 +67,7 @@ export default function ChatsScreen({ navigation }: any) {
       lastMessage: 'Tips for dog food portion sizes...',
       time: 'Yesterday',
       avatar: null,
-      icon: Dog,
+      icon: RobotDogIcon,
       color: '#45B7D1',
       isPinned: false,
     },
@@ -185,7 +189,7 @@ export default function ChatsScreen({ navigation }: any) {
             />
           ) : (
             <View style={[styles.avatarIcon, { backgroundColor: item.color || getDynamicColor() }]}>
-              {item.icon === Dog ? (
+              {item.icon === RobotDogIcon ? (
                 <RobotDogIcon size={20} color="#FFFFFF" />
               ) : (
                 item.icon && <item.icon size={20} color="#FFFFFF" />
@@ -329,11 +333,11 @@ export default function ChatsScreen({ navigation }: any) {
                           style={[styles.avatarImage, { borderColor: getDynamicColor() }]}
                         />
                       ) : (
-                        conversation.icon === VetClinicIcon ? (
+                        conversation.icon === VetClinicIcon || conversation.icon === DogWalkingIcon || conversation.icon === OrderSupportIcon || conversation.icon === PetShopIcon || conversation.icon === GroomingIcon ? (
                           <conversation.icon size={32} />
                         ) : (
                           <View style={[styles.avatarIcon, { backgroundColor: conversation.color || getDynamicColor() }]}>
-                            {conversation.icon === Dog ? (
+                            {conversation.icon === RobotDogIcon ? (
                               <RobotDogIcon size={20} color="#FFFFFF" />
                             ) : (
                               conversation.icon && <conversation.icon size={20} color="#FFFFFF" />
@@ -441,8 +445,8 @@ export default function ChatsScreen({ navigation }: any) {
                     colors={[`${getDynamicColor()}15`, 'transparent']}
                     style={styles.serviceGradient}
                   >
-                    {chat.icon === VetClinicIcon ? (
-                      // Para VetClinicIcon, mostrar sin contenedor circular
+                    {chat.icon === VetClinicIcon || chat.icon === DogWalkingIcon || chat.icon === OrderSupportIcon || chat.icon === PetShopIcon || chat.icon === GroomingIcon ? (
+                      // Para iconos personalizados, mostrar sin contenedor circular
                       <View style={styles.serviceIconContainerNoBg}>
                         <chat.icon size={32} />
                       </View>

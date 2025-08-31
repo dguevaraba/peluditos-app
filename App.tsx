@@ -50,6 +50,10 @@ import MarketScreen from './screens/MarketScreen';
 import ChatsScreen from './screens/ChatsScreen';
 import ChatDetailScreen from './screens/ChatDetailScreen';
 import CreateChatScreen from './screens/CreateChatScreen';
+import CowIcon from './components/CowIcon';
+import PenguinIcon from './components/PenguinIcon';
+import FishIcon from './components/FishIcon';
+import HamsterIcon from './components/HamsterIcon';
 
 
 const petAlbums = [
@@ -168,6 +172,48 @@ function HomeScreen({ navigation }: any) {
   // Function to get dynamic color based on selected color
   const getDynamicColor = () => {
     return selectedColor;
+  };
+
+  // Custom avatars para renderizar
+  const customAvatars = [
+    {
+      id: 'penguin',
+      name: 'Penguin',
+      icon: PenguinIcon,
+      color: '#4ECDC4'
+    },
+    {
+      id: 'cow',
+      name: 'Cow',
+      icon: CowIcon,
+      color: '#FF6B6B'
+    },
+    {
+      id: 'fish',
+      name: 'Fish',
+      icon: FishIcon,
+      color: '#45B7D1'
+    },
+    {
+      id: 'hamster',
+      name: 'Hamster',
+      icon: HamsterIcon,
+      color: '#96CEB4'
+    },
+  ];
+
+  const renderCustomAvatar = (avatarUrl: string, containerSize: number = 20) => {
+    const avatarId = avatarUrl.replace('custom-', '').replace('-icon', '');
+    const avatar = customAvatars.find(a => a.id === avatarId);
+    
+    if (avatar) {
+      const IconComponent = avatar.icon;
+      // Calcular el tamaño del icono basado en el contenedor (80% del tamaño del contenedor)
+      const iconSize = Math.floor(containerSize * 0.8);
+      return <IconComponent size={iconSize} color="#ffffff" />;
+    }
+    
+    return <User size={containerSize} color="#ffffff" />;
   };
 
   // Obtener álbumes para mostrar (destacados reales o de ejemplo)
@@ -327,12 +373,22 @@ function HomeScreen({ navigation }: any) {
                     </View>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.profileButton}>
+                <TouchableOpacity 
+                  style={styles.profileButton}
+                  onPress={() => navigation.navigate('Profile')}
+                  activeOpacity={0.7}
+                >
                   {user?.user_metadata?.avatar_url ? (
-                    <Image 
-                      source={{ uri: user.user_metadata.avatar_url }} 
-                      style={styles.profilePic} 
-                    />
+                    user.user_metadata.avatar_url.startsWith('custom-') ? (
+                      <View style={[styles.profilePic, { backgroundColor: getDynamicColor(), justifyContent: 'center', alignItems: 'center' }]}>
+                        {renderCustomAvatar(user.user_metadata.avatar_url, 40)}
+                      </View>
+                    ) : (
+                      <Image 
+                        source={{ uri: user.user_metadata.avatar_url }} 
+                        style={styles.profilePic} 
+                      />
+                    )
                   ) : (
                     <View style={[styles.profilePic, { backgroundColor: getDynamicColor(), justifyContent: 'center', alignItems: 'center' }]}>
                       <User size={20} color="#ffffff" />

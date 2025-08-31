@@ -22,6 +22,10 @@ import {
 } from 'lucide-react-native';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import CowIcon from './CowIcon';
+import PenguinIcon from './PenguinIcon';
+import FishIcon from './FishIcon';
+import HamsterIcon from './HamsterIcon';
 
 interface HamburgerMenuProps {
   visible: boolean;
@@ -36,7 +40,51 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 }) => {
   const { currentTheme, selectedColor } = useTheme();
   const { user } = useAuth();
-  const translateX = useRef(new Animated.Value(-300)).current;
+  const translateX = useRef(new Animated.Value(-350)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0.95)).current;
+
+  // Custom avatars para renderizar
+  const customAvatars = [
+    {
+      id: 'penguin',
+      name: 'Penguin',
+      icon: PenguinIcon,
+      color: '#4ECDC4'
+    },
+    {
+      id: 'cow',
+      name: 'Cow',
+      icon: CowIcon,
+      color: '#FF6B6B'
+    },
+    {
+      id: 'fish',
+      name: 'Fish',
+      icon: FishIcon,
+      color: '#45B7D1'
+    },
+    {
+      id: 'hamster',
+      name: 'Hamster',
+      icon: HamsterIcon,
+      color: '#96CEB4'
+    },
+  ];
+
+  const renderCustomAvatar = (avatarUrl: string, containerSize: number = 20) => {
+    const avatarId = avatarUrl.replace('custom-', '').replace('-icon', '');
+    const avatar = customAvatars.find(a => a.id === avatarId);
+    
+    if (avatar) {
+      const IconComponent = avatar.icon;
+      // Calcular el tamaño del icono basado en el contenedor (80% del tamaño del contenedor)
+      const iconSize = Math.floor(containerSize * 0.8);
+      return <IconComponent size={iconSize} color={selectedColor} />;
+    }
+    
+    return <User size={containerSize} color={selectedColor} />;
+  };
 
 
   const menuItems = [
@@ -84,23 +132,64 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
   const handleMenuPress = (itemId: string) => {
     onNavigate(itemId);
-    onClose();
+    // Cerrar después de un pequeño delay para que se vea la animación
+    setTimeout(() => {
+      onClose();
+    }, 100);
   };
 
   useEffect(() => {
     if (visible) {
-      translateX.setValue(-300);
-      Animated.timing(translateX, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      // Reset values
+      translateX.setValue(-350);
+      opacity.setValue(0);
+      scale.setValue(0.95);
+      
+      // Animate in with spring effect
+      Animated.parallel([
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 100,
+          friction: 8,
+          restDisplacementThreshold: 0.01,
+          restSpeedThreshold: 0.01,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          useNativeDriver: true,
+          tension: 100,
+          friction: 8,
+        }),
+      ]).start();
     } else {
-      Animated.timing(translateX, {
-        toValue: -300,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      // Animate out with spring effect
+      Animated.parallel([
+        Animated.spring(translateX, {
+          toValue: -350,
+          useNativeDriver: true,
+          tension: 80,
+          friction: 9,
+          restDisplacementThreshold: 0.01,
+          restSpeedThreshold: 0.01,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 0.9,
+          useNativeDriver: true,
+          tension: 80,
+          friction: 9,
+        }),
+      ]).start();
     }
   }, [visible]);
 
@@ -126,14 +215,22 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   const styles = StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
     },
 
     menuContainer: {
       flex: 1,
       backgroundColor: currentTheme.colors.background,
-      width: '80%',
-      maxWidth: 320,
+      width: '85%',
+      maxWidth: 340,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 2,
+        height: 0,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 10,
+      elevation: 10,
     },
     menuTouchable: {
       flex: 1,
@@ -179,10 +276,10 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
       alignItems: 'center',
     },
     userAvatar: {
-      width: 50,
-      height: 50,
-      borderRadius: 25,
-      backgroundColor: `${selectedColor}20`,
+      width: 45,
+      height: 45,
+      borderRadius: 22.5,
+      backgroundColor: `${selectedColor}10`,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: 15,
@@ -199,6 +296,13 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     userEmail: {
       fontSize: 14,
       color: currentTheme.colors.textSecondary,
+    },
+    appVersion: {
+      fontSize: 10,
+      color: currentTheme.colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 8,
+      opacity: 0.7,
     },
 
     content: {
@@ -255,17 +359,51 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
       transparent={true}
       onRequestClose={onClose}
     >
-      <TouchableOpacity 
-        style={styles.overlay} 
-        activeOpacity={1} 
-        onPress={onClose}
+      <Animated.View 
+        style={[
+          styles.overlay,
+          { opacity }
+        ]}
       >
-        <Animated.View 
-          style={[
-            styles.menuContainer,
-            { transform: [{ translateX }] }
-          ]}
+        <TouchableOpacity 
+          style={{ flex: 1 }} 
+          activeOpacity={1} 
+          onPress={() => {
+            // Animar la salida antes de cerrar
+            Animated.parallel([
+              Animated.spring(translateX, {
+                toValue: -350,
+                useNativeDriver: true,
+                tension: 80,
+                friction: 9,
+              }),
+              Animated.timing(opacity, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+              }),
+              Animated.spring(scale, {
+                toValue: 0.9,
+                useNativeDriver: true,
+                tension: 80,
+                friction: 9,
+              }),
+            ]).start(() => {
+              onClose();
+            });
+          }}
         >
+          <Animated.View 
+            style={[
+              styles.menuContainer,
+              { 
+                transform: [
+                  { translateX },
+                  { scale }
+                ] 
+              }
+            ]}
+          >
           <SafeAreaView style={{ flex: 1 }}>
             {/* Header */}
             <View style={styles.header}>
@@ -320,9 +458,41 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             
             {/* User Info at Bottom */}
             <View style={styles.userInfoContainer}>
-              <View style={styles.userInfo}>
+              <TouchableOpacity 
+                style={styles.userInfo}
+                onPress={() => {
+                  onNavigate('profile');
+                  // Animar la salida antes de cerrar
+                  Animated.parallel([
+                    Animated.spring(translateX, {
+                      toValue: -350,
+                      useNativeDriver: true,
+                      tension: 80,
+                      friction: 9,
+                    }),
+                    Animated.timing(opacity, {
+                      toValue: 0,
+                      duration: 300,
+                      useNativeDriver: true,
+                    }),
+                    Animated.spring(scale, {
+                      toValue: 0.9,
+                      useNativeDriver: true,
+                      tension: 80,
+                      friction: 9,
+                    }),
+                  ]).start(() => {
+                    onClose();
+                  });
+                }}
+                activeOpacity={0.7}
+              >
                 <View style={styles.userAvatar}>
-                  <User size={20} color={selectedColor} />
+                  {user?.user_metadata?.avatar_url && user.user_metadata.avatar_url.startsWith('custom-') ? (
+                    renderCustomAvatar(user.user_metadata.avatar_url, 48)
+                  ) : (
+                    <User size={24} color={selectedColor} />
+                  )}
                 </View>
                 <View style={styles.userText}>
                   <Text style={styles.userName}>
@@ -332,11 +502,15 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                     {user?.email || 'usuario@email.com'}
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
+              <Text style={styles.appVersion}>
+                v1.0.0
+              </Text>
             </View>
           </SafeAreaView>
         </Animated.View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </Animated.View>
     </Modal>
   );
 };

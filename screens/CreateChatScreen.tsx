@@ -12,16 +12,20 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Plus, Scissors, ShoppingBag, Dog, Package, Users } from 'lucide-react-native';
+import { ArrowLeft, Plus, Users } from 'lucide-react-native';
 import VetClinicIcon from '../components/VetClinicIcon';
+import DogWalkingIcon from '../components/DogWalkingIcon';
+import OrderSupportIcon from '../components/OrderSupportIcon';
+import PetShopIcon from '../components/PetShopIcon';
+import GroomingIcon from '../components/GroomingIcon';
 import { chatService, ChatCategory } from '../services/chatService';
 
 const iconMap: { [key: string]: any } = {
   VetClinicIcon,
-  Scissors,
-  ShoppingBag,
-  Dog,
-  Package,
+  GroomingIcon,
+  PetShopIcon,
+  DogWalkingIcon,
+  OrderSupportIcon,
   Users,
 };
 
@@ -100,7 +104,7 @@ export default function CreateChatScreen({ navigation, route }: any) {
           }
           style={styles.categoryGradient}
         >
-          {IconComponent === VetClinicIcon ? (
+          {IconComponent === VetClinicIcon || IconComponent === DogWalkingIcon || IconComponent === OrderSupportIcon || IconComponent === PetShopIcon || IconComponent === GroomingIcon ? (
             <View style={styles.categoryIconNoBg}>
               <IconComponent size={28} />
             </View>

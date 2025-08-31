@@ -110,6 +110,25 @@ export interface CreateReminderData {
   recurrence_pattern?: string;
 }
 
+export interface PetWeightRecord {
+  id: string;
+  pet_id: string;
+  weight: number;
+  weight_unit: 'kg' | 'lb';
+  recorded_date: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateWeightRecordData {
+  pet_id: string;
+  weight: number;
+  weight_unit: 'kg' | 'lb';
+  recorded_date?: string;
+  notes?: string;
+}
+
 export class PetService {
   // Get all pets for current user
   static async getUserPets(): Promise<{ success: boolean; data?: Pet[]; error?: any }> {
@@ -163,6 +182,88 @@ export class PetService {
       return { success: true, data };
     } catch (error) {
       console.error('Error in getPet:', error);
+      return { success: false, error };
+    }
+  }
+
+  // Get pet weight history
+  static async getPetWeightHistory(petId: string, months?: number): Promise<{ success: boolean; data?: PetWeightRecord[]; error?: any }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { success: false, error: 'No user found' };
+      }
+
+      let query = supabase
+        .from('pet_weight_records')
+        .select('*')
+        .eq('pet_id', petId)
+        .order('recorded_date', { ascending: true });
+
+      // If months is specified, filter by date range
+      if (months && months > 0) {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - months);
+        
+        query = query
+          .gte('recorded_date', startDate.toISOString().split('T')[0])
+          .lte('recorded_date', endDate.toISOString().split('T')[0]);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching pet weight history:', error);
+        return { success: false, error };
+      }
+
+      return { success: true, data: data || [] };
+    } catch (error) {
+      console.error('Error in getPetWeightHistory:', error);
+      return { success: false, error };
+    }
+  }
+
+  // Add weight record
+  static async addWeightRecord(weightData: CreateWeightRecordData): Promise<{ success: boolean; data?: PetWeightRecord; error?: any }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { success: false, error: 'No user found' };
+      }
+
+      // Verify pet belongs to user
+      const { data: pet, error: petError } = await supabase
+        .from('pets')
+        .select('id')
+        .eq('id', weightData.pet_id)
+        .eq('user_id', user.id)
+        .single();
+
+      if (petError || !pet) {
+        return { success: false, error: 'Pet not found or access denied' };
+      }
+
+      const { data, error } = await supabase
+        .from('pet_weight_records')
+        .insert({
+          ...weightData,
+          recorded_date: weightData.recorded_date || new Date().toISOString().split('T')[0]
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding weight record:', error);
+        return { success: false, error };
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error in addWeightRecord:', error);
       return { success: false, error };
     }
   }

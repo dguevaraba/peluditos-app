@@ -100,7 +100,22 @@ CREATE TABLE IF NOT EXISTS pets (
 );
 
 -- =====================================================
--- 5. TABLA PET_MEDICAL_RECORDS
+-- 5. TABLA PET_WEIGHT_RECORDS
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS pet_weight_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pet_id UUID NOT NULL REFERENCES pets(id) ON DELETE CASCADE,
+  weight DECIMAL(5,2) NOT NULL CHECK (weight > 0),
+  weight_unit TEXT NOT NULL CHECK (weight_unit IN ('kg', 'lb')),
+  recorded_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- =====================================================
+-- 6. TABLA PET_MEDICAL_RECORDS
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS pet_medical_records (
@@ -141,6 +156,62 @@ CREATE TABLE IF NOT EXISTS pet_reminders (
 );
 
 -- =====================================================
+-- 7. TABLA AI_CONVERSATIONS (Solo para PetBot)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS ai_conversations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  messages JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_id ON ai_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_updated_at ON ai_conversations(updated_at);
+
+-- =====================================================
+-- 8. TABLA CHAT_CATEGORIES
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS chat_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  display_name TEXT NOT NULL,
+  icon_name TEXT NOT NULL,
+  color TEXT NOT NULL,
+  is_default BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- =====================================================
+-- 9. TABLA CHAT_CONVERSATIONS (Chats normales por categorías)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS chat_conversations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  category_id UUID REFERENCES chat_categories(id) ON DELETE SET NULL,
+  title TEXT,
+  -- Relaciones con Market y Community
+  market_item_id UUID, -- Para chats de productos del market
+  community_user_id UUID, -- Para chats de friends de community
+  messages JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_chat_conversations_user_id ON chat_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_chat_conversations_category_id ON chat_conversations(category_id);
+CREATE INDEX IF NOT EXISTS idx_chat_conversations_market_item_id ON chat_conversations(market_item_id);
+CREATE INDEX IF NOT EXISTS idx_chat_conversations_community_user_id ON chat_conversations(community_user_id);
+CREATE INDEX IF NOT EXISTS idx_chat_conversations_updated_at ON chat_conversations(updated_at);
+
+-- =====================================================
 -- 7. HABILITAR ROW LEVEL SECURITY
 -- =====================================================
 
@@ -148,8 +219,10 @@ ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organization_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pet_weight_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pet_medical_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pet_reminders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_conversations ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
 -- 8. POLÍTICAS DE SEGURIDAD - USER_PROFILES
@@ -259,7 +332,52 @@ CREATE POLICY "Users can delete their own pets" ON pets
   FOR DELETE USING (user_id = auth.uid());
 
 -- =====================================================
--- 12. POLÍTICAS DE SEGURIDAD - PET_MEDICAL_RECORDS
+-- 12. POLÍTICAS DE SEGURIDAD - PET_WEIGHT_RECORDS
+-- =====================================================
+
+DROP POLICY IF EXISTS "Users can view their pets' weight records" ON pet_weight_records;
+DROP POLICY IF EXISTS "Users can insert weight records for their pets" ON pet_weight_records;
+DROP POLICY IF EXISTS "Users can update weight records for their pets" ON pet_weight_records;
+DROP POLICY IF EXISTS "Users can delete weight records for their pets" ON pet_weight_records;
+
+CREATE POLICY "Users can view their pets' weight records" ON pet_weight_records
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM pets 
+      WHERE pets.id = pet_weight_records.pet_id 
+      AND pets.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can insert weight records for their pets" ON pet_weight_records
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM pets 
+      WHERE pets.id = pet_weight_records.pet_id 
+      AND pets.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update weight records for their pets" ON pet_weight_records
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM pets 
+      WHERE pets.id = pet_weight_records.pet_id 
+      AND pets.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete weight records for their pets" ON pet_weight_records
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM pets 
+      WHERE pets.id = pet_weight_records.pet_id 
+      AND pets.user_id = auth.uid()
+    )
+  );
+
+-- =====================================================
+-- 13. POLÍTICAS DE SEGURIDAD - PET_MEDICAL_RECORDS
 -- =====================================================
 
 DROP POLICY IF EXISTS "Users can view their pets' medical records" ON pet_medical_records;
@@ -304,7 +422,7 @@ CREATE POLICY "Users can delete medical records for their pets" ON pet_medical_r
   );
 
 -- =====================================================
--- 13. POLÍTICAS DE SEGURIDAD - PET_REMINDERS
+-- 14. POLÍTICAS DE SEGURIDAD - PET_REMINDERS
 -- =====================================================
 
 DROP POLICY IF EXISTS "Users can view their pets' reminders" ON pet_reminders;
@@ -408,6 +526,7 @@ DROP TRIGGER IF EXISTS update_organization_members_updated_at ON organization_me
 DROP TRIGGER IF EXISTS update_pets_updated_at ON pets;
 DROP TRIGGER IF EXISTS update_pet_medical_records_updated_at ON pet_medical_records;
 DROP TRIGGER IF EXISTS update_pet_reminders_updated_at ON pet_reminders;
+DROP TRIGGER IF EXISTS update_ai_conversations_updated_at ON ai_conversations;
 
 CREATE TRIGGER update_organizations_updated_at
   BEFORE UPDATE ON organizations
@@ -429,37 +548,48 @@ CREATE TRIGGER update_pet_reminders_updated_at
   BEFORE UPDATE ON pet_reminders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_ai_conversations_updated_at
+  BEFORE UPDATE ON ai_conversations
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_chat_categories_updated_at
+  BEFORE UPDATE ON chat_categories
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_chat_conversations_updated_at
+  BEFORE UPDATE ON chat_conversations
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- =====================================================
 -- 16. DATOS INICIALES
 -- =====================================================
 
--- Insertar organización de test
-INSERT INTO organizations (id, name, description, address, city, state, country, phone, email, is_active)
+-- Insertar organización de test si no existe
+INSERT INTO organizations (id, name, description, address, city, state, zip_code, country, phone, email, website, is_active)
 VALUES (
-  '550e8400-e29b-41d4-a716-446655440000', -- UUID fijo para la organización de test
+  '550e8400-e29b-41d4-a716-446655440000',
   'Peluditos Test',
   'Organización de prueba para desarrollo y testing',
   '123 Test Street',
   'Test City',
   'Test State',
-  'United States',
-  '+1 (555) 123-4567',
+  '12345',
+  'Test Country',
+  '+1-555-0123',
   'test@peluditos.com',
+  'https://peluditos.com',
   true
 ) ON CONFLICT (id) DO NOTHING;
 
--- Agregar usuarios existentes a la organización de test
-INSERT INTO organization_members (organization_id, user_id, role)
-SELECT 
-  '550e8400-e29b-41d4-a716-446655440000',
-  up.id,
-  'member'
-FROM user_profiles up
-WHERE NOT EXISTS (
-  SELECT 1 FROM organization_members om 
-  WHERE om.organization_id = '550e8400-e29b-41d4-a716-446655440000' 
-  AND om.user_id = up.id
-);
+-- Insertar categorías de chat por defecto
+INSERT INTO chat_categories (name, display_name, icon_name, color, is_default, is_active) VALUES
+  ('vet_clinic', 'Vet Clinic', 'PawPrint', '#4ECDC4', true, true),
+  ('grooming', 'Grooming', 'Scissors', '#FF6B6B', true, true),
+  ('pet_shop', 'Pet Shop', 'ShoppingBag', '#45B7D1', true, true),
+  ('dog_walking', 'Dog Walking', 'Dog', '#96CEB4', true, true),
+  ('orders_support', 'Orders / Support', 'Package', '#FFA07A', true, true),
+  ('friends', 'Friends', 'Users', '#9B59B6', true, true)
+ON CONFLICT (name) DO NOTHING;
 
 -- =====================================================
 -- 17. STORAGE BUCKETS
@@ -629,3 +759,70 @@ AND tablename IN (
   'pet_reminders'
 )
 ORDER BY tablename;
+
+-- =====================================================
+-- 9. ROW LEVEL SECURITY (RLS) - AI_CONVERSATIONS
+-- =====================================================
+
+ALTER TABLE ai_conversations ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own AI conversations" ON ai_conversations;
+DROP POLICY IF EXISTS "Users can insert their own AI conversations" ON ai_conversations;
+DROP POLICY IF EXISTS "Users can update their own AI conversations" ON ai_conversations;
+DROP POLICY IF EXISTS "Users can delete their own AI conversations" ON ai_conversations;
+
+CREATE POLICY "Users can view their own AI conversations" ON ai_conversations
+  FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "Users can insert their own AI conversations" ON ai_conversations
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can update their own AI conversations" ON ai_conversations
+  FOR UPDATE USING (user_id = auth.uid());
+
+CREATE POLICY "Users can delete their own AI conversations" ON ai_conversations
+  FOR DELETE USING (user_id = auth.uid());
+
+-- =====================================================
+-- 10. ROW LEVEL SECURITY (RLS) - CHAT_CATEGORIES
+-- =====================================================
+
+ALTER TABLE chat_categories ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Anyone can view active chat categories" ON chat_categories;
+DROP POLICY IF EXISTS "Admins can manage chat categories" ON chat_categories;
+
+CREATE POLICY "Anyone can view active chat categories" ON chat_categories
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Admins can manage chat categories" ON chat_categories
+  FOR ALL USING (auth.uid() IN (
+    SELECT user_id FROM organization_members 
+    WHERE role IN ('owner', 'admin') AND is_active = true
+  ));
+
+-- =====================================================
+-- 11. ROW LEVEL SECURITY (RLS) - CHAT_CONVERSATIONS
+-- =====================================================
+
+ALTER TABLE chat_conversations ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own chat conversations" ON chat_conversations;
+DROP POLICY IF EXISTS "Users can insert their own chat conversations" ON chat_conversations;
+DROP POLICY IF EXISTS "Users can update their own chat conversations" ON chat_conversations;
+DROP POLICY IF EXISTS "Users can delete their own chat conversations" ON chat_conversations;
+
+CREATE POLICY "Users can view their own chat conversations" ON chat_conversations
+  FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "Users can insert their own chat conversations" ON chat_conversations
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can update their own chat conversations" ON chat_conversations
+  FOR UPDATE USING (user_id = auth.uid());
+
+CREATE POLICY "Users can delete their own chat conversations" ON chat_conversations
+  FOR DELETE USING (user_id = auth.uid());

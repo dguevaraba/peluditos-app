@@ -33,12 +33,20 @@ import { OrganizationService } from '../services/organizationService';
 
 interface Pet {
   id: string;
+  user_id: string;
   name: string;
-  species: string;
+  species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other';
   breed?: string;
-  age?: string;
+  color?: string;
+  birth_date?: string;
+  weight?: number;
+  weight_unit: 'kg' | 'lb';
+  gender?: 'male' | 'female' | 'unknown';
+  microchip_id?: string;
   avatar_url?: string;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Organization {
@@ -65,159 +73,101 @@ const PetsScreen = ({ navigation }: { navigation: any }) => {
 
   const getDynamicColor = () => selectedColor;
 
-  // Mock data for now - will be replaced with real data
-  const mockPets: Pet[] = [
-    {
-      id: '1',
-      name: 'Rocky',
-      species: 'dog',
-      breed: 'Golden Retriever',
-      age: '5 años',
-      avatar_url: 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop',
-      is_active: true,
-    },
-    {
-      id: '2',
-      name: 'Luna',
-      species: 'cat',
-      breed: 'Tabby',
-      age: '3 años',
-      avatar_url: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop',
-      is_active: true,
-    },
-  ];
+  // Calculate age from birth date
+  const calculateAge = (birthDate: string): string => {
+    const birth = new Date(birthDate);
+    const today = new Date();
+    const ageInYears = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      return `${ageInYears - 1} years`;
+    }
+    return `${ageInYears} years`;
+  };
 
-  const mockOrganizations: Organization[] = [
-    {
-      id: '1',
-      name: 'PetCare Veterinary Clinic',
-      description: 'Clínica veterinaria especializada en mascotas',
-      address: '123 Main St, Los Angeles, CA',
-      phone: '+1 (555) 123-4567',
-      email: 'info@petcare.com',
-      distance: '0.8 km',
-      rating: 4.8,
-    },
-    {
-      id: '2',
-      name: 'Animal Hospital Center',
-      description: 'Hospital veterinario con servicios 24/7',
-      address: '456 Oak Ave, Los Angeles, CA',
-      phone: '+1 (555) 234-5678',
-      email: 'contact@animalhospital.com',
-      distance: '1.2 km',
-      rating: 4.6,
-    },
-    {
-      id: '3',
-      name: 'VetCare Express',
-      description: 'Atención veterinaria rápida y eficiente',
-      address: '789 Pine St, Los Angeles, CA',
-      phone: '+1 (555) 345-6789',
-      email: 'hello@vetcare.com',
-      distance: '1.5 km',
-      rating: 4.9,
-    },
-  ];
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  // Load pets from database
+  const loadPets = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with real API calls
-      setPets(mockPets);
-      setOrganizations(mockOrganizations);
+      const result = await PetService.getUserPets();
+      if (result.success && result.data) {
+        setPets(result.data);
+      } else {
+        console.error('Error loading pets:', result.error);
+        // Fallback to mock data if no pets found
+        setPets([]);
+      }
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error loading pets:', error);
+      setPets([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Load pets on component mount and when screen comes into focus
+  useEffect(() => {
+    loadPets();
+  }, []);
+
+  // Reload pets when screen comes into focus (e.g., after adding a new pet)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadPets();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  // Refresh pets
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadData();
+    await loadPets();
     setRefreshing(false);
   };
 
   const renderPetCardList = ({ item }: { item: Pet }) => (
     <TouchableOpacity 
-      style={[styles.petCard, { backgroundColor: currentTheme.colors.cardBackground }]}
+      style={[styles.petCardList, { backgroundColor: currentTheme.colors.cardBackground }]}
       onPress={() => navigation.navigate('PetDetail', { petId: item.id })}
     >
-      {/* Pet Image Section */}
-      <View style={styles.petImageContainer}>
+      {/* Pet Image */}
+      <View style={styles.petImageContainerList}>
         <Image 
-          source={{ uri: item.avatar_url }} 
-          style={styles.petImage}
+          source={{ uri: item.avatar_url || 'https://images.unsplash.com/photo-1546527868-ccb7ee7dfa6a?w=200&h=200&fit=crop' }} 
+          style={styles.petImageList}
         />
-        <TouchableOpacity style={styles.petOptionsButton}>
-          <Text style={styles.petOptionsText}>⋯</Text>
-        </TouchableOpacity>
-        <View style={styles.petStatusBadge}>
-          <Text style={[styles.petStatusText, { color: selectedColor }]}>
-            Active
+      </View>
+      
+      {/* Pet Info */}
+      <View style={styles.petInfoContainerList}>
+        <Text style={[styles.petNameList, { color: currentTheme.colors.text }]}>
+          {item.name}
+        </Text>
+        <Text style={[styles.petDetailsList, { color: currentTheme.colors.textSecondary }]}>
+          {item.birth_date ? calculateAge(item.birth_date) : 'Unknown age'} • {item.weight ? `${item.weight} ${item.weight_unit}` : 'Unknown weight'}
+        </Text>
+        
+        {/* Status Tag */}
+        <View style={[styles.petTagList, { backgroundColor: `${selectedColor}15` }]}>
+          <Text style={[styles.petTagTextList, { color: selectedColor }]}>
+            Vaccinated
           </Text>
         </View>
       </View>
       
-      {/* Pet Info Section */}
-      <View style={styles.petInfoContainer}>
-        <Text style={[styles.petName, { color: currentTheme.colors.text }]}>
-          {item.name}
-        </Text>
-        <Text style={[styles.petDetails, { color: currentTheme.colors.textSecondary }]}>
-          {item.age} • {item.breed}
-        </Text>
-        
-        {/* Status Tags */}
-        <View style={styles.petTags}>
-          <View style={[styles.petTag, { backgroundColor: `${selectedColor}15` }]}>
-            <Text style={[styles.petTagText, { color: selectedColor }]}>
-              Checkup
-            </Text>
-          </View>
-          <View style={[styles.petTag, { backgroundColor: `${selectedColor}15` }]}>
-            <Text style={[styles.petTagText, { color: selectedColor }]}>
-              Vaccinated
-            </Text>
-          </View>
-        </View>
-        
-        {/* Vet Info */}
-        <View style={styles.vetInfo}>
-          <Calendar size={14} color={currentTheme.colors.textSecondary} />
-          <Text style={[styles.vetInfoText, { color: currentTheme.colors.textSecondary }]}>
-            Vet: Nov 12
-          </Text>
-        </View>
-        
-        {/* Action Buttons */}
-        <View style={styles.petActions}>
-          <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: `${selectedColor}10` }]}
-            onPress={() => navigation.navigate('PetMedicalRecords', { petId: item.id })}
-          >
-            <Syringe size={16} color={selectedColor} />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: `${selectedColor}10` }]}
-            onPress={() => navigation.navigate('PetReminders', { petId: item.id })}
-          >
-            <Calendar size={16} color={selectedColor} />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: selectedColor }]}
-            onPress={() => navigation.navigate('AddPet')}
-          >
-            <Plus size={16} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
+      {/* Action Icons */}
+      <View style={styles.petActionsList}>
+        <TouchableOpacity style={styles.actionIconList}>
+          <Calendar size={20} color={selectedColor} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionIconList}>
+          <User size={20} color={selectedColor} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionIconList}>
+          <Heart size={20} color={selectedColor} />
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -244,7 +194,7 @@ const PetsScreen = ({ navigation }: { navigation: any }) => {
           {item.name}
         </Text>
         <Text style={[styles.petDetailsGrid, { color: currentTheme.colors.textSecondary }]}>
-          {item.age} • {item.breed}
+          {item.birth_date ? calculateAge(item.birth_date) : 'Unknown age'} • {item.breed || 'Unknown breed'}
         </Text>
         
         {/* Status Tag */}
@@ -345,9 +295,9 @@ const PetsScreen = ({ navigation }: { navigation: any }) => {
       position: 'absolute',
       bottom: 30,
       right: 20,
-      width: 60,
-      height: 60,
-      borderRadius: 30,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
       backgroundColor: selectedColor,
       justifyContent: 'center',
       alignItems: 'center',
@@ -515,6 +465,64 @@ const PetsScreen = ({ navigation }: { navigation: any }) => {
       fontSize: 10,
       fontWeight: '500',
     },
+    // List View Styles
+    petCardList: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      marginBottom: 12,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    petImageContainerList: {
+      marginRight: 16,
+    },
+    petImageList: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      resizeMode: 'cover',
+    },
+    petInfoContainerList: {
+      flex: 1,
+    },
+    petNameList: {
+      fontSize: 18,
+      fontWeight: '600',
+      marginBottom: 4,
+    },
+    petDetailsList: {
+      fontSize: 14,
+      marginBottom: 8,
+    },
+    petTagList: {
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+      alignSelf: 'flex-start',
+    },
+    petTagTextList: {
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    petActionsList: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    actionIconList: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
   });
 
@@ -522,9 +530,9 @@ const PetsScreen = ({ navigation }: { navigation: any }) => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Mis Mascotas</Text>
+        <Text style={styles.headerTitle}>My Pets</Text>
         <Text style={styles.headerSubtitle}>
-          Gestiona tus mascotas y veterinarias
+          Manage your pets and veterinarians
         </Text>
       </View>
 
@@ -581,6 +589,7 @@ const PetsScreen = ({ navigation }: { navigation: any }) => {
       >
         {viewMode === 'grid' ? (
           <FlatList
+            key={`grid-${viewMode}`}
             data={pets}
             renderItem={renderPetCardGrid}
             keyExtractor={(item) => item.id}
@@ -598,6 +607,7 @@ const PetsScreen = ({ navigation }: { navigation: any }) => {
           />
         ) : (
           <FlatList
+            key={`list-${viewMode}`}
             data={pets}
             renderItem={renderPetCardList}
             keyExtractor={(item) => item.id}

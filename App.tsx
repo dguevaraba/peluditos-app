@@ -19,7 +19,8 @@ import {
   Edit,
   Syringe,
   ShoppingCart,
-  Menu
+  Menu,
+  MessageCircle
 } from 'lucide-react-native';
 import { defaultTheme, Theme } from './theme';
 import ProfileScreen from './screens/ProfileScreen';
@@ -41,6 +42,14 @@ import AddPhotoScreen from './screens/AddPhotoScreen';
 import CreateCategoryScreen from './screens/CreateCategoryScreen';
 import CreateAlbumScreen from './screens/CreateAlbumScreen';
 import ThemeSettingsScreen from './screens/ThemeSettingsScreen';
+import AddPetScreen from './screens/AddPetScreen';
+import PetDetailScreen from './screens/PetDetailScreen';
+import AddWeightRecordScreen from './screens/AddWeightRecordScreen';
+import CommunityScreen from './screens/CommunityScreen';
+import MarketScreen from './screens/MarketScreen';
+import ChatsScreen from './screens/ChatsScreen';
+import ChatDetailScreen from './screens/ChatDetailScreen';
+import CreateChatScreen from './screens/CreateChatScreen';
 
 
 const petAlbums = [
@@ -300,7 +309,7 @@ function HomeScreen({ navigation }: any) {
                 style={styles.logoImage} 
                 resizeMode="contain"
               />
-            </View>
+    </View>
             <Text style={styles.appName}>Peluditos</Text>
           </View>
               <View style={styles.headerActions}>
@@ -583,7 +592,7 @@ function HomeScreen({ navigation }: any) {
                    />
                  </View>
                </View>
-              </ScrollView>
+                            </ScrollView>
       </LinearGradient>
       
       {/* Hamburger Menu */}
@@ -626,10 +635,29 @@ function MainStack() {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Gallery" component={PetGalleryScreen} />
-      <Stack.Screen name="Pets" component={PetsScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="ThemeSettings" component={ThemeSettingsScreen} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
 
+function PetsStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="PetsList" component={PetsScreen} />
+      <Stack.Screen name="PetDetail" component={PetDetailScreen} />
+      <Stack.Screen name="AddPet" component={AddPetScreen} />
+      <Stack.Screen name="AddWeightRecord" component={AddWeightRecordScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function ChatsStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ChatsList" component={ChatsScreen} />
+      <Stack.Screen name="ChatDetail" component={ChatDetailScreen} />
+      <Stack.Screen name="CreateChat" component={CreateChatScreen} />
     </Stack.Navigator>
   );
 }
@@ -679,10 +707,34 @@ function TabNavigator() {
       />
       <Tab.Screen 
         name="Pets" 
-        component={PetsScreen} 
+        component={PetsStack} 
         options={{ 
-          tabBarLabel: 'Mascotas',
+          tabBarLabel: 'Pets',
           tabBarIcon: ({ color }) => <PawPrint size={20} color={color} /> 
+        }} 
+      />
+      <Tab.Screen 
+        name="Community" 
+        component={CommunityScreen} 
+        options={{ 
+          tabBarLabel: 'Community',
+          tabBarIcon: ({ color }) => <Users size={20} color={color} /> 
+        }} 
+      />
+      <Tab.Screen 
+        name="Market" 
+        component={MarketScreen} 
+        options={{ 
+          tabBarLabel: 'Market',
+          tabBarIcon: ({ color }) => <ShoppingCart size={20} color={color} /> 
+        }} 
+      />
+      <Tab.Screen 
+        name="Chats" 
+        component={ChatsStack} 
+        options={{ 
+          tabBarLabel: 'Chats',
+          tabBarIcon: ({ color }) => <MessageCircle size={20} color={color} /> 
         }} 
       />
     </Tab.Navigator>
@@ -730,7 +782,7 @@ export default function App() {
 // Dynamic styles function
 const createStyles = (theme: Theme) => StyleSheet.create({
   container: {
-    flex: 1, 
+    flex: 1,
     backgroundColor: theme.colors.appBackground,
   },
   content: {

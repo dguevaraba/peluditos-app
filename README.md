@@ -1,163 +1,214 @@
-# 🐾 Peluditos - Pet Health Companion
+# Peluditos Monorepo
 
-Una aplicación móvil React Native para el cuidado y seguimiento de la salud de mascotas.
+A comprehensive pet management system with a React Native mobile app and Next.js administrative PWA.
 
-## 📱 Características
-
-- **Autenticación completa** con Google, Facebook, Apple y email/password
-- **Sistema de temas dinámicos** con múltiples colores personalizables
-- **Gestión de mascotas** con historial médico
-- **Recordatorios de vacunas** y citas veterinarias
-- **Galería de fotos** de mascotas
-- **Interfaz moderna** y responsive
-
-## 🚀 Tecnologías
-
-- **React Native** con Expo
-- **TypeScript**
-- **Supabase** (Autenticación y Base de datos)
-- **React Navigation**
-- **Expo Linear Gradient**
-- **Lucide React Native** (Iconos)
-
-## 📋 Requisitos
-
-- Node.js 16+
-- Expo CLI
-- Cuenta de Supabase
-- Cuenta de Google Cloud Console (para OAuth)
-- Cuenta de Facebook Developers (para OAuth)
-
-## 🛠️ Instalación
-
-1. **Clona el repositorio:**
-```bash
-git clone https://github.com/tu-usuario/peluditos.git
-cd peluditos
-```
-
-2. **Instala las dependencias:**
-```bash
-npm install
-```
-
-3. **Configura las variables de entorno:**
-Crea un archivo `.env` en la raíz del proyecto:
-```env
-SUPABASE_URL=https://tu-proyecto.supabase.co
-SUPABASE_ANON_KEY=tu-clave-anonima
-```
-
-4. **Inicia la aplicación:**
-```bash
-npm start
-```
-
-## 🔧 Configuración
-
-### Supabase
-1. Crea un proyecto en [Supabase](https://supabase.com)
-2. Configura la autenticación con los providers deseados
-3. Agrega las URLs de redirección en la configuración
-
-### Google OAuth
-1. Ve a [Google Cloud Console](https://console.cloud.google.com)
-2. Crea un proyecto y habilita Google+ API
-3. Configura las credenciales OAuth 2.0
-4. Agrega las URLs de redirección autorizadas
-
-### Facebook OAuth
-1. Ve a [Facebook Developers](https://developers.facebook.com)
-2. Crea una aplicación
-3. Configura Facebook Login
-4. Agrega las URLs de redirección
-
-## 📁 Estructura del Proyecto
+## 🏗️ Project Structure
 
 ```
 peluditos/
-├── assets/                 # Imágenes y recursos
-├── contexts/              # Contextos de React
-│   ├── AuthContext.tsx    # Contexto de autenticación
-│   └── ThemeContext.tsx   # Contexto de temas
-├── docs/                  # Documentación y políticas
-│   ├── privacy-policy.html
-│   └── data-deletion.html
-├── lib/                   # Configuraciones
-│   └── supabase.ts        # Cliente de Supabase
-├── screens/               # Pantallas de la aplicación
-│   ├── LoginScreen.tsx
-│   └── SignUpScreen.tsx
-├── services/              # Servicios
-│   └── authService.ts     # Servicio de autenticación
-├── App.tsx                # Componente principal
-├── theme.ts               # Configuración de temas
-└── colorConfig.ts         # Configuración de colores
+├── apps/
+│   ├── mobile/          # React Native mobile app
+│   └── admin/           # Next.js administrative PWA
+├── packages/
+│   ├── shared/          # Shared utilities and constants
+│   ├── ui/              # Shared UI components (future)
+│   └── supabase/        # Supabase client and types
+├── tools/
+│   └── eslint-config/   # Shared ESLint configuration
+└── package.json         # Root package.json
 ```
 
-## 🎨 Temas y Colores
+## 🚀 Getting Started
 
-La aplicación incluye un sistema de temas dinámicos con:
-- **Tema claro y oscuro**
-- **8 colores personalizables**
-- **Aplicación automática** en toda la UI
+### Prerequisites
 
-## 🔐 Autenticación
+- Node.js 18+ 
+- npm 9+
+- React Native development environment (for mobile app)
+- Supabase account and project
 
-### Métodos soportados:
-- **Email/Password** (con verificación)
-- **Google OAuth**
-- **Facebook OAuth**
-- **Apple Sign-In** (iOS)
+### Installation
 
-### Flujo de autenticación:
-1. Usuario selecciona método de login
-2. Se redirige al proveedor correspondiente
-3. Después de la autenticación, regresa a la app
-4. Se establece la sesión automáticamente
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd peluditos
+   ```
 
-## 📱 Navegación
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-La aplicación usa React Navigation con:
-- **Stack Navigator** para autenticación
-- **Tab Navigator** para la aplicación principal
-- **Navegación condicional** basada en el estado de autenticación
+3. **Set up environment variables**
+   
+   Create `.env` files in both `apps/mobile/` and `apps/admin/`:
+   ```env
+   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-## 🚀 Despliegue
+4. **Run the development servers**
 
-### Para desarrollo:
+   **Mobile App:**
+   ```bash
+   npm run mobile
+   ```
+
+   **Admin PWA:**
+   ```bash
+   npm run admin
+   ```
+
+   **Both simultaneously:**
+   ```bash
+   npm run dev
+   ```
+
+## 📱 Mobile App (React Native)
+
+The mobile app is a comprehensive pet management system with features like:
+
+- **Pet Management**: Add, edit, and track pets
+- **Photo Gallery**: Organize pet photos in albums
+- **Health Tracking**: Weight monitoring and medical records
+- **Chat System**: AI-powered pet advice and service chats
+- **Community & Market**: Social features and pet products
+- **Theme System**: Customizable colors and dark mode
+
+### Key Features:
+- Real-time data sync with Supabase
+- Offline-first architecture
+- Push notifications
+- Camera and photo management
+- GPS integration for vet locations
+
+## 🖥️ Admin PWA (Next.js)
+
+The administrative PWA provides comprehensive system management:
+
+### Role-Based Access Control:
+- **Super Admin**: Full system control
+- **Admin**: Organization and user management
+- **Vet Support**: Clinic-specific management
+- **Sales**: Product and sales management
+- **User**: Basic pet management
+
+### Key Features:
+- **User Management**: Create, edit, and manage user accounts
+- **Organization Management**: Veterinary clinics and pet shops
+- **Pet Database**: View and manage all registered pets
+- **Product Catalog**: Manage pet products and services
+- **Analytics Dashboard**: System statistics and reports
+- **Audit Logs**: Track all system activities
+
+## 🛠️ Development
+
+### Available Scripts
+
 ```bash
-npm start
+# Development
+npm run dev              # Run all apps in development mode
+npm run mobile           # Run mobile app only
+npm run admin            # Run admin PWA only
+
+# Building
+npm run build            # Build all apps
+npm run mobile:build     # Build mobile app only
+npm run admin:build      # Build admin PWA only
+
+# Linting
+npm run lint             # Lint all packages
+
+# Testing
+npm run test             # Run tests for all packages
+
+# Cleaning
+npm run clean            # Clean all build artifacts
 ```
 
-### Para producción:
-```bash
-expo build:android
-expo build:ios
-```
+### Adding New Packages
 
-## 📄 Políticas
+1. Create a new directory in `packages/`
+2. Add `package.json` with workspace dependencies
+3. Update root `package.json` if needed
+4. Run `npm install` to link packages
 
-- [Política de Privacidad](./docs/privacy-policy.html)
-- [Instrucciones de Eliminación de Datos](./docs/data-deletion.html)
+### Database Schema
 
-## 🤝 Contribuir
+The system uses Supabase with the following main tables:
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+- `users` - User accounts
+- `user_profiles` - Extended user information
+- `pets` - Pet information
+- `organizations` - Veterinary clinics, pet shops, etc.
+- `roles` - System roles and permissions
+- `user_roles` - User role assignments
+- `products` - Product catalog
+- `sales` - Sales records
+- `audit_logs` - System activity tracking
 
-## 📞 Contacto
+## 🎨 Design System
 
-- **Email**: privacy@peluditos.app
-- **GitHub**: [@tu-usuario](https://github.com/tu-usuario)
+### Colors
+The system uses a consistent color palette:
+- Primary: `#65b6ad` (Green)
+- Secondary: Various pastel colors
+- Dark mode support throughout
 
-## 📄 Licencia
+### Components
+- Shared UI components in `packages/ui/`
+- Consistent styling with Tailwind CSS
+- Responsive design for all screen sizes
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+## 🔐 Security
+
+- Row Level Security (RLS) in Supabase
+- Role-based access control
+- JWT authentication
+- Audit logging for all actions
+- Input validation and sanitization
+
+## 📊 Analytics
+
+The admin panel provides:
+- User registration statistics
+- Pet registration trends
+- Organization growth metrics
+- Sales analytics
+- System usage reports
+
+## 🚀 Deployment
+
+### Mobile App
+- Expo Application Services (EAS)
+- App Store and Google Play Store
+- Over-the-air updates
+
+### Admin PWA
+- Vercel (recommended)
+- Netlify
+- Any static hosting service
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue in the repository
+- Check the documentation
+- Contact the development team
 
 ---
 
-Desarrollado con ❤️ para el cuidado de mascotas
+**Built with ❤️ for pet lovers everywhere**

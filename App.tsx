@@ -416,7 +416,7 @@ function HomeScreen({ navigation }: any) {
                     style={styles.logoImage} 
                     resizeMode="contain"
                   />
-                </View>
+    </View>
                 <Text style={styles.appName}>Peluditos</Text>
               </View>
               <View style={styles.headerActions}>

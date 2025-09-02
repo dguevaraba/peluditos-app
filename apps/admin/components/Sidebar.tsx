@@ -19,8 +19,10 @@ import {
   ShoppingCart,
   Truck,
   MessageCircle,
-  Home
+  Home,
+  Heart
 } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 interface SidebarProps {
   activeItem: string
@@ -40,27 +42,30 @@ export default function Sidebar({
   onToggleMobileMenu 
 }: SidebarProps) {
   const router = useRouter()
+  const pathname = usePathname()
   
-  const navigationItems = [
-    { name: 'Overview', icon: Home, path: '/', active: activeItem === 'overview' },
-    { name: 'Calendar', icon: Calendar, path: '/calendar', active: activeItem === 'calendar' },
-    { name: 'Bookings', icon: BookOpen, path: '/bookings', active: activeItem === 'bookings' },
-    { name: 'Clients', icon: Users, path: '/clients', active: activeItem === 'clients' },
-    { name: 'Pets', icon: PawPrint, path: '/pets', active: activeItem === 'pets' },
-    { name: 'Services', icon: Settings, path: '/services', active: activeItem === 'services' },
-    { name: 'Products', icon: ShoppingCart, path: '/products', active: activeItem === 'products' },
-    { name: 'Orders', icon: Package, path: '/orders', active: activeItem === 'orders' },
-    { name: 'Vendors', icon: Truck, path: '/vendors', active: activeItem === 'vendors' },
-    { name: 'Chats', icon: MessageCircle, path: '/chats', active: activeItem === 'chats' },
-    { name: 'Reports', icon: BarChart3, path: '/reports', active: activeItem === 'reports' },
-    { name: 'Settings', icon: Settings, path: '/settings', active: activeItem === 'settings' },
+  const menuItems = [
+    { path: '/', label: 'Dashboard', icon: LayoutDashboard, active: pathname === '/' },
+    { path: '/calendar', label: 'Calendario', icon: Calendar, active: pathname === '/calendar' },
+    { path: '/bookings', label: 'Reservas', icon: BookOpen, active: pathname === '/bookings' },
+    { path: '/clients', label: 'Clientes', icon: Users, active: pathname === '/clients' },
+    { path: '/users', label: 'Usuarios', icon: Users, active: pathname === '/users' },
+    { path: '/pets', label: 'Mascotas', icon: PawPrint, active: pathname === '/pets' },
+    { path: '/services', label: 'Servicios', icon: ShoppingBag, active: pathname === '/services' },
+    { path: '/products', label: 'Productos', icon: Package, active: pathname === '/products' },
+    { path: '/orders', label: 'Pedidos', icon: ShoppingCart, active: pathname === '/orders' },
+    { path: '/vendors', label: 'Proveedores', icon: Truck, active: pathname === '/vendors' },
+    { path: '/organizations', label: 'Organizaciones', icon: Building2, active: pathname === '/organizations' },
+    { path: '/chats', label: 'Chats', icon: MessageSquare, active: pathname === '/chats' },
+    { path: '/reports', label: 'Reportes', icon: BarChart3, active: pathname === '/reports' },
+    { path: '/settings', label: 'Configuración', icon: Settings, active: pathname === '/settings' },
   ]
 
   const handleItemClick = (itemId: string) => {
     onItemClick(itemId)
     
     // Navigate to the appropriate page
-    const item = navigationItems.find(nav => nav.name === itemId)
+    const item = menuItems.find(nav => nav.label === itemId)
     if (item && item.path) {
       router.push(item.path)
     }
@@ -104,14 +109,14 @@ export default function Sidebar({
         {/* Navigation */}
         <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
-            {navigationItems.map((item) => {
+            {menuItems.map((item) => {
               const Icon = item.icon
-              const isActive = activeItem === item.name
+              const isActive = activeItem === item.label
               
               return (
-                <li key={item.name}>
+                <li key={item.label}>
                   <button
-                    onClick={() => handleItemClick(item.name)}
+                    onClick={() => handleItemClick(item.label)}
                     className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive 
                         ? 'bg-primary-100 text-primary-700' 
@@ -119,7 +124,7 @@ export default function Sidebar({
                     }`}
                   >
                     <Icon size={20} />
-                    <span>{item.name}</span>
+                    <span>{item.label}</span>
                   </button>
                 </li>
               )

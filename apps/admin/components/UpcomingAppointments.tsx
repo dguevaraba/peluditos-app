@@ -32,7 +32,7 @@ const appointments = [
 export default function UpcomingAppointments() {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-      <h3 className="text-base font-medium text-gray-900 mb-3">Upcoming Appointments</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-3">Upcoming Appointments</h3>
       <div className="space-y-2">
         {appointments.map((appointment) => (
                       <div key={appointment.id} className="flex items-center justify-between p-2 hover:bg-primary-50 rounded-lg transition-colors cursor-pointer">

@@ -15,7 +15,7 @@ const data = [
 export default function RevenueChart() {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-      <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-4">Revenue</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue</h3>
       <div className="h-40 sm:h-48">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>

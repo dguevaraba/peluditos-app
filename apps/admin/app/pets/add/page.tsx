@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Search, Bell, User, Upload, Plus, FileText, Calendar, Users, PawPrint, Settings, ShoppingCart, Package, Truck, MessageSquare, BarChart3, CheckCircle, X } from 'lucide-react'
+import { ArrowLeft, Search, Bell, User, Upload, Plus, FileText, Calendar, Users, PawPrint, Settings, ShoppingCart, Package, Truck, MessageSquare, BarChart3, CheckCircle, X, LucideIcon } from 'lucide-react'
 import Sidebar from '../../../components/Sidebar'
 
 interface Tab {
   id: string
   label: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
+  icon: LucideIcon
 }
 
 const tabs: Tab[] = [

@@ -7,7 +7,7 @@ interface StatsCardProps {
   value: string
   change?: string
   changeType?: 'positive' | 'negative'
-  icon: React.ComponentType<{ size?: number; className?: string }>
+  icon: LucideIcon
   color: string
 }
 
@@ -20,7 +20,7 @@ export default function StatsCard({ title, value, change, changeType, icon: Icon
           <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{value}</p>
           {change && (
             <p className={`text-xs sm:text-sm font-medium mt-1 ${
-              changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+              changeType === 'positive' ? 'text-emerald-700' : 'text-red-700'
             }`}>
               {change}
             </p>

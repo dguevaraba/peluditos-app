@@ -41,7 +41,7 @@ export default function TopServicesChart() {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-medium text-gray-900">Top Services</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Top Services</h3>
         <TrendingUp size={18} className="text-primary-500" />
       </div>
       

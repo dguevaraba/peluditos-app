@@ -1,5 +1,27 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Environment configuration for both apps
+const getSupabaseConfig = () => {
+  // For Next.js (admin app)
+  if (typeof window !== 'undefined' && typeof process !== 'undefined') {
+    return {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://goycdfmmrtqnfkhmiotn.supabase.co',
+      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveWNkZm1tcnRxbmZraG1pb3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDUwMjgsImV4cCI6MjA3MTYyMTAyOH0.IcWzqWy1MviVP0BvWlYTPxf5HqaNDXCUFfGtcYnlF6g'
+    };
+  }
+  
+  // For React Native (mobile app) - fallback to hardcoded values
+  return {
+    url: 'https://goycdfmmrtqnfkhmiotn.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveWNkZm1tcnRxbmZraG1pb3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDUwMjgsImV4cCI6MjA3MTYyMTAyOH0.IcWzqWy1MviVP0BvWlYTPxf5HqaNDXCUFfGtcYnlF6g'
+  };
+};
+
+const config = getSupabaseConfig();
+
+// Create Supabase client
+export const supabase = createClient(config.url, config.anonKey);
+
 // Database types
 export interface User {
   id: string;
@@ -14,6 +36,7 @@ export interface User {
     birth_date?: string;
     theme_preference?: 'light' | 'dark';
     color_preference?: string;
+    role?: string;
   };
   created_at: string;
   updated_at: string;
@@ -71,12 +94,6 @@ export interface UserRole {
   updated_at: string;
 }
 
-// Create Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 // Database helper functions
 export const getCurrentUser = async () => {
   const { data: { user }, error } = await supabase.auth.getUser();
@@ -120,4 +137,16 @@ export const getUserOrganizations = async (userId: string) => {
   
   if (error) throw error;
   return data;
+};
+
+// Auth helper functions
+export const isAdmin = (user: User): boolean => {
+  // For now, allow any authenticated user to access the admin panel
+  // You can customize this logic later based on your needs
+  return true;
+  
+  // Original strict logic (commented out for now):
+  // return user.user_metadata?.role === 'admin' || 
+  //        user.email?.endsWith('@admin.peluditos.com') || 
+  //        user.email === 'admin@peluditos.com';
 };

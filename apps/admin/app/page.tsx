@@ -1,15 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { 
   Users, 
   DollarSign, 
   UserPlus, 
-  ShoppingCart,
-  Calendar
+  Calendar,
+  TrendingUp
 } from 'lucide-react'
-import { supabase, getCurrentUser } from '@peluditos/supabase'
 import { APP_NAME } from '@peluditos/shared'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
@@ -21,13 +20,46 @@ import UpcomingAppointments from '../components/UpcomingAppointments'
 import DashboardFilters from '../components/DashboardFilters'
 import TopServicesChart from '../components/TopServicesChart'
 import TopProductsChart from '../components/TopProductsChart'
+import { DashboardSkeleton } from '../components/Skeleton'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Dashboard() {
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading } = useAuth()
+  const router = useRouter()
   const [darkMode, setDarkMode] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showSkeleton, setShowSkeleton] = useState(true)
+
+  // Force skeleton to show for at least 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSkeleton(false)
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Basic auth protection - only redirect if we're sure there's no user
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  // Show skeleton for at least 2 seconds or while loading
+  if (loading || showSkeleton) {
+    console.log('🔵 Showing skeleton:', { loading, showSkeleton });
+    return <DashboardSkeleton />;
+  }
+
+  // If no user after loading, don't render anything (will redirect)
+  if (!user) {
+    console.log('🔴 No user found, redirecting...');
+    return null;
+  }
+
+  console.log('🔵 Rendering dashboard for user:', user.email);
 
   // Determine active item based on current path
   const getActiveItem = () => {
@@ -61,168 +93,96 @@ export default function Dashboard() {
     }
   }
 
-  useEffect(() => {
-    checkUser()
-  }, [])
-
-  const checkUser = async () => {
-    try {
-      const currentUser = await getCurrentUser()
-      setUser(currentUser)
-    } catch (error) {
-      console.error('Error checking user:', error)
-      // For demo purposes, set a mock user
-      setUser({
-        id: 'demo-user',
-        email: 'admin@peluditos.com',
-        user_metadata: {
-          first_name: 'Admin',
-          last_name: 'User'
-        }
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-  }
-
   const handleFiltersChange = (filters: any) => {
-    console.log('Filters changed:', filters)
     // Here you would typically update the dashboard data based on filters
   }
 
   const stats = [
     {
       title: 'Total Revenue',
-      value: '$45,231.89',
+      value: '$45,231',
       change: '+20.1%',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: DollarSign,
-      color: 'bg-primary-500'
+      color: 'bg-primary-500',
     },
     {
       title: 'Total Bookings',
       value: '2,350',
       change: '+180.1%',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: Calendar,
-      color: 'bg-primary-500'
+      color: 'bg-primary-500',
     },
     {
       title: 'Active Clients',
       value: '573',
       change: '+19%',
-      changeType: 'positive',
+      changeType: 'positive' as const,
       icon: Users,
-      color: 'bg-primary-500'
-    }
+      color: 'bg-primary-500',
+    },
+    {
+      title: 'New Clients',
+      value: '89',
+      change: '+12%',
+      changeType: 'positive' as const,
+      icon: UserPlus,
+      color: 'bg-primary-500',
+    },
   ]
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{APP_NAME} Admin</h1>
-            <p className="mt-2 text-gray-600">Administrative Panel</p>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="space-y-4">
-              <button className="btn-primary w-full">
-                Sign In
-              </button>
-              
-              <button className="btn-secondary w-full">
-                Create Account
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <Sidebar 
+      <Sidebar
         activeItem={getActiveItem()}
-        onItemClick={() => {}} // Navigation is handled by the sidebar component
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode(!darkMode)}
+        onItemClick={() => {}}
         isMobileMenuOpen={isMobileMenuOpen}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
-
+      
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
-        {/* Header */}
+      <div className="flex-1 flex flex-col min-w-0">
         <Header 
-          user={user} 
           isMobileMenuOpen={isMobileMenuOpen}
           onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
+        
+        <main className="flex-1 p-4 lg:p-6">
+          {/* Welcome Message */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Bienvenido, {user.user_metadata?.full_name || user.email}
+            </h1>
+            <p className="text-gray-600">Aquí tienes un resumen de tu negocio</p>
+          </div>
 
-        {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
-            {stats.map((stat) => (
-              <StatsCard
-                key={stat.title}
-                title={stat.title}
-                value={stat.value}
-                icon={stat.icon}
-                color={stat.color}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, index) => (
+              <StatsCard key={index} {...stat} />
             ))}
           </div>
 
-          {/* Main Content Area with Charts */}
+          {/* Main Content Grid */}
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Side - Charts Grid */}
             <div className="flex-1 space-y-6">
-              {/* Top Row - Revenue and Upcoming */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-                {/* Revenue Chart */}
+              {/* Charts in 2x2 Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <RevenueChart />
-                
-                {/* Upcoming Appointments */}
-                <UpcomingAppointments />
-              </div>
-
-              {/* Middle Row - Top Services and Top Products */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-                {/* Top Services Chart */}
+                <BookingsChart />
                 <TopServicesChart />
-                
-                {/* Top Products Chart */}
                 <TopProductsChart />
               </div>
-
-              {/* Bottom Row - Bookings and Orders */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-                {/* Bookings Chart */}
-                <BookingsChart />
-                
-                {/* Orders Summary */}
+              
+              {/* Orders Summary and Upcoming Appointments Side by Side */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <OrdersSummary />
+                <UpcomingAppointments />
               </div>
             </div>
 

@@ -69,7 +69,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
       }
     } catch (error) {
-      console.error('Error checking auth:', error);
       setLoading(false);
     } finally {
       setInitialized(true);
@@ -85,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Redirect to login after signout
       window.location.href = '/login';
     } catch (error) {
-      console.error('Error signing out:', error);
+      // Error signing out
     }
   };
 

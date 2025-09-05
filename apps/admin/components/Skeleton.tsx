@@ -108,32 +108,44 @@ export function UpcomingAppointmentsSkeleton() {
   );
 }
 
+export function SidebarSkeleton() {
+  return (
+    <div className="w-64 bg-white border-r border-gray-200 p-6 space-y-6">
+      <div className="h-8 w-32 bg-gradient-to-r from-purple-200 to-purple-300 animate-pulse rounded"></div>
+      <div className="space-y-3">
+        {[...Array(13)].map((_, i) => (
+          <div key={i} className="h-10 w-full bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function HeaderSkeleton() {
+  return (
+    <div className="bg-white border-b border-gray-200 p-4">
+      <div className="flex items-center justify-between">
+        <div className="h-8 w-64 bg-gradient-to-r from-purple-200 to-purple-300 animate-pulse rounded"></div>
+        <div className="flex items-center space-x-4">
+          <div className="h-10 w-32 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded"></div>
+          <div className="h-10 w-10 bg-gradient-to-r from-green-200 to-green-300 animate-pulse rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function DashboardSkeleton() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="min-h-screen bg-gray-50 flex">
         {/* Sidebar Skeleton */}
-        <div className="w-64 bg-white border-r border-gray-200 p-6 space-y-6">
-          <div className="h-8 w-32 bg-gradient-to-r from-purple-200 to-purple-300 animate-pulse rounded"></div>
-          <div className="space-y-3">
-            {[...Array(13)].map((_, i) => (
-              <div key={i} className="h-10 w-full bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
-            ))}
-          </div>
-        </div>
+        <SidebarSkeleton />
         
         {/* Main Content Skeleton */}
         <div className="flex-1 flex flex-col">
           {/* Header Skeleton */}
-          <div className="bg-white border-b border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div className="h-8 w-64 bg-gradient-to-r from-purple-200 to-purple-300 animate-pulse rounded"></div>
-              <div className="flex items-center space-x-4">
-                <div className="h-10 w-32 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded"></div>
-                <div className="h-10 w-10 bg-gradient-to-r from-green-200 to-green-300 animate-pulse rounded-full"></div>
-              </div>
-            </div>
-          </div>
+          <HeaderSkeleton />
           
           {/* Content Skeleton */}
           <main className="flex-1 p-6 space-y-6">
@@ -243,4 +255,437 @@ export function DashboardSkeleton() {
       </div>
     </div>
   )
+}
+
+export function UsersSkeleton() {
+  return (
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <SidebarSkeleton />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <HeaderSkeleton />
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {/* Title and Stats Section */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="h-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-24 mb-2"></div>
+              <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 bg-gradient-to-r from-green-200 to-green-300 rounded-full"></div>
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-16"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 bg-gradient-to-r from-yellow-200 to-yellow-300 rounded-full"></div>
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-20"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full"></div>
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-24"></div>
+                </div>
+              </div>
+              <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-24"></div>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="bg-white rounded-lg border border-gray-200 p-3 flex items-center gap-3 mb-6">
+            <div className="flex-1 relative">
+              <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+            </div>
+            <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-20"></div>
+            <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg w-24"></div>
+            <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-24"></div>
+          </div>
+
+          {/* Main Grid */}
+          <div className="flex gap-6">
+            {/* Table */}
+            <div className="flex-1">
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <div className="h-5 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-24"></div>
+                </div>
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {[...Array(6)].map((_, i) => (
+                        <th key={i} className="px-4 py-3">
+                          <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-16"></div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {[...Array(5)].map((_, rowIndex) => (
+                      <tr key={rowIndex} className="animate-pulse">
+                        {[...Array(6)].map((_, colIndex) => (
+                          <td key={colIndex} className="px-4 py-3">
+                            {colIndex === 0 ? (
+                              <div className="flex items-center gap-3">
+                                <div className="h-8 w-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full"></div>
+                                <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-24"></div>
+                              </div>
+                            ) : (
+                              <div className={`h-5 rounded ${
+                                colIndex % 2 === 0 
+                                  ? 'bg-gradient-to-r from-purple-200 to-purple-300' 
+                                  : 'bg-gradient-to-r from-green-200 to-green-300'
+                              } ${colIndex === 2 ? 'w-32' : colIndex === 3 ? 'w-12' : 'w-16'}`}></div>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Right Panel */}
+            <div className="w-96 flex-shrink-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-12 w-12 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full"></div>
+                  <div className="space-y-2">
+                    <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-20"></div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-16"></div>
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-full"></div>
+                      ))}
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-20"></div>
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-full"></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-16"></div>
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-full"></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function PetsSkeleton() {
+  return (
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <SidebarSkeleton />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <HeaderSkeleton />
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {/* Title and Stats Section */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="h-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-32 mb-2"></div>
+              <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-40"></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 bg-gradient-to-r from-green-200 to-green-300 rounded-full"></div>
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-20"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 bg-gradient-to-r from-blue-200 to-blue-300 rounded-full"></div>
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-16"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 bg-gradient-to-r from-orange-200 to-orange-300 rounded-full"></div>
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-16"></div>
+                </div>
+              </div>
+              <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-32"></div>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="bg-white rounded-lg border border-gray-200 p-3 flex items-center gap-3 mb-6">
+            <div className="flex-1 relative">
+              <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+            </div>
+            <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-24"></div>
+            <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg w-28"></div>
+            <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-28"></div>
+          </div>
+
+          {/* Main Grid */}
+          <div className="flex gap-6">
+            {/* Table */}
+            <div className="flex-1">
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <div className="h-5 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-32"></div>
+                </div>
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {[...Array(6)].map((_, i) => (
+                        <th key={i} className="px-4 py-3">
+                          <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-16"></div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {[...Array(5)].map((_, rowIndex) => (
+                      <tr key={rowIndex} className="animate-pulse">
+                        {[...Array(6)].map((_, colIndex) => (
+                          <td key={colIndex} className="px-4 py-3">
+                            {colIndex === 0 ? (
+                              <div className="flex items-center gap-3">
+                                <div className={`h-8 w-8 rounded-full ${
+                                  rowIndex % 3 === 0 
+                                    ? 'bg-gradient-to-r from-blue-200 to-blue-300' 
+                                    : rowIndex % 3 === 1 
+                                    ? 'bg-gradient-to-r from-orange-200 to-orange-300'
+                                    : 'bg-gradient-to-r from-purple-200 to-purple-300'
+                                }`}></div>
+                                <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-24"></div>
+                              </div>
+                            ) : (
+                              <div className={`h-5 rounded ${
+                                colIndex % 2 === 0 
+                                  ? 'bg-gradient-to-r from-purple-200 to-purple-300' 
+                                  : 'bg-gradient-to-r from-green-200 to-green-300'
+                              } ${colIndex === 2 ? 'w-32' : colIndex === 3 ? 'w-12' : colIndex === 4 ? 'w-20' : 'w-16'}`}></div>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Right Panel - Pet Details */}
+            <div className="w-96 flex-shrink-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-12 w-12 bg-gradient-to-r from-blue-200 to-blue-300 rounded-full"></div>
+                  <div className="space-y-2">
+                    <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-20"></div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-20"></div>
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-full"></div>
+                      ))}
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-16"></div>
+                      {[...Array(2)].map((_, i) => (
+                        <div key={i} className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-full"></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-24"></div>
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-full"></div>
+                      ))}
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-16"></div>
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-full"></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 flex gap-3">
+                  <div className="flex-1 h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg"></div>
+                  <div className="flex-1 h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                  <div className="flex-1 h-10 bg-gradient-to-r from-red-200 to-red-300 rounded-lg"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AddPetSkeleton() {
+  return (
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <SidebarSkeleton />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <HeaderSkeleton />
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Form */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="h-6 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-32"></div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Info Note */}
+                <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                  <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-full"></div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Basic Information */}
+                  <div className="space-y-4">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-20"></div>
+                        <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Physical Information */}
+                  <div className="space-y-4">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-24"></div>
+                        <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Additional Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-24"></div>
+                    <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-16"></div>
+                    <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                  <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-20"></div>
+                  <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-24"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function EditPetSkeleton() {
+  return (
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <SidebarSkeleton />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <HeaderSkeleton />
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Form */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="h-6 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-32"></div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Info Note */}
+                <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-full"></div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Basic Information */}
+                  <div className="space-y-4">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-20"></div>
+                        <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Physical Information */}
+                  <div className="space-y-4">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-24"></div>
+                        <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Additional Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-24"></div>
+                    <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-16"></div>
+                    <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                  <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-20"></div>
+                  <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-24"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -1,28 +1,50 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, PawPrint, X } from 'lucide-react'
-import Sidebar from '../../../components/Sidebar'
-import { supabase } from '../../../lib/supabase'
-import Toast from '../../../components/Toast'
-import { AddPetSkeleton } from '../../../components/Skeleton'
-import Select from '../../../components/Select'
+import { useRouter, useParams } from 'next/navigation'
+import { ArrowLeft, PawPrint, Save, Trash2 } from 'lucide-react'
+import Sidebar from '../../../../components/Sidebar'
+import { supabase } from '../../../../lib/supabase'
+import { useAuth } from '../../../../contexts/AuthContext'
+import Toast from '../../../../components/Toast'
+import { EditPetSkeleton } from '../../../../components/Skeleton'
+import Select from '../../../../components/Select'
 
-interface UserOption {
+interface PetRow {
   id: string
-  full_name: string
-  email: string
+  name: string
+  species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other'
+  breed?: string
+  color?: string
+  birth_date?: string
+  weight?: number
+  weight_unit: 'kg' | 'lb'
+  gender?: 'male' | 'female' | 'unknown'
+  microchip_id?: string
+  avatar_url?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  // Joined data
+  owner_name?: string
+  owner_email?: string
+  last_visit?: string
+  medical_records_count?: number
+  weight_records_count?: number
 }
 
-export default function AddPetPage() {
+export default function EditPetPage() {
   const router = useRouter()
+  const params = useParams()
+  const { user } = useAuth()
+  const petId = params.id as string
   
   const [darkMode, setDarkMode] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [users, setUsers] = useState<UserOption[]>([])
+  const [petData, setPetData] = useState<PetRow | null>(null)
   const [showSkeleton, setShowSkeleton] = useState(true)
   const [toast, setToast] = useState<{
     show: boolean
@@ -30,21 +52,6 @@ export default function AddPetPage() {
     title: string
     message: string
   } | null>(null)
-
-  // Form data - using same structure as create user
-  const [newPet, setNewPet] = useState({
-    name: '',
-    species: 'dog' as 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other',
-    breed: '',
-    color: '',
-    birth_date: '',
-    weight: '',
-    weight_unit: 'kg' as 'kg' | 'lb',
-    gender: '' as 'male' | 'female' | 'unknown' | '',
-    microchip_id: '',
-    user_id: '',
-    is_active: true
-  })
 
   const showToast = (type: 'success' | 'warning' | 'error', title: string, message: string) => {
     setToast({ show: true, type, title, message })
@@ -64,99 +71,152 @@ export default function AddPetPage() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Fetch users for owner selection
+  // Fetch pet data on component mount
   useEffect(() => {
-    fetchUsers()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    if (petId) {
+      fetchPetData()
+    }
+  }, [petId])
 
-  const fetchUsers = async () => {
+  const fetchPetData = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const { data: usersData, error: usersError } = await supabase
-        .from('user_profiles')
-        .select('id, full_name, email')
-        .order('full_name')
+      // First try simple query without join
+      const { data, error } = await supabase
+        .from('pets')
+        .select('*')
+        .eq('id', petId)
+        .single()
 
-      if (usersError) {
-        throw usersError
+      if (error) {
+        throw new Error(`Error al cargar mascota: ${error.message}`)
       }
 
-      setUsers(usersData || [])
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al cargar usuarios'
+      if (!data) {
+        throw new Error('Mascota no encontrada')
+      }
+
+      // Transform data to PetRow format
+      const transformedPet: PetRow = {
+        id: data.id,
+        name: data.name,
+        species: data.species,
+        breed: data.breed,
+        color: data.color,
+        birth_date: data.birth_date,
+        weight: data.weight,
+        weight_unit: data.weight_unit,
+        gender: data.gender,
+        microchip_id: data.microchip_id,
+        avatar_url: data.avatar_url,
+        is_active: data.is_active,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        owner_name: 'Usuario', // Default since we don't have join data
+        owner_email: '',
+        last_visit: 'N/A',
+        medical_records_count: 0,
+        weight_records_count: 0
+      }
+
+      setPetData(transformedPet)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
       setError(errorMessage)
-      showToast('error', 'Error al cargar usuarios', errorMessage)
+      showToast('error', 'Error al cargar mascota', errorMessage)
     } finally {
       setLoading(false)
     }
   }
 
-  const createPet = async (petData: typeof newPet) => {
+  const updatePet = async (updatedData: Partial<PetRow>) => {
     try {
-      setLoading(true)
+      setSaving(true)
       setError(null)
 
-      // Validate required fields
-      if (!petData.name.trim()) {
-        throw new Error('El nombre de la mascota es requerido')
-      }
-      if (!petData.user_id) {
-        throw new Error('Debe seleccionar un dueño')
-      }
-
-      // Prepare data for insertion
-      const insertData = {
-        name: petData.name.trim(),
-        species: petData.species,
-        breed: petData.breed.trim() || null,
-        color: petData.color.trim() || null,
-        birth_date: petData.birth_date || null,
-        weight: petData.weight ? parseFloat(petData.weight) : null,
-        weight_unit: petData.weight_unit,
-        gender: petData.gender || null,
-        microchip_id: petData.microchip_id.trim() || null,
-        user_id: petData.user_id,
-        is_active: petData.is_active
+      // Prepare data for update
+      const updateData = {
+        name: updatedData.name,
+        species: updatedData.species,
+        breed: updatedData.breed,
+        color: updatedData.color,
+        birth_date: updatedData.birth_date,
+        weight: updatedData.weight,
+        weight_unit: updatedData.weight_unit,
+        gender: updatedData.gender,
+        microchip_id: updatedData.microchip_id,
+        is_active: updatedData.is_active,
+        updated_at: new Date().toISOString()
       }
 
       const { data, error } = await supabase
         .from('pets')
-        .insert(insertData)
+        .update(updateData)
+        .eq('id', petId)
         .select()
 
       if (error) {
-        throw new Error(`Error al crear mascota: ${error.message}`)
+        throw new Error(`Error al actualizar mascota: ${error.message}`)
       }
 
-      // Show success toast
-      showToast('success', 'Mascota creada', 'La mascota ha sido creada exitosamente')
+      // Update local state
+      setPetData(prev => prev ? { ...prev, ...updatedData } : null)
       
-      // Redirect to pets list after a short delay
-      setTimeout(() => {
-        router.push('/pets')
-      }, 2000)
+      // Show success toast
+      showToast('success', 'Mascota actualizada', 'Los cambios se han guardado exitosamente')
       
       return { success: true, pet: data[0] }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
       setError(errorMessage)
-      showToast('error', 'Error al crear mascota', errorMessage)
+      showToast('error', 'Error al actualizar', errorMessage)
       return { success: false, error: errorMessage }
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await createPet(newPet)
+    if (petData) {
+      await updatePet(petData)
+    }
   }
 
   // Show skeleton for at least 2 seconds or while loading
   if (loading || showSkeleton) {
-    return <AddPetSkeleton />
+    return <EditPetSkeleton />
+  }
+
+  if (!petData) {
+    return (
+      <div className="h-screen bg-gray-50 flex overflow-hidden">
+        <div className="hidden lg:block flex-shrink-0">
+          <Sidebar 
+            activeItem="Mascotas"
+            onItemClick={(path) => router.push(path)}
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
+            isMobileMenuOpen={isMobileMenuOpen}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-4xl mb-4">⚠️</div>
+            <p className="text-gray-600">Mascota no encontrada</p>
+            <button
+              onClick={() => router.push('/pets')}
+              className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            >
+              Volver a Mascotas
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -186,8 +246,8 @@ export default function AddPetPage() {
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Create New Pet</h1>
-                <p className="text-sm text-gray-600">Add a new pet to the system</p>
+                <h1 className="text-xl font-semibold text-gray-900">Editar Mascota</h1>
+                <p className="text-sm text-gray-600">Editar información de la mascota</p>
               </div>
             </div>
           </div>
@@ -202,11 +262,11 @@ export default function AddPetPage() {
                 <div className="flex items-center gap-2 text-red-700">
                   <span className="text-red-500">⚠</span>
                   <span>{error}</span>
-                  <button
+                  <button 
                     onClick={() => setError(null)}
                     className="ml-auto text-red-500 hover:text-red-700"
                   >
-                    <X size={20} />
+                    ✕
                   </button>
                 </div>
               </div>
@@ -219,12 +279,12 @@ export default function AddPetPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
-
+                
                 {/* Info Note */}
                 <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
                   <p className="text-sm text-primary-700">
-                    <strong>Nota:</strong> Este formulario crea una nueva mascota en el sistema.
-                    Asegúrate de seleccionar el dueño correcto de la lista.
+                    <strong>Nota:</strong> Este formulario edita la información de la mascota.
+                    Los cambios se guardarán inmediatamente al hacer clic en "Guardar Cambios".
                   </p>
                 </div>
 
@@ -237,11 +297,11 @@ export default function AddPetPage() {
                       </label>
                       <input
                         type="text"
-                        required
-                        value={newPet.name}
-                        onChange={(e) => setNewPet({ ...newPet, name: e.target.value })}
+                        value={petData.name}
+                        onChange={(e) => setPetData({...petData, name: e.target.value})}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder="Enter pet name"
+                        required
                       />
                     </div>
 
@@ -250,8 +310,8 @@ export default function AddPetPage() {
                         Species *
                       </label>
                       <Select
-                        value={newPet.species}
-                        onChange={(value) => setNewPet({ ...newPet, species: value as typeof newPet.species })}
+                        value={petData.species}
+                        onChange={(value) => setPetData({...petData, species: value as PetRow['species']})}
                         options={[
                           { value: 'dog', label: 'Dog' },
                           { value: 'cat', label: 'Cat' },
@@ -272,8 +332,8 @@ export default function AddPetPage() {
                       </label>
                       <input
                         type="text"
-                        value={newPet.breed}
-                        onChange={(e) => setNewPet({ ...newPet, breed: e.target.value })}
+                        value={petData.breed || ''}
+                        onChange={(e) => setPetData({...petData, breed: e.target.value})}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder="Enter breed"
                       />
@@ -285,8 +345,8 @@ export default function AddPetPage() {
                       </label>
                       <input
                         type="text"
-                        value={newPet.color}
-                        onChange={(e) => setNewPet({ ...newPet, color: e.target.value })}
+                        value={petData.color || ''}
+                        onChange={(e) => setPetData({...petData, color: e.target.value})}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder="Enter color"
                       />
@@ -301,8 +361,8 @@ export default function AddPetPage() {
                       </label>
                       <input
                         type="date"
-                        value={newPet.birth_date}
-                        onChange={(e) => setNewPet({ ...newPet, birth_date: e.target.value })}
+                        value={petData.birth_date || ''}
+                        onChange={(e) => setPetData({...petData, birth_date: e.target.value})}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                     </div>
@@ -314,8 +374,8 @@ export default function AddPetPage() {
                       <input
                         type="number"
                         step="0.1"
-                        value={newPet.weight}
-                        onChange={(e) => setNewPet({ ...newPet, weight: e.target.value })}
+                        value={petData.weight || ''}
+                        onChange={(e) => setPetData({...petData, weight: parseFloat(e.target.value) || undefined})}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder="0.0"
                       />
@@ -326,8 +386,8 @@ export default function AddPetPage() {
                         Weight Unit
                       </label>
                       <Select
-                        value={newPet.weight_unit}
-                        onChange={(value) => setNewPet({ ...newPet, weight_unit: value as 'kg' | 'lb' })}
+                        value={petData.weight_unit}
+                        onChange={(value) => setPetData({...petData, weight_unit: value as 'kg' | 'lb'})}
                         options={[
                           { value: 'kg', label: 'Kilograms (kg)' },
                           { value: 'lb', label: 'Pounds (lb)' }
@@ -340,8 +400,8 @@ export default function AddPetPage() {
                         Gender
                       </label>
                       <Select
-                        value={newPet.gender}
-                        onChange={(value) => setNewPet({ ...newPet, gender: value as 'male' | 'female' | 'unknown' | '' })}
+                        value={petData.gender || ''}
+                        onChange={(value) => setPetData({...petData, gender: value as 'male' | 'female' | 'unknown'})}
                         options={[
                           { value: '', label: 'Select gender' },
                           { value: 'male', label: 'Male' },
@@ -361,34 +421,26 @@ export default function AddPetPage() {
                     </label>
                     <input
                       type="text"
-                      value={newPet.microchip_id}
-                      onChange={(e) => setNewPet({ ...newPet, microchip_id: e.target.value })}
+                      value={petData.microchip_id || ''}
+                      onChange={(e) => setPetData({...petData, microchip_id: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter microchip ID"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Owner *
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={petData.is_active}
+                        onChange={(e) => setPetData({...petData, is_active: e.target.checked})}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Active Pet</span>
                     </label>
-                    <Select
-                      value={newPet.user_id}
-                      onChange={(value) => setNewPet({ ...newPet, user_id: value })}
-                      options={[
-                        { value: '', label: 'Select owner' },
-                        ...users.map((user) => ({
-                          value: user.id,
-                          label: `${user.full_name || user.email} (${user.email})`
-                        }))
-                      ]}
-                      required
-                    />
-                    {users.length === 0 && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        No users available. Please create users first.
-                      </p>
-                    )}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Inactive pets will not appear in main lists
+                    </p>
                   </div>
                 </div>
 
@@ -402,11 +454,11 @@ export default function AddPetPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={saving}
                     className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   >
                     <PawPrint size={16} />
-                    {loading ? 'Creating...' : 'Create Pet'}
+                    {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </form>

@@ -22,6 +22,12 @@ const config = getSupabaseConfig();
 // Create Supabase client
 export const supabase = createClient(config.url, config.anonKey);
 
+// Create Supabase admin client (for privileged operations)
+export const supabaseAdmin = createClient(
+  config.url, 
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveWNkZm1tcnRxbmZraG1pb3RuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjA0NTAyOCwiZXhwIjoyMDcxNjIxMDI4fQ.eJR7g1N5UantbvnKmbb7XGNAVaoQL0UhNMqqQODIT34'
+);
+
 // Database types
 export interface User {
   id: string;
@@ -141,12 +147,38 @@ export const getUserOrganizations = async (userId: string) => {
 
 // Auth helper functions
 export const isAdmin = (user: User): boolean => {
-  // For now, allow any authenticated user to access the admin panel
-  // You can customize this logic later based on your needs
-  return true;
+  if (!user) return false;
   
-  // Original strict logic (commented out for now):
-  // return user.user_metadata?.role === 'admin' || 
-  //        user.email?.endsWith('@admin.peluditos.com') || 
-  //        user.email === 'admin@peluditos.com';
+  // Check role in user_metadata
+  if (user.user_metadata?.role === 'admin') return true;
+  
+  // Check if user has admin role in user_profiles
+  // This would require a database query in practice
+  return false;
+};
+
+// Admin functions for user management
+export const createAuthUser = async (email: string, password: string) => {
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true
+  });
+  
+  if (error) throw error;
+  return data;
+};
+
+export const listAuthUsers = async () => {
+  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
+  
+  if (error) throw error;
+  return data;
+};
+
+export const updateAuthUser = async (userId: string, updates: any) => {
+  const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, updates);
+  
+  if (error) throw error;
+  return data;
 };

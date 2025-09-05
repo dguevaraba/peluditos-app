@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Calendar, Building2, Download, Mail, Filter } from 'lucide-react'
+import Select from './Select'
 
 interface DashboardFiltersProps {
   onFiltersChange: (filters: any) => void
@@ -39,12 +40,10 @@ export default function DashboardFilters({ onFiltersChange }: DashboardFiltersPr
 
   const handleExportSVC = () => {
     // Export SVC functionality
-    console.log('Exporting SVC...')
   }
 
   const handleEmailReport = () => {
     // Email report functionality
-    console.log('Sending email report...')
   }
 
   return (
@@ -58,17 +57,18 @@ export default function DashboardFilters({ onFiltersChange }: DashboardFiltersPr
             <Calendar size={16} className="text-gray-500" />
             <span>Date Range</span>
           </label>
-          <select
+          <Select
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="1y">Last year</option>
-            <option value="custom">Custom range</option>
-          </select>
+            onChange={setDateRange}
+            options={[
+              { value: '7d', label: 'Last 7 days' },
+              { value: '30d', label: 'Last 30 days' },
+              { value: '90d', label: 'Last 90 days' },
+              { value: '1y', label: 'Last year' },
+              { value: 'custom', label: 'Custom range' }
+            ]}
+            className="text-sm"
+          />
         </div>
 
         {/* Organization */}
@@ -77,16 +77,17 @@ export default function DashboardFilters({ onFiltersChange }: DashboardFiltersPr
             <Building2 size={16} className="text-gray-500" />
             <span>Organization</span>
           </label>
-          <select
+          <Select
             value={organization}
-            onChange={(e) => setOrganization(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          >
-            <option value="all">All Organizations</option>
-            <option value="main">Main Clinic</option>
-            <option value="branch1">Branch 1</option>
-            <option value="branch2">Branch 2</option>
-          </select>
+            onChange={setOrganization}
+            options={[
+              { value: 'all', label: 'All Organizations' },
+              { value: 'main', label: 'Main Clinic' },
+              { value: 'branch1', label: 'Branch 1' },
+              { value: 'branch2', label: 'Branch 2' }
+            ]}
+            className="text-sm"
+          />
         </div>
 
         {/* Services Filter */}
@@ -115,17 +116,15 @@ export default function DashboardFilters({ onFiltersChange }: DashboardFiltersPr
         {/* Channel Filter */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Channel</label>
-          <select
+          <Select
             value={channel}
-            onChange={(e) => setChannel(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          >
-            {channelOptions.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            onChange={setChannel}
+            options={channelOptions.map(option => ({
+              value: option.id,
+              label: option.label
+            }))}
+            className="text-sm"
+          />
         </div>
 
         {/* Export Buttons */}

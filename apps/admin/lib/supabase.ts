@@ -11,6 +11,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
+// Create Supabase admin client (for privileged operations)
+export const supabaseAdmin = createClient(
+  supabaseUrl, 
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveWNkZm1tcnRxbmZraG1pb3RuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjA0NTAyOCwiZXhwIjoyMDcxNjIxMDI4fQ.eJR7g1N5UantbvnKmbb7XGNAVaoQL0UhNMqqQODIT34'
+);
+
+// Test function to verify admin client
+
+
 // Types for better TypeScript support
 export type User = {
   id: string;
@@ -39,12 +48,43 @@ export type Session = {
 
 // Check if user is admin (you can customize this logic)
 export const isAdmin = (user: User): boolean => {
-  // For now, allow any authenticated user to access the admin panel
-  // You can customize this logic later based on your needs
-  return true;
+  if (!user) return false;
   
-  // Original strict logic (commented out for now):
-  // return user.user_metadata?.role === 'admin' || 
-  //        user.email?.endsWith('@admin.peluditos.com') || 
-  //        user.email === 'admin@peluditos.com';
+  // Check role in user_metadata
+  if (user.user_metadata?.role === 'admin') return true;
+  
+  // Check if user has admin role in user_profiles
+  // This would require a database query in practice
+  return false;
+};
+
+// Admin functions for user management
+export const createAuthUser = async (email: string, password: string) => {
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: email.split('@')[0], // Default name from email
+          role: 'member'
+        },
+      },
+    })
+
+    if (error) {
+      return { data: null, error }
+    }
+
+    return { data, error: null }
+  } catch (error) {
+    return { data: null, error: error as Error }
+  }
+};
+
+export const listAuthUsers = async () => {
+  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
+  
+  if (error) throw error;
+  return data;
 };

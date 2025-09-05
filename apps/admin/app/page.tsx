@@ -12,6 +12,7 @@ import {
 import { APP_NAME } from '@peluditos/shared'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
+import { getActiveItemId, useLanguage } from '../lib/i18n'
 import StatsCard from '../components/StatsCard'
 import RevenueChart from '../components/RevenueChart'
 import BookingsChart from '../components/BookingsChart'
@@ -49,49 +50,17 @@ export default function Dashboard() {
 
   // Show skeleton for at least 2 seconds or while loading
   if (loading || showSkeleton) {
-    console.log('🔵 Showing skeleton:', { loading, showSkeleton });
     return <DashboardSkeleton />;
   }
 
   // If no user after loading, don't render anything (will redirect)
   if (!user) {
-    console.log('🔴 No user found, redirecting...');
     return null;
   }
 
-  console.log('🔵 Rendering dashboard for user:', user.email);
-
-  // Determine active item based on current path
-  const getActiveItem = () => {
-    switch (pathname) {
-      case '/':
-        return 'overview'
-      case '/chats':
-        return 'chats'
-      case '/calendar':
-        return 'calendar'
-      case '/bookings':
-        return 'bookings'
-      case '/clients':
-        return 'clients'
-      case '/pets':
-        return 'pets'
-      case '/services':
-        return 'services'
-      case '/products':
-        return 'products'
-      case '/orders':
-        return 'orders'
-      case '/vendors':
-        return 'vendors'
-      case '/reports':
-        return 'reports'
-      case '/settings':
-        return 'settings'
-      default:
-        return 'overview'
-    }
-  }
+  // Get current language and active item
+  const language = useLanguage()
+  const activeItem = getActiveItemId(pathname)
 
   const handleFiltersChange = (filters: any) => {
     // Here you would typically update the dashboard data based on filters
@@ -133,16 +102,18 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* Sidebar */}
-      <Sidebar
-        activeItem={getActiveItem()}
-        darkMode={darkMode}
-        onToggleDarkMode={() => setDarkMode(!darkMode)}
-        onItemClick={() => {}}
-        isMobileMenuOpen={isMobileMenuOpen}
-        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      />
+      <div className="flex-shrink-0 h-screen">
+        <Sidebar
+          activeItem={activeItem}
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(!darkMode)}
+          onItemClick={(path) => router.push(path)}
+          isMobileMenuOpen={isMobileMenuOpen}
+          onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        />
+      </div>
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">

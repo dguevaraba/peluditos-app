@@ -590,26 +590,19 @@ export default function CalendarPage() {
   }
 
   const handleEditEvent = (event: Event) => {
-    console.log('Edit event:', event)
-    // Here you would typically open an edit form
     setIsDetailsPanelOpen(false)
   }
 
   const handleRescheduleEvent = (event: Event) => {
-    console.log('Reschedule event:', event)
-    // Here you would typically open a reschedule form
     setIsDetailsPanelOpen(false)
   }
 
   const handleDeleteEvent = (event: Event) => {
-    console.log('Delete event:', event)
-    // Here you would typically show a confirmation dialog
     setIsDetailsPanelOpen(false)
   }
 
   const handleCreateEvent = () => {
-    console.log('Create new event')
-    // Here you would typically open a create event form
+    // Create new event functionality
   }
 
   const getTitleFunction = () => {

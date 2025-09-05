@@ -196,7 +196,6 @@ export default function OrganizationsPage() {
   });
 
   const handleCreateOrganization = (organizationData: any) => {
-    console.log('Creating organization:', organizationData);
     // Here you would typically send the data to your API
     // For now, just log it
   };
@@ -206,24 +205,20 @@ export default function OrganizationsPage() {
   };
 
   const handleEditOrganization = (org: Organization) => {
-    console.log('Editing organization:', org);
     // Navigate to edit page or open edit modal
   };
 
   const handleDeleteOrganization = (org: Organization) => {
     if (confirm(`¿Estás seguro de que quieres eliminar "${org.name}"?`)) {
-      console.log('Deleting organization:', org);
       // Here you would typically delete from your API
     }
   };
 
   const handleMessage = (org: Organization) => {
-    console.log('Messaging organization:', org);
     // Navigate to chat or open message modal
   };
 
   const handleApprove = (org: Organization) => {
-    console.log('Approving organization:', org);
     // Here you would typically approve the organization
   };
 

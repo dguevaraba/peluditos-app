@@ -23,6 +23,7 @@ import {
   Heart
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import { menuItems, getMenuItemById, useLanguage } from '../lib/i18n'
 
 interface SidebarProps {
   activeItem: string
@@ -43,29 +44,30 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const language = useLanguage()
   
-  const menuItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard, active: pathname === '/' },
-    { path: '/calendar', label: 'Calendario', icon: Calendar, active: pathname === '/calendar' },
-    { path: '/bookings', label: 'Reservas', icon: BookOpen, active: pathname === '/bookings' },
-    { path: '/clients', label: 'Clientes', icon: Users, active: pathname === '/clients' },
-    { path: '/users', label: 'Usuarios', icon: Users, active: pathname === '/users' },
-    { path: '/pets', label: 'Mascotas', icon: PawPrint, active: pathname === '/pets' },
-    { path: '/services', label: 'Servicios', icon: ShoppingBag, active: pathname === '/services' },
-    { path: '/products', label: 'Productos', icon: Package, active: pathname === '/products' },
-    { path: '/orders', label: 'Pedidos', icon: ShoppingCart, active: pathname === '/orders' },
-    { path: '/vendors', label: 'Proveedores', icon: Truck, active: pathname === '/vendors' },
-    { path: '/organizations', label: 'Organizaciones', icon: Building2, active: pathname === '/organizations' },
-    { path: '/chats', label: 'Chats', icon: MessageSquare, active: pathname === '/chats' },
-    { path: '/reports', label: 'Reportes', icon: BarChart3, active: pathname === '/reports' },
-    { path: '/settings', label: 'Configuración', icon: Settings, active: pathname === '/settings' },
-  ]
+  // Create a mapping of icon names to actual icon components
+  const iconMap: Record<string, any> = {
+    LayoutDashboard,
+    Calendar,
+    BookOpen,
+    Users,
+    PawPrint,
+    ShoppingBag,
+    Package,
+    Building2,
+    MessageSquare,
+    BarChart3,
+    Settings,
+    ShoppingCart,
+    Truck
+  }
 
   const handleItemClick = (itemId: string) => {
     onItemClick(itemId)
     
     // Navigate to the appropriate page
-    const item = menuItems.find(nav => nav.label === itemId)
+    const item = getMenuItemById(itemId)
     if (item && item.path) {
       router.push(item.path)
     }
@@ -89,7 +91,7 @@ export default function Sidebar({
       {/* Sidebar */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-40
-        w-64 bg-white border-r border-gray-200 
+        w-64 bg-white border-r border-gray-200 h-full
         transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         flex flex-col
@@ -110,13 +112,14 @@ export default function Sidebar({
         <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => {
-              const Icon = item.icon
-              const isActive = activeItem === item.label
+              const Icon = iconMap[item.icon]
+              const isActive = activeItem === item.id
+              const label = item.label[language]
               
               return (
-                <li key={item.label}>
+                <li key={item.id}>
                   <button
-                    onClick={() => handleItemClick(item.label)}
+                    onClick={() => handleItemClick(item.id)}
                     className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive 
                         ? 'bg-primary-100 text-primary-700' 
@@ -124,7 +127,7 @@ export default function Sidebar({
                     }`}
                   >
                     <Icon size={20} />
-                    <span>{item.label}</span>
+                    <span>{label}</span>
                   </button>
                 </li>
               )

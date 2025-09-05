@@ -42,7 +42,6 @@ function LoginForm() {
         setError(result.error || 'Error al iniciar sesión');
       }
     } catch (err) {
-      console.error('🔴 Login error:', err);
       setError('Error inesperado. Intenta de nuevo.');
     } finally {
       setLoading(false);

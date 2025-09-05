@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, MapPin, Phone, Mail, Globe, Building2, Users, Clock, Plus } from 'lucide-react';
+import Select from './Select';
 
 interface CreateOrganizationModalProps {
   isOpen: boolean;
@@ -108,18 +109,15 @@ export default function CreateOrganizationModal({ isOpen, onClose, onSubmit }: C
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Tipo de Organización *
               </label>
-              <select
+              <Select
                 required
                 value={formData.type}
-                onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                {organizationTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+                options={organizationTypes.map(type => ({
+                  value: type.value,
+                  label: type.label
+                }))}
+              />
             </div>
           </div>
 

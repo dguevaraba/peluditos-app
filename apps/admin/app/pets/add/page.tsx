@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, PawPrint, X } from 'lucide-react'
+import { PawPrint, X } from 'lucide-react'
 import Sidebar from '../../../components/Sidebar'
 import { supabase } from '../../../lib/supabase'
 import Toast from '../../../components/Toast'
 import { AddPetSkeleton } from '../../../components/Skeleton'
 import Select from '../../../components/Select'
+import PageHeader from '../../../components/PageHeader'
 
 interface UserOption {
   id: string
@@ -59,7 +60,7 @@ export default function AddPetPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSkeleton(false)
-    }, 2000)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [])
@@ -136,7 +137,7 @@ export default function AddPetPage() {
       // Redirect to pets list after a short delay
       setTimeout(() => {
         router.push('/pets')
-      }, 2000)
+      }, 500)
       
       return { success: true, pet: data[0] }
     } catch (error) {
@@ -176,22 +177,11 @@ export default function AddPetPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push('/pets')}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">Create New Pet</h1>
-                <p className="text-sm text-gray-600">Add a new pet to the system</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Create New Pet"
+          subtitle="Add a new pet to the system"
+          onBack={() => router.push('/pets')}
+        />
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-6">

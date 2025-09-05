@@ -565,7 +565,7 @@ export function AddPetSkeleton() {
               <div className="p-6 space-y-6">
                 {/* Info Note */}
                 <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
-                  <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-full"></div>
+                  <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-full"></div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

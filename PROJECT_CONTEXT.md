@@ -14,6 +14,7 @@
 - El panel lateral aparece instantáneamente sin animación
 - Click en el mismo elemento cierra el panel
 - Doble click navega a la página de edición
+- Botón "New/Add" abre una nueva pantalla de creación
 
 **Skeleton:**
 - El skeleton general muestra la columna de preview como visible
@@ -26,6 +27,31 @@
 - ✅ Skeleton muestra el panel como visible
 - ✅ Toggle de selección funcional
 - ✅ Doble click para editar
+- ✅ Botón "Add Organization" navega a pantalla de creación
+- ✅ Skeleton de creación sigue el patrón de otras páginas
+- ✅ **Panel de Preview con Acciones**: Edit y Delete buttons en el panel lateral
+- ✅ **Funcionalidad Delete**: Eliminación real desde Supabase con modal de confirmación (mismo patrón que users/pets)
+- ✅ **Página de Edición**: `/organizations/edit/[id]` con formulario completo
+- ✅ **Patrón Consistente**: Delete con modal de confirmación, manejo de errores, y actualización de estado local
+
+## Estructura de Páginas Estándar
+
+### Layout Obligatorio para Todas las Páginas
+- ✅ **Sidebar**: Menú lateral siempre visible
+- ✅ **Header**: Con avatar y notificaciones siempre visible
+- ✅ **Borde inferior**: En el título del header (como en users)
+- ✅ **Skeleton**: Solo anima el contenido del formulario, header y sidebar fijos
+
+### Patrón de Headers en Formularios
+- ✅ **Estructura**: Título con borde inferior
+- ✅ **Navegación**: Botón de regreso
+- ✅ **Consistencia**: Mismo estilo que página de users
+- ✅ **Fijo**: No se anima en skeleton, solo el contenido del form
+- ✅ **CountrySelect**: Usar componente CountrySelect para países
+- ✅ **Skeleton Duration**: 500ms de duración (muy corto para mejor UX)
+- ✅ **Dashboard Loading**: Usar fetch de datos como flag de loading, no tiempos fijos
+- ✅ **Real Data Fetching**: Implementar fetch real de Supabase con fallback a mock data
+- ✅ **Database Schema**: Agregar campos faltantes (type, country, description, etc.) a tabla organizations
 
 ## Sistema de Persistencia de UX
 

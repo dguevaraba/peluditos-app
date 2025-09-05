@@ -143,7 +143,7 @@ export default function CreateUserPage() {
       showToast('success', 'Perfil creado', `Se creó el perfil de ${userData.name || userData.email}.`)
       setTimeout(() => {
         router.push('/users')
-      }, 2000)
+      }, 1000)
 
       return { success: true, user: profileData[0] }
     } catch (error) {

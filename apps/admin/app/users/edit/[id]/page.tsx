@@ -76,11 +76,11 @@ export default function EditUserPage() {
     }, 4000)
   }
 
-  // Show skeleton for at least 2 seconds
+  // Show skeleton for at least 500ms
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSkeleton(false)
-    }, 2000)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [])
@@ -210,7 +210,7 @@ export default function EditUserPage() {
     }
   }
 
-  // Show skeleton for at least 2 seconds or while loading
+  // Show skeleton for at least 500ms or while loading
   if (loading || showSkeleton) {
     return (
       <div className="h-screen bg-gray-50 flex overflow-hidden">

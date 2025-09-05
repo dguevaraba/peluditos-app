@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { UsersSkeleton } from '../../components/Skeleton'
 import Toast from '../../components/Toast'
 import Select from '../../components/Select'
+import FilterSelect from '../../components/FilterSelect'
 
 
 
@@ -50,7 +51,6 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null)
   const [loading, setLoading] = useState(false) // Changed from true to false
   const [error, setError] = useState<string | null>(null)
-  const [showSkeleton, setShowSkeleton] = useState(true)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deletingUser, setDeletingUser] = useState<UserRow | null>(null)
   const [toast, setToast] = useState<{
@@ -63,15 +63,6 @@ export default function UsersPage() {
 
 
 
-
-  // Show skeleton for at least 2 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSkeleton(false)
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   // Fetch users from database
   useEffect(() => {
@@ -109,9 +100,6 @@ export default function UsersPage() {
     }
   }
 
-  const showToast = (type: 'success' | 'warning' | 'error', title: string, message: string) => {
-    setToast({ show: true, type, title, message })
-  }
 
   const confirmDeleteUser = (user: UserRow) => {
     setDeletingUser(user)
@@ -167,14 +155,14 @@ export default function UsersPage() {
       setError(null)
 
 
-      const { data: testData, error: testError } = await supabase
+      const { error: testError } = await supabase
         .from('user_profiles')
         .select('count')
         .limit(1)
 
       if (testError) {
         // Try to see what tables are available
-        const { data: authData, error: authError } = await supabase.auth.getUser()
+        const { error: authError } = await supabase.auth.getUser()
 
         if (authError) {
           throw new Error(`Error de conexión a Supabase: ${authError.message}`)
@@ -229,7 +217,7 @@ export default function UsersPage() {
         }
 
 
-        const { data: structureData, error: structureError } = await supabase
+        const { error: structureError } = await supabase
           .from('user_profiles')
           .select('*')
           .limit(1)
@@ -289,32 +277,6 @@ export default function UsersPage() {
 
 
 
-  const toggleStatus = async (id: string) => {
-    try {
-      const user = users.find(u => u.id === id)
-      if (!user) return
-
-      let newStatus: 'Active' | 'Suspended' | 'Pending'
-      if (user.status === 'Active') newStatus = 'Suspended'
-      else if (user.status === 'Suspended') newStatus = 'Pending'
-      else newStatus = 'Active'
-
-      // Update in database
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ status: newStatus })
-        .eq('id', id)
-
-      if (error) throw error
-
-      // Update local state
-      setUsers(prev => prev.map(u =>
-        u.id === id ? { ...u, status: newStatus } : u
-      ))
-    } catch (err) {
-      setError('Error al actualizar estado del usuario')
-    }
-  }
 
   const handleUserDoubleClick = (userId: string) => {
     router.push(`/users/edit/${userId}`)
@@ -350,8 +312,8 @@ export default function UsersPage() {
 
 
 
-  // Show skeleton for at least 2 seconds or while loading
-  if (loading || showSkeleton) {
+  // Show skeleton while loading
+  if (loading) {
     return <UsersSkeleton />;
   }
 
@@ -477,7 +439,9 @@ export default function UsersPage() {
               />
             </div>
             <div>
-              <Select
+              <FilterSelect
+                id="user-role-filter"
+                name="user-role-filter"
                 value={role}
                 onChange={(value) => setRole(value as typeof role)}
                 options={[
@@ -489,11 +453,12 @@ export default function UsersPage() {
                   { value: 'Trainer', label: 'Trainer' },
                   { value: 'Admin', label: 'Admin' }
                 ]}
-                className="px-4 py-3 text-sm"
               />
             </div>
             <div>
-              <Select
+              <FilterSelect
+                id="user-sort-filter"
+                name="user-sort-filter"
                 value={sort}
                 onChange={(value) => setSort(value as typeof sort)}
                 options={[
@@ -501,7 +466,6 @@ export default function UsersPage() {
                   { value: 'NameDesc', label: 'Name Z–A' },
                   { value: 'LastActive', label: 'Last Active' }
                 ]}
-                className="px-4 py-3 text-sm"
               />
             </div>
             <div>
@@ -621,7 +585,14 @@ export default function UsersPage() {
             {/* Right Side - User Details - Only visible when user is selected */}
             {selectedUser && (
               <div className="w-96 flex-shrink-0">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 relative">
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setSelectedUser(null)}
+                    className="absolute -top-3 -right-3 w-8 h-8 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors shadow-sm"
+                  >
+                    <X size={16} />
+                  </button>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold text-white"
                       style={{ backgroundColor: '#8b5cf6' }}>

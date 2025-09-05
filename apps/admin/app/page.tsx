@@ -32,11 +32,11 @@ export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showSkeleton, setShowSkeleton] = useState(true)
 
-  // Force skeleton to show for at least 2 seconds
+  // Force skeleton to show for at least 500ms
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSkeleton(false)
-    }, 2000)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [])

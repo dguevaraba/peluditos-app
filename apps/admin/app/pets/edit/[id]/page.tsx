@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, PawPrint, Save, Trash2 } from 'lucide-react'
+import { PawPrint, Save, Trash2 } from 'lucide-react'
 import Sidebar from '../../../../components/Sidebar'
 import { supabase } from '../../../../lib/supabase'
 import { useAuth } from '../../../../contexts/AuthContext'
 import Toast from '../../../../components/Toast'
-import { EditPetSkeleton } from '../../../../components/Skeleton'
+import UserFormSkeleton from '../../../../components/UserFormSkeleton'
+import PageHeader from '../../../../components/PageHeader'
 import Select from '../../../../components/Select'
 
 interface PetRow {
@@ -62,11 +63,11 @@ export default function EditPetPage() {
     }, 4000)
   }
 
-  // Show skeleton for at least 2 seconds
+  // Show skeleton for at least 500ms
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSkeleton(false)
-    }, 2000)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [])
@@ -185,12 +186,9 @@ export default function EditPetPage() {
     }
   }
 
-  // Show skeleton for at least 2 seconds or while loading
-  if (loading || showSkeleton) {
-    return <EditPetSkeleton />
-  }
 
-  if (!petData) {
+  // Only show "not found" if we've finished loading and still no data
+  if (!loading && !showSkeleton && !petData) {
     return (
       <div className="h-screen bg-gray-50 flex overflow-hidden">
         <div className="hidden lg:block flex-shrink-0">
@@ -236,41 +234,39 @@ export default function EditPetPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push('/pets')}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">Editar Mascota</h1>
-                <p className="text-sm text-gray-600">Editar información de la mascota</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Editar Mascota"
+          subtitle="Editar información de la mascota"
+          onBack={() => router.push('/pets')}
+        />
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-6">
           <div className="max-w-4xl mx-auto">
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-2 text-red-700">
-                  <span className="text-red-500">⚠</span>
-                  <span>{error}</span>
-                  <button 
-                    onClick={() => setError(null)}
-                    className="ml-auto text-red-500 hover:text-red-700"
-                  >
-                    ✕
-                  </button>
-                </div>
+            {/* Show skeleton while loading */}
+            {loading || showSkeleton ? (
+              <UserFormSkeleton />
+            ) : !petData ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">Cargando información de la mascota...</p>
               </div>
-            )}
+            ) : (
+              <>
+                {/* Error Message */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center gap-2 text-red-700">
+                      <span className="text-red-500">⚠</span>
+                      <span>{error}</span>
+                      <button 
+                        onClick={() => setError(null)}
+                        className="ml-auto text-red-500 hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                )}
 
             {/* Form */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -463,6 +459,8 @@ export default function EditPetPage() {
                 </div>
               </form>
             </div>
+              </>
+            )}
           </div>
         </div>
       </div>

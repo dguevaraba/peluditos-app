@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import Toast from '../../components/Toast'
 import { PetsSkeleton } from '../../components/Skeleton'
 import Select from '../../components/Select'
+import FilterSelect from '../../components/FilterSelect'
 
 interface PetRow {
   id: string
@@ -45,7 +46,6 @@ export default function PetsPage() {
   const [selectedPet, setSelectedPet] = useState<PetRow | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showSkeleton, setShowSkeleton] = useState(true)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deletingPet, setDeletingPet] = useState<PetRow | null>(null)
   const [toast, setToast] = useState<{
@@ -54,15 +54,6 @@ export default function PetsPage() {
     title: string
     message: string
   } | null>(null)
-
-  // Show skeleton for at least 2 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSkeleton(false)
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   // Fetch pets from database
   useEffect(() => {
@@ -284,8 +275,8 @@ export default function PetsPage() {
       return a.created_at.localeCompare(b.created_at)
     })
 
-  // Show skeleton for at least 2 seconds or while loading
-  if (loading || showSkeleton) {
+  // Show skeleton while loading
+  if (loading) {
     return <PetsSkeleton />
   }
 
@@ -410,7 +401,9 @@ export default function PetsPage() {
               />
             </div>
             <div>
-              <Select
+              <FilterSelect
+                id="pet-species-filter"
+                name="pet-species-filter"
                 value={species}
                 onChange={(value) => setSpecies(value as typeof species)}
                 options={[
@@ -424,11 +417,12 @@ export default function PetsPage() {
                   { value: 'reptile', label: 'Reptil' },
                   { value: 'other', label: 'Otro' }
                 ]}
-                className="px-4 py-3 text-sm"
               />
             </div>
             <div>
-              <Select
+              <FilterSelect
+                id="pet-sort-filter"
+                name="pet-sort-filter"
                 value={sort}
                 onChange={(value) => setSort(value as typeof sort)}
                 options={[
@@ -436,7 +430,6 @@ export default function PetsPage() {
                   { value: 'NameDesc', label: 'Nombre Z–A' },
                   { value: 'Created', label: 'Más Recientes' }
                 ]}
-                className="px-4 py-3 text-sm"
               />
             </div>
             <div>
@@ -553,7 +546,14 @@ export default function PetsPage() {
             {/* Right Side - Pet Details - Only visible when pet is selected */}
             {selectedPet && (
               <div className="w-96 flex-shrink-0">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 relative">
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setSelectedPet(null)}
+                    className="absolute -top-3 -right-3 w-8 h-8 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors shadow-sm"
+                  >
+                    <X size={16} />
+                  </button>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold text-white"
                       style={{ backgroundColor: selectedPet.species === 'dog' ? '#3b82f6' : selectedPet.species === 'cat' ? '#f97316' : '#8b5cf6' }}>

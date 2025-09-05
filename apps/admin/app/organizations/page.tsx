@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Building2, 
@@ -30,11 +30,21 @@ import {
   MessageCircle,
   BarChart3,
   Settings,
-  LayoutDashboard
+  LayoutDashboard,
+  Bell,
+  User,
+  X,
+  Menu,
+  Grid3X3,
+  List
 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
 import CreateOrganizationModal from '../../components/CreateOrganizationModal';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUX } from '../../contexts/UXContext';
+import { OrganizationsSkeleton, OrganizationsListSkeleton } from '../../components/Skeleton';
+import Select from '../../components/Select';
 
 // CSS for toggle switch
 const toggleStyles = `
@@ -72,12 +82,24 @@ interface Organization {
 
 export default function OrganizationsPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const { preferences, updatePreference } = useUX();
   const [darkMode, setDarkMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('list');
+  const [showSkeleton, setShowSkeleton] = useState(true);
   const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+
+  // Show skeleton for at least 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSkeleton(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Mock data - replace with real data from your API
   const [organizations] = useState<Organization[]>([
@@ -222,6 +244,25 @@ export default function OrganizationsPage() {
     // Here you would typically approve the organization
   };
 
+  const handleOrganizationClick = (org: Organization) => {
+    // Toggle selection: if same organization is clicked, deselect it
+    if (selectedOrganization?.id === org.id) {
+      setSelectedOrganization(null);
+    } else {
+      setSelectedOrganization(org);
+    }
+  };
+
+  const handleOrganizationDoubleClick = (org: Organization) => {
+    // Navigate to edit page
+    router.push(`/organizations/edit/${org.id}`);
+  };
+
+  // Show skeleton for at least 2 seconds
+  if (showSkeleton) {
+    return preferences.organizationsViewMode === 'list' ? <OrganizationsListSkeleton /> : <OrganizationsSkeleton />;
+  }
+
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden">
       <style jsx>{toggleStyles}</style>
@@ -243,22 +284,86 @@ export default function OrganizationsPage() {
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Organizations</h1>
-              <p className="text-gray-600">Gestiona tus organizaciones y proveedores</p>
+            {/* Left side - Menu button */}
+            <div className="flex items-center space-x-4 flex-1">
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
-            >
-              <Plus size={16} />
-              <span>Add organization</span>
+
+            {/* Right side icons */}
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Notifications */}
+              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <Bell size={20} />
+              </button>
+              
+              {/* User Profile */}
+              <div className="relative">
+                <button className="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                    <User size={16} className="text-primary-600" />
+                  </div>
+                  <span className="hidden sm:block text-sm font-medium">
+                    {user?.user_metadata?.full_name || user?.email || 'Usuario'}
+                  </span>
             </button>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-6">
+          {/* Title and Stats Section */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Organizations</h1>
+              <p className="text-gray-600">
+                Gestiona tus organizaciones y proveedores
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              {/* View Toggle Buttons */}
+              <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => updatePreference('organizationsViewMode', 'grid')}
+                  className={`px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
+                    preferences.organizationsViewMode === 'grid'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Grid3X3 size={16} />
+                  Grid
+                </button>
+                <button
+                  onClick={() => updatePreference('organizationsViewMode', 'list')}
+                  className={`px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
+                    preferences.organizationsViewMode === 'list'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <List size={16} />
+                  List
+                </button>
+              </div>
+              
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
+              >
+                <Plus size={16} />
+                Add Organization
+              </button>
+            </div>
+          </div>
+
           {/* Search and Filters */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-4">
@@ -276,185 +381,260 @@ export default function OrganizationsPage() {
                 </div>
               </div>
 
-              {/* Filter Buttons */}
-              <div className="flex flex-wrap gap-2">
-                {filterOptions.map((filter) => (
-                  <button
-                    key={filter.value}
-                    onClick={() => setSelectedFilter(filter.value)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedFilter === filter.value
-                        ? 'bg-primary-100 text-primary-700 border border-primary-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {filter.label}
-                    {filter.value === 'city' && <span className="ml-1">▼</span>}
-                  </button>
-                ))}
+              {/* Filter Select */}
+              <div>
+                <Select
+                  value={selectedFilter}
+                  onChange={(value) => setSelectedFilter(value)}
+                  options={filterOptions}
+                  className="px-4 py-3 text-sm min-w-[140px]"
+                />
               </div>
             </div>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="flex gap-6">
-            {/* Left Side - Organizations List */}
-            <div className="flex-1">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Organizations List</h2>
-                </div>
-                
-                <div className="divide-y divide-gray-200">
+          {/* Main Content */}
+          <div className={`flex gap-6 ${selectedOrganization ? '' : 'justify-center'}`}>
+            {/* Left Side - Organizations (Grid or List) */}
+            <div className={`${selectedOrganization ? 'flex-1' : 'w-full'}`}>
+              {preferences.organizationsViewMode === 'grid' ? (
+                /* Grid View */
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredOrganizations.map((org) => (
                     <div 
                       key={org.id} 
-                      className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        selectedOrganization?.id === org.id ? 'bg-primary-50 border-l-4 border-l-primary-500' : ''
+                      className={`bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow cursor-pointer ${
+                        selectedOrganization?.id === org.id ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-200'
                       }`}
-                      onClick={() => handleViewOrganization(org)}
+                      onClick={() => handleOrganizationClick(org)}
+                      onDoubleClick={() => handleOrganizationDoubleClick(org)}
                     >
-                      <div className="flex items-start space-x-4">
-                        {/* Organization Icon */}
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-xl">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center text-xl">
                             {getServiceIcon(org.type)}
                           </div>
-                        </div>
-
-                        {/* Organization Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-2">
+                          <div>
                             <h3 className="text-lg font-semibold text-gray-900">{org.name}</h3>
-                            {org.verified && (
-                              <div className="flex items-center space-x-1">
-                                <CheckCircle className="h-4 w-4 text-green-500" />
-                                <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded-full">
-                                  V Verified
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Rating and Distance */}
-                          <div className="flex items-center space-x-4 mb-2">
-                            <div className="flex items-center space-x-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star 
-                                  key={i} 
-                                  className={`h-4 w-4 ${i < Math.floor(org.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                                />
-                              ))}
-                              <span className="text-sm text-gray-600 ml-1">{org.rating}</span>
-                            </div>
-                            <span className="text-sm text-gray-500">{org.distance}</span>
-                          </div>
-
-                          {/* Services */}
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {org.services.map((service, index) => (
-                              <span 
-                                key={index}
-                                className="px-3 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded-full"
-                              >
-                                {service.charAt(0).toUpperCase() + service.slice(1)}
-                                {service === 'vaccination' && '+'}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Next Availability */}
-                          <div className="text-sm text-gray-600">
-                            Next availability: {org.nextAvailability}
+                            <p className="text-sm text-gray-600 capitalize">{org.type.replace('_', ' ')}</p>
                           </div>
                         </div>
-
-                        {/* Actions */}
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          org.status === 'active' 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : org.status === 'suspended'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {org.status}
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
                         <div className="flex items-center space-x-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewOrganization(org);
-                            }}
-                            className="px-3 py-1 text-sm text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded transition-colors"
-                          >
-                            View
-                          </button>
-                          {org.status === 'active' ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Handle booking
-                              }}
-                              className="px-3 py-1 text-sm bg-primary-600 text-white hover:bg-primary-700 rounded transition-colors"
-                            >
-                              Book
-                            </button>
-                          ) : (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditOrganization(org);
-                              }}
-                              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                            >
-                              More
-                            </button>
-                          )}
+                          <MapPin className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{org.address}</span>
                         </div>
+                        <div className="flex items-center space-x-2">
+                          <Phone className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{org.phone}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Mail className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{org.email}</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                          <span className="text-sm text-gray-600">{org.rating}</span>
+                        </div>
+                        <span className="text-sm text-gray-500">{org.distance}</span>
+                      </div>
+
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMessage(org);
+                          }}
+                          className="flex-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          Message
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOrganizationDoubleClick(org);
+                          }}
+                          className="flex-1 px-3 py-2 text-sm bg-primary-600 text-white hover:bg-primary-700 rounded transition-colors"
+                        >
+                          Edit
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-
-                {/* Pagination */}
-                <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-                  <div className="text-sm text-gray-700">
-                    Showing 1-3 of {organizations.length}
+              ) : (
+                /* List View */
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="p-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">Organizations</h2>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50">
-                      &lt;
-                    </button>
-                    <span className="px-3 py-1 text-sm text-gray-700">1</span>
-                    <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">
-                      &gt;
-                    </button>
+                  
+                  <div className="divide-y divide-gray-200">
+                    {filteredOrganizations.map((org) => (
+                      <div 
+                        key={org.id} 
+                        className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                          selectedOrganization?.id === org.id ? 'bg-primary-50 border-l-4 border-l-primary-500' : ''
+                        }`}
+                        onClick={() => handleOrganizationClick(org)}
+                        onDoubleClick={() => handleOrganizationDoubleClick(org)}
+                      >
+                        <div className="flex items-start space-x-4">
+                          {/* Organization Icon */}
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-xl">
+                              {getServiceIcon(org.type)}
+                            </div>
+                          </div>
+
+                          {/* Organization Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h3 className="text-lg font-semibold text-gray-900">{org.name}</h3>
+                              {org.verified && (
+                                <div className="flex items-center space-x-1">
+                                  <CheckCircle className="h-4 w-4 text-blue-500" />
+                                  <span className="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
+                                    V Verified
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Rating and Distance */}
+                            <div className="flex items-center space-x-4 mb-2">
+                              <div className="flex items-center space-x-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star 
+                                    key={i} 
+                                    className={`h-4 w-4 ${i < Math.floor(org.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                                  />
+                                ))}
+                                <span className="text-sm text-gray-600 ml-1">{org.rating}</span>
+                              </div>
+                              <span className="text-sm text-gray-500">{org.distance}</span>
+                            </div>
+
+                            {/* Services */}
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {org.services.map((service, index) => (
+                                <span 
+                                  key={index}
+                                  className="px-3 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded-full"
+                                >
+                                  {service.charAt(0).toUpperCase() + service.slice(1)}
+                                  {service === 'vaccination' && '+'}
+                                </span>
+                              ))}
+                            </div>
+
+                            {/* Next Availability */}
+                            <div className="text-sm text-gray-600">
+                              Next availability: {org.nextAvailability}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOrganizationClick(org);
+                              }}
+                              className="px-3 py-1 text-sm text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded transition-colors"
+                            >
+                              View
+                            </button>
+                            {org.status === 'active' ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Handle booking
+                                }}
+                                className="px-3 py-1 text-sm bg-primary-600 text-white hover:bg-primary-700 rounded transition-colors"
+                              >
+                                Book
+                              </button>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleApprove(org);
+                                }}
+                                className="px-3 py-1 text-sm bg-yellow-600 text-white hover:bg-yellow-700 rounded transition-colors"
+                              >
+                                Approve
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-                {/* Add Organization Button */}
-                <div className="p-4 border-t border-gray-200 text-center">
-                  <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="px-4 py-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors flex items-center space-x-2 mx-auto"
-                  >
-                    <Plus size={16} />
-                    <span>Add organization</span>
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Right Side - Organization Details */}
-            <div className="w-96 flex-shrink-0">
-              {selectedOrganization ? (
+            {/* Right Side - Organization Details Panel */}
+            {selectedOrganization && (
+              <div className="w-96 flex-shrink-0">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  {/* Organization Header */}
+                  {/* Close Button */}
+                  <div className="flex justify-end mb-4">
+                    <button
+                      onClick={() => setSelectedOrganization(null)}
+                      className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+
                   <div className="flex items-center space-x-3 mb-6">
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-lg">
+                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center text-xl">
                       {getServiceIcon(selectedOrganization.type)}
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">{selectedOrganization.name}</h3>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{selectedOrganization.name}</h3>
+                      <p className="text-sm text-gray-600 capitalize">{selectedOrganization.type.replace('_', ' ')}</p>
+                    </div>
+                  </div>
+
+                  {/* Rating and Status */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-5 w-5 text-yellow-400 fill-current" />
+                      <span className="text-sm text-gray-600">{selectedOrganization.rating}</span>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      selectedOrganization.status === 'active' 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : selectedOrganization.status === 'suspended'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {selectedOrganization.status}
+                    </div>
                   </div>
 
                   {/* Contact Information */}
                   <div className="space-y-4 mb-6">
-                    <div className="flex items-start space-x-3">
-                      <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                      <div className="text-sm text-gray-600">
-                        {selectedOrganization.address}, {selectedOrganization.city}, {selectedOrganization.state}
-                      </div>
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="h-5 w-5 text-gray-400" />
+                      <div className="text-sm text-gray-600">{selectedOrganization.address}</div>
                     </div>
                     
                     <div className="flex items-center space-x-3">
@@ -526,15 +706,8 @@ export default function OrganizationsPage() {
                     <div className="text-gray-500 text-sm">Map View</div>
                   </div>
                 </div>
-              ) : (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <div className="text-center text-gray-500">
-                    <Building2 className="mx-auto h-12 w-12 mb-4" />
-                    <p>Selecciona una organización para ver los detalles</p>
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

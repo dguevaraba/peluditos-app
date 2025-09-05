@@ -689,3 +689,363 @@ export function EditPetSkeleton() {
     </div>
   );
 }
+
+export function OrganizationsSkeleton() {
+  return (
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <SidebarSkeleton />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <HeaderSkeleton />
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {/* Main Content with Panel */}
+          <div className="flex gap-6">
+            {/* Left Side - Organizations Grid */}
+            <div className="flex-1">
+              {/* Title and Stats Section */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="h-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-40 mb-2"></div>
+                  <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-48"></div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-36"></div>
+                </div>
+              </div>
+
+              {/* Search and Filters */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+                  </div>
+                  <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-32"></div>
+                  <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg w-24"></div>
+                </div>
+              </div>
+
+              {/* Organizations Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-12 w-12 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                        <div className="space-y-2">
+                          <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+                          <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-20"></div>
+                        </div>
+                      </div>
+                      <div className="h-6 bg-gradient-to-r from-green-200 to-green-300 rounded-full w-16"></div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="h-4 w-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                        <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-24"></div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="h-4 w-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                        <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="h-4 w-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                        <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-28"></div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="h-4 w-4 bg-gradient-to-r from-yellow-200 to-yellow-300 rounded"></div>
+                        <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-12"></div>
+                      </div>
+                      <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-16"></div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <div className="flex-1 h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                      <div className="flex-1 h-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded"></div>
+                      <div className="flex-1 h-8 bg-gradient-to-r from-green-200 to-green-300 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Side - Preview Panel */}
+            <div className="w-96 flex-shrink-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                {/* Close Button */}
+                <div className="flex justify-end mb-4">
+                  <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                </div>
+
+                {/* Organization Header */}
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                  <div>
+                    <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-32 mb-2"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-20"></div>
+                  </div>
+                </div>
+
+                {/* Rating and Status */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-5 w-5 bg-gradient-to-r from-yellow-200 to-yellow-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-8"></div>
+                  </div>
+                  <div className="h-6 bg-gradient-to-r from-green-200 to-green-300 rounded-full w-16"></div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-40"></div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-36"></div>
+                  </div>
+                </div>
+
+                {/* Operating Hours */}
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                  <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-48"></div>
+                </div>
+
+                {/* Status and Staff */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full"></div>
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-16"></div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-12"></div>
+                  </div>
+                </div>
+
+                {/* Enable Vendor Toggle */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-24"></div>
+                  <div className="h-6 w-12 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full"></div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3 mb-6">
+                  <div className="flex-1 h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg"></div>
+                  <div className="flex-1 h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                </div>
+
+                {/* Map Placeholder */}
+                <div className="bg-gray-100 rounded-lg h-32 flex items-center justify-center">
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-20"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function OrganizationsListSkeleton() {
+  return (
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <SidebarSkeleton />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <HeaderSkeleton />
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {/* Main Content with Panel */}
+          <div className="flex gap-6">
+            {/* Left Side - Organizations List */}
+            <div className="flex-1">
+              {/* Title and Stats Section */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="h-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-40 mb-2"></div>
+                  <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-48"></div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-36"></div>
+                </div>
+              </div>
+
+              {/* Search and Filters */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg"></div>
+                  </div>
+                  <div className="h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg w-32"></div>
+                  <div className="h-10 bg-gradient-to-r from-green-200 to-green-300 rounded-lg w-24"></div>
+                </div>
+              </div>
+
+              {/* Organizations List */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                {/* List Header */}
+                <div className="p-4 border-b border-gray-200">
+                  <div className="h-6 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-32"></div>
+                </div>
+                
+                {/* List Items */}
+                <div className="divide-y divide-gray-200">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="p-4">
+                      <div className="flex items-start space-x-4">
+                        {/* Organization Icon */}
+                        <div className="flex-shrink-0">
+                          <div className="w-12 h-12 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full"></div>
+                        </div>
+
+                        {/* Organization Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+                            <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full w-16"></div>
+                          </div>
+
+                          {/* Rating and Distance */}
+                          <div className="flex items-center space-x-4 mb-2">
+                            <div className="flex items-center space-x-1">
+                              {[...Array(5)].map((_, j) => (
+                                <div key={j} className="h-4 w-4 bg-gradient-to-r from-yellow-200 to-yellow-300 rounded"></div>
+                              ))}
+                              <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-8 ml-1"></div>
+                            </div>
+                            <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-16"></div>
+                          </div>
+
+                          {/* Services */}
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {[...Array(3)].map((_, j) => (
+                              <div key={j} className="h-6 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full w-20"></div>
+                            ))}
+                          </div>
+
+                          {/* Next Availability */}
+                          <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-48"></div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center space-x-2">
+                          <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-16"></div>
+                          <div className="h-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-16"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Preview Panel */}
+            <div className="w-96 flex-shrink-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                {/* Close Button */}
+                <div className="flex justify-end mb-4">
+                  <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                </div>
+
+                {/* Organization Header */}
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                  <div>
+                    <div className="h-5 bg-gradient-to-r from-green-200 to-green-300 rounded w-32 mb-2"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-20"></div>
+                  </div>
+                </div>
+
+                {/* Rating and Status */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-5 w-5 bg-gradient-to-r from-yellow-200 to-yellow-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-8"></div>
+                  </div>
+                  <div className="h-6 bg-gradient-to-r from-green-200 to-green-300 rounded-full w-16"></div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-40"></div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-32"></div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-36"></div>
+                  </div>
+                </div>
+
+                {/* Operating Hours */}
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                  <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-48"></div>
+                </div>
+
+                {/* Status and Staff */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full"></div>
+                    <div className="h-4 bg-gradient-to-r from-green-200 to-green-300 rounded w-16"></div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="h-5 w-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded"></div>
+                    <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-12"></div>
+                  </div>
+                </div>
+
+                {/* Enable Vendor Toggle */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-24"></div>
+                  <div className="h-6 w-12 bg-gradient-to-r from-purple-200 to-purple-300 rounded-full"></div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3 mb-6">
+                  <div className="flex-1 h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg"></div>
+                  <div className="flex-1 h-10 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg"></div>
+                </div>
+
+                {/* Map Placeholder */}
+                <div className="bg-gray-100 rounded-lg h-32 flex items-center justify-center">
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-20"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

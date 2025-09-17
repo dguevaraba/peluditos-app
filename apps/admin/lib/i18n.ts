@@ -37,7 +37,7 @@ export const menuItems: MenuItem[] = [
     id: 'clients', 
     path: '/clients', 
     label: { es: 'Clientes', en: 'Clients' }, 
-    icon: 'Users' 
+    icon: 'Heart' 
   },
   { 
     id: 'users', 

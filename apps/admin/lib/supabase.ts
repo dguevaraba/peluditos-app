@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://goycdfmmrtqnfkhmiotn.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveWNkZm1tcnRxbmZraG1pb3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDUwMjgsImV4cCI6MjA3MTYyMTAyOH0.IcWzqWy1MviVP0BvWlYTPxf5HqaNDXCUFfGtcYnlF6g';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing required Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -12,10 +16,20 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Create Supabase admin client (for privileged operations)
-export const supabaseAdmin = createClient(
-  supabaseUrl, 
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveWNkZm1tcnRxbmZraG1pb3RuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjA0NTAyOCwiZXhwIjoyMDcxNjIxMDI4fQ.eJR7g1N5UantbvnKmbb7XGNAVaoQL0UhNMqqQODIT34'
-);
+// Only available on server-side
+export const getSupabaseAdmin = () => {
+  if (typeof window !== 'undefined') {
+    throw new Error('Supabase admin client can only be used on the server side');
+  }
+  
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseServiceKey) {
+    throw new Error('Missing required SUPABASE_SERVICE_ROLE_KEY environment variable');
+  }
+  
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
 
 // Test function to verify admin client
 
@@ -83,6 +97,7 @@ export const createAuthUser = async (email: string, password: string) => {
 };
 
 export const listAuthUsers = async () => {
+  const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin.auth.admin.listUsers();
   
   if (error) throw error;

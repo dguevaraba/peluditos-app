@@ -2,14 +2,7 @@ import React from 'react'
 
 export default function UserFormSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-      {/* Form Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="h-6 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-40 animate-pulse"></div>
-      </div>
-
-      {/* Form Content */}
-      <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
         {/* Info Note */}
         <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
           <div className="h-4 bg-gradient-to-r from-purple-200 to-purple-300 rounded w-full animate-pulse"></div>
@@ -63,7 +56,6 @@ export default function UserFormSkeleton() {
           <div className="h-10 w-24 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg animate-pulse"></div>
           <div className="h-10 w-32 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg animate-pulse"></div>
         </div>
-      </div>
     </div>
   )
 }

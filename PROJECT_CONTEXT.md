@@ -65,5 +65,38 @@
 1. **Organizations View Mode**: grid | list
 2. **Futuras funcionalidades**: Filtros, ordenamiento, preferencias de UI
 
+## Sistema de Clientes
+
+### Diferenciación entre Usuarios y Clientes
+- **Usuarios**: Usuarios generales de la app móvil, pueden o no tener organización
+- **Clientes**: Usuarios específicos de organizaciones, requieren vínculo directo a una organización
+- **Relación**: Los clientes están vinculados directamente a organizaciones específicas
+
+### Estructura de Clientes
+- **Tabla**: `clients` con relación obligatoria a `organizations`
+- **Campos específicos**: `client_type` (pet_owner, breeder, rescue, foster, other), `status` (active, inactive, suspended, pending)
+- **RLS**: Solo admins de la organización pueden gestionar clientes de su organización
+- **Filtros**: Por organización, tipo de cliente, estado, ordenamiento
+
+### Patrón de Clientes
+- ✅ **Vista Lista**: Tabla con filtros por organización, tipo, estado
+- ✅ **Panel Preview**: Información detallada del cliente con acciones (Message, Edit, Delete)
+- ✅ **CRUD Completo**: Crear, editar, eliminar clientes
+- ✅ **Validación**: Organización y nombre completo requeridos
+- ✅ **Navegación**: Doble click para editar, botón "Add Client" para crear
+- ✅ **Skeleton**: ClientsSkeleton con panel visible
+- ✅ **Sidebar**: Enlace "Clientes" con ícono Heart para diferenciarlo de "Usuarios"
+
+### Página de Crear Cliente
+- ✅ **Estructura**: Header fijo con botón de regreso, formulario con skeleton
+- ✅ **Skeleton**: UserFormSkeleton solo anima el formulario, header y sidebar fijos
+- ✅ **Formulario**: Campos organizados en secciones (Básico, Dirección, Adicional)
+- ✅ **Validaciones**: Organización y nombre completo requeridos
+- ✅ **Componentes**: CountrySelect para países, selects para tipo y estado
+- ✅ **Nota informativa**: Explicación sobre la creación de clientes
+- ✅ **Navegación**: Botón "Add Client" navega a pantalla de creación
+- ✅ **Feedback**: Toast notifications para éxito/error
+- ✅ **Redirección**: Automática a lista de clientes después de crear exitosamente
+
 ---
 *Este patrón debe aplicarse a todas las vistas con funcionalidad de edición*

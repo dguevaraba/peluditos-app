@@ -181,16 +181,15 @@ export default function CreateOrganizationPage() {
               </div>
             )}
 
-            {/* Show skeleton while loading countries */}
-            {countriesLoading || showSkeleton ? (
-              <UserFormSkeleton />
-            ) : (
-              /* Form */
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Organization Information</h2>
-                </div>
+            {/* Form */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Organization Information</h2>
+              </div>
 
+              {countriesLoading || showSkeleton ? (
+                <UserFormSkeleton />
+              ) : (
                 <form onSubmit={async (e) => {
                   e.preventDefault();
                   await createOrganization(formData);
@@ -386,8 +385,8 @@ export default function CreateOrganizationPage() {
                     </button>
                   </div>
                 </form>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -294,10 +294,7 @@ export default function EditOrganizationPage() {
         {/* Content */}
         <div className="flex-1 overflow-auto p-6">
           <div className="max-w-4xl mx-auto">
-            {/* Show skeleton while loading */}
-            {loading || showSkeleton || countriesLoading ? (
-              <UserFormSkeleton />
-            ) : !formData.id ? (
+            {!formData.id && !loading ? (
               <div className="text-center py-8">
                 <p className="text-gray-600">Loading organization information...</p>
               </div>
@@ -325,7 +322,10 @@ export default function EditOrganizationPage() {
                     <h2 className="text-lg font-semibold text-gray-900">Organization Information</h2>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                  {loading || showSkeleton || countriesLoading ? (
+                    <UserFormSkeleton />
+                  ) : (
+                    <form onSubmit={handleSubmit} className="p-6 space-y-6">
 
                     {/* Info Note */}
                     <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
@@ -580,7 +580,8 @@ export default function EditOrganizationPage() {
                         {saving ? 'Saving...' : 'Save Changes'}
                       </button>
                     </div>
-                  </form>
+                    </form>
+                  )}
                 </div>
               </>
             )}

@@ -60,7 +60,8 @@ export default function Sidebar({
     BarChart3,
     Settings,
     ShoppingCart,
-    Truck
+    Truck,
+    Heart
   }
 
   const handleItemClick = (itemId: string) => {
